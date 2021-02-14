@@ -1,3 +1,5 @@
+#-- coding: utf-8 --
+# 爬取网页
 from bs4 import BeautifulSoup
 import requests
 
