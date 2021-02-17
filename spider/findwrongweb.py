@@ -9,7 +9,7 @@ sys.path.append(os.path.realpath('./MLcode'))
 import mytool
 
 print(sys.path)
-filepath = ''
+filepath = '/home/jiangy2/webdata'
 # fs = os.listdir(filepath)   #读取url目录
 
 
@@ -31,7 +31,7 @@ count_words_dic = {}
 
 # 读取停用词
 stopwordslist = []
-stopwordslist_path = ''
+stopwordslist_path = '/home/jiangy2/dnswork/stopwords/cn_stopwords.txt'
 stopwordslist =mytool.read_stopwords(stopwordslist_path)
 
 # 读取文件
