@@ -11,7 +11,7 @@ import mytool
 filepath = '/home/jiangy2/webdata'
 # fs = os.listdir(filepath)   #读取url目录
 
-wrongwordslist = ['福利', '澳门', '奥门', '投注', '色情']
+wrongwordslist = ['福利', '葡京', '奥门', '投注', '色情']
 #读取文件夹
 dirlist = []
 for root, dirs, files in os.walk(filepath):
@@ -46,6 +46,8 @@ for dirpath in dirlist:
         #统计词出现次数
         for word in tmp_words:
             if word in wrongwordslist:
+                print(data)
+                quit()
                 firststep_list.append(f)
                 break
             # if word in count_words_dic:
