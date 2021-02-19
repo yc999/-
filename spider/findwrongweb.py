@@ -46,8 +46,6 @@ for dirpath in dirlist:
         #统计词出现次数
         for word in tmp_words:
             if word in wrongwordslist:
-                print(data)
-                quit()
                 firststep_list.append(f)
                 break
             # if word in count_words_dic:
