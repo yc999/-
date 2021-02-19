@@ -3,17 +3,15 @@
 import sys
 # print(sys.path)
 import os
-print('\n')
 # print(os.path.realpath('./MLcode/'))
 sys.path.append(os.path.realpath('./MLcode'))
 sys.path.append(os.path.realpath('../MLcode'))
 import mytool
 
-print(sys.path)
 filepath = '/home/jiangy2/webdata'
 # fs = os.listdir(filepath)   #读取url目录
 
-wrongwordslist = ['福利', '视频', '澳门', '奥门', '投注', '色情']
+wrongwordslist = ['福利', '澳门', '奥门', '投注', '色情']
 #读取文件夹
 dirlist = []
 for root, dirs, files in os.walk(filepath):
@@ -55,6 +53,11 @@ for dirpath in dirlist:
             # else:
             #     count_words_dic[word] = 0
 print(firststep_list)
+filename = './firststep_list.txt'
+f = open(filename,'w', encoding='utf-8')
+for url in firststep_list:
+        f.write(url.replace(".txt","") + '\n')
+f.close()
 # print(count_words_dic)
 # savefilepath = "./firststep.txt"
 # f = open(savefilepath, "w", encoding="utf-8")
