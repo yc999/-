@@ -36,8 +36,9 @@ stopwordslist =mytool.read_stopwords(stopwordslist_path)
 # 读取文件
 firststep_list = []
 for dirpath in dirlist:
-    print(dirpath)
+    # print(root)
     for f in files:
+        print(os.path.join(root, f))
         data = mytool.read_webdata(os.path.join(root, f))
         # print(os.path.join(root, f))
         # 网页数据存入一个list
