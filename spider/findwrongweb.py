@@ -11,7 +11,7 @@ import mytool
 filepath = '/home/jiangy2/webdata'
 # fs = os.listdir(filepath)   #读取url目录
 
-wrongwordslist = ['福利', '葡京', '奥门', '投注', '色情']
+wrongwordslist = [ '葡京', '奥门', '投注', '色情']
 #读取文件夹
 dirlist = []
 for root, dirs, files in os.walk(filepath):
