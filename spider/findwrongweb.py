@@ -40,7 +40,7 @@ for dirpath in dirlist:
     # for f in files:
     for root, dirs, files in os.walk(dirpath):
         for f in files:
-            print(os.path.join(root, f))
+            # print(os.path.join(root, f))
             data = mytool.read_webdata(os.path.join(root, f))
             # print(os.path.join(root, f))
             # 网页数据存入一个list
@@ -51,7 +51,8 @@ for dirpath in dirlist:
             for word in tmp_words:
                 if word in wrongwordslist:
                     print(word)
-                    print(f)
+                    print(os.path.join(root, f))
+
                     firststep_list.append(f)
                     break
             # if word in count_words_dic:
