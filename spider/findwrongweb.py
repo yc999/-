@@ -36,22 +36,24 @@ stopwordslist =mytool.read_stopwords(stopwordslist_path)
 # 读取文件
 firststep_list = []
 for dirpath in dirlist:
-    # print(root)
-    for f in files:
-        print(os.path.join(root, f))
-        data = mytool.read_webdata(os.path.join(root, f))
-        # print(os.path.join(root, f))
-        # 网页数据存入一个list
-        target_data = mytool.get_all_webdata(data)
-        #分词
-        tmp_words = mytool.seg_sentence(target_data, stopwordslist)
-        #统计词出现次数
-        for word in tmp_words:
-            if word in wrongwordslist:
-                print(word)
-                print(f)
-                firststep_list.append(f)
-                break
+    print(dirpath)
+    # for f in files:
+    for root, dirs, files in os.walk(dirpath):
+        for f in files:
+            print(os.path.join(root, f))
+            data = mytool.read_webdata(os.path.join(root, f))
+            # print(os.path.join(root, f))
+            # 网页数据存入一个list
+            target_data = mytool.get_all_webdata(data)
+            #分词
+            tmp_words = mytool.seg_sentence(target_data, stopwordslist)
+            #统计词出现次数
+            for word in tmp_words:
+                if word in wrongwordslist:
+                    print(word)
+                    print(f)
+                    firststep_list.append(f)
+                    break
             # if word in count_words_dic:
             #     count_words_dic[word] = count_words_dic[word]+1
             # else:
