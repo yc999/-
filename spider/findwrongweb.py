@@ -40,7 +40,6 @@ for dirpath in dirlist:
     # for f in files:
     for root, dirs, files in os.walk(dirpath):
         for f in files:
-            # print(os.path.join(root, f))
             data = mytool.read_webdata(os.path.join(root, f))
             # print(os.path.join(root, f))
             # 网页数据存入一个list
@@ -50,9 +49,8 @@ for dirpath in dirlist:
             #统计词出现次数
             for word in tmp_words:
                 if word in wrongwordslist:
-                    print(word)
-                    print(os.path.join(root, f))
-
+                    # print(word)
+                    # print(os.path.join(root, f))
                     firststep_list.append(f)
                     break
             # if word in count_words_dic:
@@ -60,7 +58,7 @@ for dirpath in dirlist:
             # else:
             #     count_words_dic[word] = 0
 print(firststep_list)
-filename = './firststep_list.txt'
+filename = '../../firststep_list.txt'
 f = open(filename,'w', encoding='utf-8')
 for url in firststep_list:
         f.write(url.replace(".txt","") + '\n')

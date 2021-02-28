@@ -32,7 +32,9 @@ def get_all_webdata(webdata):
 
 
 import jieba
-# 分割句子变成词语 bool_cut_all 是否全模式
+# 分割句子变成词语 
+# stopwordslist 停用词表
+# bool_cut_all 分词模式是否为全模式
 def seg_sentence(sentence , stopwordslist = [] , bool_cut_all=False):
     rule = re.compile(u"[^\u4E00-\u9FA5]")
     sentence = rule.sub('',sentence)
