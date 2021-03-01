@@ -1,7 +1,15 @@
 #-- coding: utf-8 --
+# 把疑似的网页内容通过LDA模型聚类
+
 import numpy as np
 import pandas as pd
 import re
+import os
+import sys
+
+sys.path.append(os.path.realpath('./MLcode'))
+sys.path.append(os.path.realpath('../MLcode'))
+import mytool
 from gensim import corpora,models,similarities
 import sys
 import io
@@ -21,7 +29,6 @@ classtype = {'购物':'购物网站','游戏':'休闲娱乐','旅游':'生活服
 '财经':'生活服务','汽车':'生活服务','房产':'生活服务','摄影':'休闲娱乐','设计':'网络科技','营销':'行业企业',
 '电商':'购物网站','外贸':'行业企业','服务':'行业企业','商界':'行业企业','生活':'生活服务'}
 
-stopwordslist = []  # 停用词列表
 
 
 jieba.setLogLevel(logging.INFO)
@@ -39,36 +46,66 @@ def initstep():
     initclass(filepath)
 
 
-#读取停用词
-def read_stopwords(filepath):
-    stopwords = [line.strip() for line in open(filepath, 'r', encoding='utf-8').readlines()]
-    return stopwords
 
-#读取保存的网页信息
-def read_webdata(filepath):
-    with open(filepath, 'r', encoding='utf-8') as file_to_read:
-        return json.loads(file_to_read.read())
-        # print(webdata)
 
-# 分割句子变成词语 bool_cut_all 是否全模式
-def seg_sentence(sentence , bool_cut_all=False):
-    rule = re.compile(u"[^\u4E00-\u9FA5]")
-    sentence = rule.sub('',sentence)
-    sentence_seged = jieba.lcut(sentence.strip(),cut_all=bool_cut_all)
-    print(sentence_seged)
-    outstr = ''
-    for word in sentence_seged:
-        # word = word.lower()
-        if word not in stopwordslist:
-            if word != '\t':
-                 outstr += word
-                 outstr += " "
-    return outstr
+# 读取停用词
+stopwordslist = []
+stopwordslist_path = '/home/jiangy2/dnswork/stopwords/cn_stopwords.txt'
+stopwordslist =mytool.read_stopwords(stopwordslist_path)
 
-stopwordslist = read_stopwords("C:/Users/shinelon/Desktop/linuxfirefox/stopwords-master/stopwords-master/cn_stopwords.txt")
+
+# 读取数据
+## 读取疑似的网页名 存入 filenamelist
+webfilename = '../../firststep_list.txt'
+filenamelist = []
+with open(webfilename, 'r', encoding='utf-8') as file_to_read:
+    # with open('test1.txt', 'r') as f1:
+    filenamelist = file_to_read.readlines()
+for i in range(0, len(filenamelist)):
+    filenamelist[i] = filenamelist[i].rstrip('\n')
+
+
+# for url in firststep_list:
+#         f.write(url.replace(".txt","") + '\n')
+# f.close()
+
+filepath = '/home/jiangy2/webdata'
+## 读取文件夹 存入 dirlist
+dirlist = []
+for root, dirs, files in os.walk(filepath):
+         # root 表示当前正在访问的文件夹路径
+         # dirs 表示该文件夹下的子目录名list
+         # files 表示该文件夹下的文件list
+        # 遍历文件
+        #  for f in files:
+        #      print(os.path.join(root, f))
+        # 遍历路径下所有的文件夹
+        for d in dirs:
+            dirlist.append(os.path.join(root, d))
+            # print(os.path.join(root, d))
+
+## 读取疑似的网页数据
+webdata_list = []
+for dirpath in dirlist:
+    print(dirpath)
+    for root, dirs, files in os.walk(dirpath):
+        for f in files:
+            if f.replace(".txt","") in filenamelist: ###
+                data = mytool.read_webdata(os.path.join(root, f))
+                # print(os.path.join(root, f))
+                # 网页数据存入一个list
+                target_data = mytool.get_all_webdata(data)
+                #分词
+                tmp_words = mytool.seg_sentence(target_data, stopwordslist)
+                webdata_list.append(tmp_words)
+
+print(webdata_list[0])
+
+
+#构建词频矩阵，训练LDA模型
 webdata = read_webdata("E:/webdata/旅游网站/sh.tuniu.com.txt")
 print(webdata['title'])
-titlewordslist = seg_sentence(webdata['title']) #需要词嵌入时用False 传统机器学习用True
+titlewordslist = mytool.seg_sentence(webdata['title']) #需要词嵌入时用False 传统机器学习用True
 print(titlewordslist)
 titlewordslist = seg_sentence("第224期",True) #需要词嵌入时用False 传统机器学习用True
 print(titlewordslist)

@@ -135,10 +135,10 @@ for subpath in fs:
     filepath = os.path.join(path, subpath)
     # print(filepath)
     if (os.path.isdir(filepath)):
-        webdata_classtype = classtype[subpath]  # 查询父类
-        webdata_class_index = class_index[webdata_classtype] #父类下标
+        webdata_classtype = classtype[subpath]  # 查询父类别
+        webdata_class_index = class_index[webdata_classtype] #父类别下标
         webdata_path = os.listdir(filepath)
-        for filename in webdata_path :
+        for filename in webdata_path:
             i=i+1
             webdata = read_webdata(os.path.join(filepath, filename))
             if webdata['title'] != "" and webdata['description'] != "" and webdata['keywords'] != "":

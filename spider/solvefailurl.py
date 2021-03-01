@@ -1,3 +1,4 @@
+#-- coding: utf-8 --
 #将爬取失败的网站重新爬取
 import  requests
 from bs4 import  BeautifulSoup, Comment
@@ -325,7 +326,7 @@ for filename in fs:
                     for badtitle in badtitles:
                         if badtitle in resultdata['title']:
                             raise Exception
-                    writedata(savefilepath,resultdata)
+                    writedata(savefilepath, resultdata)
                     # good_result1.append(url)
                 except Exception as e:
                     print (e)
