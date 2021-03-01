@@ -32,19 +32,6 @@ classtype = {'购物':'购物网站','游戏':'休闲娱乐','旅游':'生活服
 
 
 jieba.setLogLevel(logging.INFO)
-def initclass(filepath):
-    with open(filepath, 'r', encoding='utf-8') as file_to_read:
-        while True:
-            line = file_to_read.readline()
-            parts = line.split(",")
-            if  not line:
-                break
-            classtype[parts[0]]=parts[2].strip('\n')
-
-def initstep():
-    filepath = "D:/dnswork/sharevm/top.chinaz.txt"
-    initclass(filepath)
-
 
 
 
@@ -64,10 +51,7 @@ with open(webfilename, 'r', encoding='utf-8') as file_to_read:
 for i in range(0, len(filenamelist)):
     filenamelist[i] = filenamelist[i].rstrip('\n')
 
-
-# for url in firststep_list:
-#         f.write(url.replace(".txt","") + '\n')
-# f.close()
+print("疑似网页共：" + len(filenamelist))
 
 filepath = '/home/jiangy2/webdata'
 ## 读取文件夹 存入 dirlist
@@ -100,6 +84,7 @@ for dirpath in dirlist:
                 webdata_list.append(tmp_words)
 
 print(webdata_list[0])
+print("读取疑似网页内容共：" + len(webdata_list))
 
 
 #构建词频矩阵，训练LDA模型
