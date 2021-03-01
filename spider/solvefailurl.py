@@ -181,8 +181,8 @@ def requesturl(url, savefilepath):
                             get_info()
                             break
     
-    # 信息太少 可能有frame 寻找一次frame
-    if len(webtext)<15:
+    #  可能有frame 寻找全部frame
+    while True:
         try:
             i = 0
             while  len(webtext)<15:
@@ -190,10 +190,10 @@ def requesturl(url, savefilepath):
                 i=i+1
                 soup = BeautifulSoup(browser.page_source, 'html.parser')
                 get_info()
-                print(webinfo)
+                # print(webinfo)
                 browser.switch_to.default_content()
         except :
-            pass
+            break
 
 
     #寻找是否存在介绍该网站的链接 如 关于我们 公司简介 等
