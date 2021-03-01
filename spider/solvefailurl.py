@@ -4,7 +4,7 @@ import  requests
 from bs4 import  BeautifulSoup, Comment
 import re
 import time
-import eventlet
+# import eventlet
 import os
 import json
 from selenium.webdriver.firefox.options import Options
@@ -23,16 +23,20 @@ badtitles=['404', '找不到',  'null', 'Not Found','阻断页','Bad Request','T
 '详细错误','页面载入出错','Error','错误','Connection timed out','域名停靠','网站访问报错','错误提示','临时域名',
 '未被授权查看','Test Page','发生错误','非法阻断','链接超时','403 Frobidden','建设中','访问出错']
 
+time_limit = 40  #set timeout time 3s
+
+
 # 保存从chinaz所有网站的内容
-savepath = "E:/webdata/"
-logpath = "E:/webdata/relog.txt"
+# savepath = "E:/webdata/"
+# logpath = "E:/webdata/relog.txt"
+savepath = "../../newwebdata/"
+logpath = "../../newwebdata/relog.txt"
+if not os.path.isdir(savepath):
+    os.mkdir(savepath)
+
 logfile = open(logpath,'a+')
 def makelog(logmessage):
     logfile.write(logmessage + '\n')
-
-eventlet.monkey_patch(time=True)
-time_limit = 40  #set timeout time 3s
-# @timeout_decorator.timeout(30)
 
 # option = webdriver.ChromeOptions()
 
@@ -69,52 +73,52 @@ def requesturl(url, savefilepath):
     def get_headtext():
         # soup = BeautifulSoup(r.text, 'html.parser')
         # soup = BeautifulSoup(browser.page_source, 'lxml')
-        [s.extract() for s in soup('script')]
-        [s.extract() for s in soup('style')]
-        for element in soup(text = lambda text: isinstance(text, Comment)):
-            element.extract()
-        head = soup.head
-        if webinfo['title'] == "" or webinfo['title'] == None:
+            [s.extract() for s in soup('script')]
+            [s.extract() for s in soup('style')]
+            for element in soup(text = lambda text: isinstance(text, Comment)):
+                element.extract()
+            head = soup.head
+        # if webinfo['title'] == "" or webinfo['title'] == None:
             try:
-                webinfo['title'] = head.title.string.strip()
+                webinfo['title'] += head.title.string.strip()
             except:
-                webinfo['title'] = ""
+                # webinfo['title'] = ""
                 pass
-        if webinfo['description'] == "":
+        # if webinfo['description'] == "":
             try:
-                webinfo['description'] = head.find('meta',attrs={'name':'description'})['content']
+                webinfo['description'] += head.find('meta',attrs={'name':'description'})['content']
             except:
-                webinfo['description'] = ""
+                # webinfo['description'] = ""
                 pass
-        if webinfo['description'] == "":
+        # if webinfo['description'] == "":
             try:
-                webinfo['description'] = head.find('meta',attrs={'name':'Description'})['content']
+                webinfo['description'] += head.find('meta',attrs={'name':'Description'})['content']
             except:
-                webinfo['description'] = ""
+                # webinfo['description'] = ""
                 pass
-        if webinfo['description'] == "":
+        # if webinfo['description'] == "":
             try:
-                webinfo['description'] = head.find('meta',attrs={'name':'DESCRIPTION'})['content']
+                webinfo['description'] += head.find('meta',attrs={'name':'DESCRIPTION'})['content']
             except:
-                webinfo['description'] = ""
+                # webinfo['description'] = ""
                 pass
-        if webinfo['keywords'] == "":
+        # if webinfo['keywords'] == "":
             try:
-                webinfo['keywords'] = head.find('meta',attrs={'name':'keywords'})['content']
+                webinfo['keywords'] += head.find('meta',attrs={'name':'keywords'})['content']
             except:
-                webinfo['keywords'] = ""
+                # webinfo['keywords'] = ""
                 pass
-        if webinfo['keywords'] == "":
+        # if webinfo['keywords'] == "":
             try:
-                webinfo['keywords'] = head.find('meta',attrs={'name':'Keywords'})['content']
+                webinfo['keywords'] += head.find('meta',attrs={'name':'Keywords'})['content']
             except:
-                webinfo['keywords'] = ""
+                # webinfo['keywords'] = ""
                 pass
-        if webinfo['keywords'] == "":
+        # if webinfo['keywords'] == "":
             try:
-                webinfo['keywords'] = head.find('meta',attrs={'name':'KEYWORDS'})['content']
+                webinfo['keywords'] += head.find('meta',attrs={'name':'KEYWORDS'})['content']
             except:
-                webinfo['keywords'] = ""
+                # webinfo['keywords'] = ""
                 pass
     def get_bodytext():
         for textstring in soup.stripped_strings:
@@ -129,7 +133,7 @@ def requesturl(url, savefilepath):
     get_info()
     #信息太少可能有跳转等待 重新获取
     if len(webtext)<15:
-        time.sleep(69)
+        time.sleep(65)
         webtext = []
         soup = BeautifulSoup(browser.page_source, 'html.parser')
         get_info()
@@ -282,7 +286,9 @@ good_result1=[]
 bad_result = []
 else_result=[]
 
-readpath = "D:/dnswork/sharevm/topchinaz/"
+# 读取网页url
+readpath = "../../topchinaz/"
+# readpath = "D:/dnswork/sharevm/topchinaz/"
 # readpath = "E:/webdata/"
 fs = os.listdir(readpath)   #读取url目录
 for filename in fs:
@@ -332,28 +338,4 @@ for filename in fs:
                     print (e)
                     # print("fail ", url)
                     makelog("fail "+ url)
-                    # bad_result.append(url)
 browser.quit()
-
-# path = "E:/webdata/"
-# websit = "regood_result1"
-# filename = path + websit + ".txt"
-# f = open(filename,'w')
-# for item in good_result1:
-#         f.write(item + '\n')
-# f.close()
-
-# websit = "rebad_result1"
-# filename = path + websit + ".txt"
-# f = open(filename,'w')
-# for item in bad_result:
-#         f.write(item + '\n')
-# f.close()
-
-
-# websit = "reelse_result"
-# filename = path + websit + ".txt"
-# f = open(filename,'w')
-# for item in else_result:
-#         f.write(item + '\n')
-# f.close()
