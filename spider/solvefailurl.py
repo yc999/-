@@ -315,36 +315,39 @@ for filename in fs:
 
     for url in urlList:
         time.sleep(1)
-        url = "".join(url.split())
-        url = url.split(",")[1]
-        savefilepath = dirpath +"/" + url + ".txt"
-        if url + ".txt" not in savedfileslist and "www." + url + ".txt" not in savedfileslist:
-            try:
-                httpsurl =  'http://' + url
-                resultdata = requesturl(httpsurl, savefilepath)
-                 #网页是否无法访问
-                for badtitle in badtitles:
-                    if badtitle in resultdata['title']:
-                        print('title error')
-                        raise Exception
-                writedata(savefilepath,resultdata)
-            except:
+        try:
+            url = "".join(url.split())
+            url = url.split(",")[1]
+            savefilepath = dirpath +"/" + url + ".txt"
+            if url + ".txt" not in savedfileslist and "www." + url + ".txt" not in savedfileslist:
                 try:
-                    if url.split(".")[0]!="www":
-                        httpsurl = 'http://www.' + url
-                        savefilepath = dirpath +"/www." + url + ".txt"
-                    else:
-                        httpsurl = 'http://' + url.replace('www.','',1)
-                        savefilepath = dirpath +"/" + url.replace('www.','',1) + ".txt"
+                    httpsurl =  'http://' + url
                     resultdata = requesturl(httpsurl, savefilepath)
                     #网页是否无法访问
                     for badtitle in badtitles:
                         if badtitle in resultdata['title']:
+                            print('title error')
                             raise Exception
-                    writedata(savefilepath, resultdata)
-                    # good_result1.append(url)
-                except Exception as e:
-                    print (e)
-                    # print("fail ", url)
-                    makelog("fail "+ url)
+                    writedata(savefilepath,resultdata)
+                except:
+                    try:
+                        if url.split(".")[0]!="www":
+                            httpsurl = 'http://www.' + url
+                            savefilepath = dirpath +"/www." + url + ".txt"
+                        else:
+                            httpsurl = 'http://' + url.replace('www.','',1)
+                            savefilepath = dirpath +"/" + url.replace('www.','',1) + ".txt"
+                        resultdata = requesturl(httpsurl, savefilepath)
+                        #网页是否无法访问
+                        for badtitle in badtitles:
+                            if badtitle in resultdata['title']:
+                                raise Exception
+                        writedata(savefilepath, resultdata)
+                        # good_result1.append(url)
+                    except Exception as e:
+                        print (e)
+                        # print("fail ", url)
+                        makelog("fail "+ url)
+        except:
+            pass
 browser.quit()
