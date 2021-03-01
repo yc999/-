@@ -57,9 +57,12 @@ def requesturl(url, savefilepath):
     webtext = []    #首页内容文本
     abouttext = []  #关于页面内容文本
     aboutlist = []  # 关于页面的连接
-    webinfo['title'] = ""
-    webinfo['description'] = ""
-    webinfo['keywords'] = ""
+    def initwebinfo():
+        webinfo['title'] = ""
+        webinfo['description'] = ""
+        webinfo['keywords'] = ""
+        webinfo['webtext'] = []
+    
     try:
         browser.get(url)
         WebDriverWait(browser, time_limit, 1).until_not(EC.title_is(""))
@@ -68,7 +71,9 @@ def requesturl(url, savefilepath):
     # r.encoding = r.apparent_encoding
 
     time.sleep(5)
+    initwebinfo()
     soup = BeautifulSoup(browser.page_source, 'html.parser')
+
     # 获取网页head中元素 title keywords description 存入webinfo中
     def get_headtext():
         # soup = BeautifulSoup(r.text, 'html.parser')
@@ -123,18 +128,21 @@ def requesturl(url, savefilepath):
     def get_bodytext():
         for textstring in soup.stripped_strings:
             if len(repr(textstring))>4:
-                webtext.append(repr(textstring))
-        webinfo['webtext'] = webtext
+                webinfo['webtext'].append(repr(textstring))
+        # webinfo['webtext'] += webtext
     def get_info():
         get_headtext()
         [s.extract() for s in soup('head')]
         get_bodytext()
+
+# 第一阶段
     #开始获取信息
+
     get_info()
     #信息太少可能有跳转等待 重新获取
-    if len(webtext)<15:
+    if len(webinfo['webtext'])<15:
         time.sleep(65)
-        webtext = []
+        initwebinfo()
         soup = BeautifulSoup(browser.page_source, 'html.parser')
         get_info()
 
@@ -142,7 +150,7 @@ def requesturl(url, savefilepath):
     skip_text = ['点击','跳转','进入']
     href_text = ['index', 'main','default','info']
     #数据太少  找到所有的a标签 选择合适的访问
-    if len(webtext)<15:
+    if len(webinfo['webtext'])<15:
         soup = BeautifulSoup(browser.page_source, 'html.parser')
         atag = soup.find_all('a')
         js1 = """var ipt = document.getElementsByTagName("a");
@@ -163,7 +171,7 @@ def requesturl(url, savefilepath):
                     }
                 }"""
         for tag in atag:
-            if len(webtext)<15:
+            if len(webinfo['webtext'])<15:
                 if tag.get_text():
                     for keyword in skip_text:   #访问可能的跳转页面
                         if keyword in tag.get_text():
@@ -185,7 +193,8 @@ def requesturl(url, savefilepath):
     while True:
         try:
             i = 0
-            while  len(webtext)<15:
+            while  True:
+            # while  len(webinfo['webtext'])<15:
                 browser.switch_to.frame(i)
                 i=i+1
                 soup = BeautifulSoup(browser.page_source, 'html.parser')
@@ -195,7 +204,7 @@ def requesturl(url, savefilepath):
         except :
             break
 
-
+# 第二阶段
     #寻找是否存在介绍该网站的链接 如 关于我们 公司简介 等
     def havekey(tag):
         if  tag.has_attr('href') or  tag.has_attr('data-href'):
