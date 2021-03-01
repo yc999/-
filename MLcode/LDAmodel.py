@@ -51,7 +51,7 @@ with open(webfilename, 'r', encoding='utf-8') as file_to_read:
 for i in range(0, len(filenamelist)):
     filenamelist[i] = filenamelist[i].rstrip('\n')
 
-print("疑似网页共：" + len(filenamelist))
+print("疑似网页共：" , len(filenamelist))
 
 filepath = '/home/jiangy2/webdata'
 ## 读取文件夹 存入 dirlist
@@ -84,7 +84,7 @@ for dirpath in dirlist:
                 webdata_list.append(tmp_words)
 
 print(webdata_list[0])
-print("读取疑似网页内容共：" + len(webdata_list))
+print("读取疑似网页内容共：" , len(webdata_list))
 
 
 #构建词频矩阵，训练LDA模型
