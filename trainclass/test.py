@@ -80,7 +80,8 @@ httpsurl ="https://mbalib.com/"
 #http://www.weili.com.cn/ https://pay.gw.com.cn/pay-mall https://www.gaopaiwood.com/ vipzhuanli.com
 # http://www.solarzoom.com http://www.yuan-hang.com www.360tuan.com https://mbalib.com/ http://www.itmo.com
 # http://www.egou.com  http://www.360tuan.com
-
+httpsurl="https://www.huanbaoj.com/"
+httpsurl="https://ww.8220966.com/?id=1"
 
 print(httpsurl)
 # r = s.get(httpsurl,timeout=15,headers=headers)
@@ -386,7 +387,7 @@ if len(aboutlist)>0:
 else:
     webinfo['abouttext'] = []
 
-# print(webinfo)
+print(webinfo)
 # browser.close()
 
 
