@@ -153,17 +153,16 @@ def requesturl(url):
         webinfo['description'] = ""
         webinfo['keywords'] = ""
         webinfo['webtext'] = []
-    
+    stopjs = """
+                window.stop ? window.stop() : document.execCommand("Stop");
+                """
     try:
         browser.get(url)
         WebDriverWait(browser, time_limit, 1).until_not(EC.title_is(""))
     except   TimeoutException:
         print('加载超过5秒，强制停止加载....')
-        stopjs = """
-                window.stop ? window.stop() : document.execCommand("Stop");
-                """
+        
         browser.execute_script(stopjs) #   超时停止js脚步
-        # browser.execute_script('window.stop()')
     except UnexpectedAlertPresentException:
         time.sleep(5)
         element = browser.switch_to.active_element
@@ -175,7 +174,7 @@ def requesturl(url):
     time.sleep(5)
     initwebinfo()
     soup = BeautifulSoup(browser.page_source, 'html.parser')
-    
+
     # 获取网页head中元素 title keywords description 存入webinfo中
     def get_headtext():
         # soup = BeautifulSoup(r.text, 'html.parser')
@@ -185,12 +184,12 @@ def requesturl(url):
             for element in soup(text = lambda text: isinstance(text, Comment)):
                 element.extract()
             head = soup.head
-        # if webinfo['title'] == "" or webinfo['title'] == None:
-            try:
-                webinfo['title'] += head.title.string.strip()
-            except:
-                # webinfo['title'] = ""
-                pass
+            if webinfo['title'] == "" or webinfo['title'] == None:
+                try:
+                    webinfo['title'] += head.title.string.strip()
+                except:
+                    # webinfo['title'] = ""
+                    pass
         # if webinfo['description'] == "":
             try:
                 webinfo['description'] += head.find('meta',attrs={'name':'description'})['content']
@@ -238,9 +237,13 @@ def requesturl(url):
         get_bodytext()
 
 # 第一阶段
-    #开始获取信息
+    print(" step 1")
 
+    #开始获取信息
     get_info()
+    # print(webinfo['title'])
+    print(" step 1 1")
+
     #信息太少可能有跳转等待 重新获取
     if len(webinfo['webtext'])<15:
         time.sleep(65)
@@ -283,14 +286,20 @@ def requesturl(url):
                             get_info()
                             break
                 else:
+                    
                     for keyword in href_text:
-                        if keyword in tag['href']:
-                            browser.execute_script(js2,tag['href'].strip())
-                            time.sleep(10)
-                            soup = BeautifulSoup(browser.page_source, 'html.parser')
-                            get_info()
-                            break
+                        print(tag)
+                        if tag.has_attr('href'):
+                            if keyword in tag['href']:
+                                browser.execute_script(js2,tag['href'].strip())
+                                time.sleep(10)
+                                soup = BeautifulSoup(browser.page_source, 'html.parser')
+                                get_info()
+                                break
     
+
+    print(" step 1 2")
+
     #  可能有frame 寻找全部frame
     while True:
         try:
@@ -306,7 +315,12 @@ def requesturl(url):
         except :
             break
 
+    print(" step 1 3")
+
 # 第二阶段
+    # print(webinfo['title'])
+
+    print(" step 2")
     #寻找是否存在介绍该网站的链接 如 关于我们 公司简介 等
     def havekey(tag):
         if  tag.has_attr('href') or  tag.has_attr('data-href'):
@@ -370,6 +384,8 @@ def requesturl(url):
             style = [s.extract() for s in soup('style')]
             for element in soup(text = lambda text: isinstance(text, Comment)):
                 element.extract()
+            # if webinfo['title'] == "" or webinfo['title'] == None:
+            #     print(">>>")
             get_headtext()
             [s.extract() for s in soup('head')]
             for textstring in soup.stripped_strings:
@@ -379,17 +395,18 @@ def requesturl(url):
             try:
                 browser.back()
             except   TimeoutException:
-                browser.execute_script('window.stop()')
+                browser.execute_script(stopjs)
         webinfo['abouttext'] = abouttext
     else:
         webinfo['abouttext'] = []
+    # print(webinfo['title'])
     return webinfo
 
  #将数据写入文件
 
 
 
-badtitles=['404', '找不到',  'null', 'Not Found','阻断页','Bad Request','Time-out','No configuration',
+badtitles=['404 Not Found', '找不到',  'null', 'Not Found','阻断页','Bad Request','Time-out','No configuration',
 'TestPage','IIS7','Default','已暂停' ,'Server Error','403 Forbidden','禁止访问','载入出错','没有找到',
 '无法显示','无法访问','Bad Gateway','正在维护','配置未生效','访问报错','Welcome to nginx','Suspended Domain',
 'IIS Windows','Invalid URL','服务器错误','400 Unknown Virtual Host','无法找到','资源不存在',
@@ -401,6 +418,9 @@ badtitles=['404', '找不到',  'null', 'Not Found','阻断页','Bad Request','T
 
 
 url = "www.zhengjimt.com"
+# url = "caenet.cn"
+# url = "health.china.com.cn"
+url="p2p.hexun.com"
 
 
 try:
@@ -411,6 +431,7 @@ try:
     for badtitle in badtitles:
         if badtitle in resultdata['title']:
             print('title error')
+            print(badtitle)
             raise Exception
 except Exception as e:
     print (e)

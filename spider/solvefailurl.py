@@ -15,7 +15,7 @@ from selenium.webdriver.support.wait import WebDriverWait
 from selenium.common.exceptions import TimeoutException
 from selenium.common.exceptions import UnexpectedAlertPresentException
 
-badtitles=['404', '找不到',  'null', 'Not Found','阻断页','Bad Request','Time-out','No configuration',
+badtitles=['404 Not Found', '找不到',  'null', 'Not Found','阻断页','Bad Request','Time-out','No configuration',
 'TestPage','IIS7','Default','已暂停' ,'Server Error','403 Forbidden','禁止访问','载入出错','没有找到',
 '无法显示','无法访问','Bad Gateway','正在维护','配置未生效','访问报错','Welcome to nginx','Suspended Domain',
 'IIS Windows','Invalid URL','服务器错误','400 Unknown Virtual Host','无法找到','资源不存在',
@@ -59,6 +59,9 @@ def requesturl(url):
     webtext = []    #首页内容文本
     abouttext = []  #关于页面内容文本
     aboutlist = []  # 关于页面的连接
+    stopjs = """
+                window.stop ? window.stop() : document.execCommand("Stop");
+                """
     def initwebinfo():
         webinfo['title'] = ""
         webinfo['description'] = ""
@@ -69,7 +72,7 @@ def requesturl(url):
         browser.get(url)
         WebDriverWait(browser, time_limit, 1).until_not(EC.title_is(""))
     except   TimeoutException:
-        browser.execute_script('window.stop()') #   超时停止js脚步
+        browser.execute_script(stopjs) #   超时停止js脚步
     except UnexpectedAlertPresentException:
         time.sleep(5)
         element = browser.switch_to.active_element
@@ -89,12 +92,12 @@ def requesturl(url):
             for element in soup(text = lambda text: isinstance(text, Comment)):
                 element.extract()
             head = soup.head
-        # if webinfo['title'] == "" or webinfo['title'] == None:
-            try:
-                webinfo['title'] += head.title.string.strip()
-            except:
-                # webinfo['title'] = ""
-                pass
+            if webinfo['title'] == "" or webinfo['title'] == None:
+                try:
+                    webinfo['title'] += head.title.string.strip()
+                except:
+                    # webinfo['title'] = ""
+                    pass
         # if webinfo['description'] == "":
             try:
                 webinfo['description'] += head.find('meta',attrs={'name':'description'})['content']
@@ -188,12 +191,13 @@ def requesturl(url):
                             break
                 else:
                     for keyword in href_text:
-                        if keyword in tag['href']:
-                            browser.execute_script(js2,tag['href'].strip())
-                            time.sleep(10)
-                            soup = BeautifulSoup(browser.page_source, 'html.parser')
-                            get_info()
-                            break
+                        if tag.has_attr('href'):
+                            if keyword in tag['href']:
+                                browser.execute_script(js2,tag['href'].strip())
+                                time.sleep(10)
+                                soup = BeautifulSoup(browser.page_source, 'html.parser')
+                                get_info()
+                                break
     
     #  可能有frame 寻找全部frame
     while True:
@@ -274,6 +278,7 @@ def requesturl(url):
             style = [s.extract() for s in soup('style')]
             for element in soup(text = lambda text: isinstance(text, Comment)):
                 element.extract()
+            # if webinfo['title'] == "" or webinfo['title'] == None:
             get_headtext()
             [s.extract() for s in soup('head')]
             for textstring in soup.stripped_strings:
@@ -283,7 +288,7 @@ def requesturl(url):
             try:
                 browser.back()
             except   TimeoutException:
-                browser.execute_script('window.stop()')
+                browser.execute_script(stopjs)
         webinfo['abouttext'] = abouttext
     else:
         webinfo['abouttext'] = []
@@ -297,9 +302,7 @@ def writedata(savefilepath,webinfo):
     f.write(json.dumps(webinfo, ensure_ascii=False))
     f.close()#关闭文件
 
-good_result1=[]
-bad_result = []
-else_result=[]
+
 
 # 读取网页url
 readpath = "../../topchinaz/"
