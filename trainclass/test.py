@@ -83,255 +83,262 @@ httpsurl ="https://mbalib.com/"
 httpsurl="https://www.huanbaoj.com/"
 httpsurl="https://ww.8220966.com/?id=1"
 
-print(httpsurl)
+
+
+
+
+
+
+
 # r = s.get(httpsurl,timeout=15,headers=headers)
 # print(r.text)
 webinfo={}  #最后保存的数据
 webtext = []    #首页内容文本
 abouttext = []  #关于页面内容文本
 aboutlist = []  # 关于页面的连接
-webinfo['title'] = ''
-webinfo['description'] = ''
-webinfo['keywords'] = ''
-time_limit = 40  #set timeout time 3s
 
-# option = webdriver.ChromeOptions()
+# time_limit = 40  #set timeout time 3s
+
+# # option = webdriver.ChromeOptions()
+# option = Options()
+# option.add_argument('--no-sandbox')
+# option.add_argument('--disable-dev-shm-usage')
+# # option.add_argument('--headless') #静默运行
+# # option.add_argument('--disable-gpu')  # 禁用GPU加速,GPU加速可能会导致Chrome出现黑屏，且CPU占用率高达80%以上
+# # option.add_experimental_option('excludeSwitches', ['enable-logging'])
+# try:
+#     # browser = webdriver.Chrome(options=option)
+#     browser = webdriver.Firefox(options=option)
+#     browser.set_page_load_timeout(time_limit)
+#     browser.implicitly_wait(time_limit)
+#     browser.get(httpsurl)
+#     WebDriverWait(browser, time_limit, 0.5).until_not(EC.title_is(""))
+#     # time.sleep(10)
+# except   TimeoutException:
+#     print("time out")
+#     browser.execute_script('window.stop()')
+# except UnexpectedAlertPresentException:
+#     time.sleep(5)
+#     element = browser.switch_to.active_element
+#     element.click()
+#     # a = browser.switch_to_alert()
+#     # a.accept()
+#     # browser.delete_all_cookies()
+
+# except Exception as e:
+#     print("aa")
+#     print (e)
+#     quit()
+
+time_limit = 10  #set timeout time 3s
+
 option = Options()
 option.add_argument('--no-sandbox')
-option.add_argument('--disable-dev-shm-usage')
+# option.add_argument('--disable-dev-shm-usage')
 # option.add_argument('--headless') #静默运行
-# option.add_argument('--disable-gpu')  # 禁用GPU加速,GPU加速可能会导致Chrome出现黑屏，且CPU占用率高达80%以上
-# option.add_experimental_option('excludeSwitches', ['enable-logging'])
-try:
-    # browser = webdriver.Chrome(options=option)
-    browser = webdriver.Firefox(options=option)
-    browser.set_page_load_timeout(time_limit)
-    browser.implicitly_wait(time_limit)
-    # browser.get(httpsurl)
-    browser.get(httpsurl)
-    WebDriverWait(browser, time_limit, 0.5).until_not(EC.title_is(""))
-    # time.sleep(10)
-except   TimeoutException:
-    print("time out")
-    browser.execute_script('window.stop()')
-except UnexpectedAlertPresentException:
+option.add_argument('--disable-gpu')  # 禁用GPU加速,GPU加速可能会导致Chrome出现黑屏，且CPU占用率高达80%以上
+browser = webdriver.Firefox(options=option)
+# browser = webdriver.Chrome(options=option)
+browser.implicitly_wait(time_limit)
+browser.set_page_load_timeout(time_limit)
+# 查询网址，爬取内容
+def requesturl(url):
+    print(url)
+    webinfo={}  #最后保存的数据
+    webtext = []    #首页内容文本
+    abouttext = []  #关于页面内容文本
+    aboutlist = []  # 关于页面的连接
+    def initwebinfo():
+        webinfo['title'] = ""
+        webinfo['description'] = ""
+        webinfo['keywords'] = ""
+        webinfo['webtext'] = []
+    
+    try:
+        browser.get(url)
+        WebDriverWait(browser, time_limit, 1).until_not(EC.title_is(""))
+    except   TimeoutException:
+        print('加载超过5秒，强制停止加载....')
+        stopjs = """
+                window.stop ? window.stop() : document.execCommand("Stop");
+                """
+        browser.execute_script(stopjs) #   超时停止js脚步
+        # browser.execute_script('window.stop()')
+    except UnexpectedAlertPresentException:
+        time.sleep(5)
+        element = browser.switch_to.active_element
+        element.click()
+    except Exception as e:
+        print (e)
+
+    print("333")
     time.sleep(5)
-    element = browser.switch_to.active_element
-    element.click()
-    # a = browser.switch_to_alert()
-    # a.accept()
-    # browser.delete_all_cookies()
-
-except Exception as e:
-    print("aa")
-    print (e)
-    quit()
-
-# r = s.get(httpsurl,timeout=15,headers=headers)
-# r.encoding = "utf-8"
-# r.encoding = r.apparent_encoding
-def get_headtext():
+    initwebinfo()
+    soup = BeautifulSoup(browser.page_source, 'html.parser')
+    
+    # 获取网页head中元素 title keywords description 存入webinfo中
+    def get_headtext():
         # soup = BeautifulSoup(r.text, 'html.parser')
         # soup = BeautifulSoup(browser.page_source, 'lxml')
-        [s.extract() for s in soup('script')]
-        [s.extract() for s in soup('style')]
-        for element in soup(text = lambda text: isinstance(text, Comment)):
-            element.extract()
-        head = soup.head
-        if webinfo['title'] == "" or webinfo['title'] == None:
+            [s.extract() for s in soup('script')]
+            [s.extract() for s in soup('style')]
+            for element in soup(text = lambda text: isinstance(text, Comment)):
+                element.extract()
+            head = soup.head
+        # if webinfo['title'] == "" or webinfo['title'] == None:
             try:
-                webinfo['title'] = head.title.string.strip()
+                webinfo['title'] += head.title.string.strip()
             except:
-                webinfo['title'] = ""
+                # webinfo['title'] = ""
                 pass
-        if webinfo['description'] == "":
+        # if webinfo['description'] == "":
             try:
-                webinfo['description'] = head.find('meta',attrs={'name':'description'})['content']
+                webinfo['description'] += head.find('meta',attrs={'name':'description'})['content']
             except:
-                webinfo['description'] = ""
+                # webinfo['description'] = ""
                 pass
-        if webinfo['description'] == "":
+        # if webinfo['description'] == "":
             try:
-                webinfo['description'] = head.find('meta',attrs={'name':'Description'})['content']
+                webinfo['description'] += head.find('meta',attrs={'name':'Description'})['content']
             except:
-                webinfo['description'] = ""
+                # webinfo['description'] = ""
                 pass
-        if webinfo['description'] == "":
+        # if webinfo['description'] == "":
             try:
-                webinfo['description'] = head.find('meta',attrs={'name':'DESCRIPTION'})['content']
+                webinfo['description'] += head.find('meta',attrs={'name':'DESCRIPTION'})['content']
             except:
-                webinfo['description'] = ""
+                # webinfo['description'] = ""
                 pass
-        if webinfo['keywords'] == "":
+        # if webinfo['keywords'] == "":
             try:
-                webinfo['keywords'] = head.find('meta',attrs={'name':'keywords'})['content']
+                webinfo['keywords'] += head.find('meta',attrs={'name':'keywords'})['content']
             except:
-                webinfo['keywords'] = ""
+                # webinfo['keywords'] = ""
                 pass
-        if webinfo['keywords'] == "":
+        # if webinfo['keywords'] == "":
             try:
-                webinfo['keywords'] = head.find('meta',attrs={'name':'Keywords'})['content']
+                webinfo['keywords'] += head.find('meta',attrs={'name':'Keywords'})['content']
             except:
-                webinfo['keywords'] = ""
+                # webinfo['keywords'] = ""
                 pass
-        if webinfo['keywords'] == "":
+        # if webinfo['keywords'] == "":
             try:
-                webinfo['keywords'] = head.find('meta',attrs={'name':'KEYWORDS'})['content']
+                webinfo['keywords'] += head.find('meta',attrs={'name':'KEYWORDS'})['content']
             except:
-                webinfo['keywords'] = ""
+                # webinfo['keywords'] = ""
                 pass
-    # 保存网页文本
-    # [s.extract() for s in soup('head')]
-def get_bodytext():
-    for textstring in soup.stripped_strings:
-        if len(repr(textstring))>4:
-            webtext.append(repr(textstring))
-    webinfo['webtext'] = webtext
-# 拿到所有相关信息
-def get_info():
-    get_headtext()
-    [s.extract() for s in soup('head')]
-    get_bodytext()
+    def get_bodytext():
+        for textstring in soup.stripped_strings:
+            if len(repr(textstring))>4:
+                webinfo['webtext'].append(repr(textstring))
+        # webinfo['webtext'] += webtext
+    def get_info():
+        get_headtext()
+        [s.extract() for s in soup('head')]
+        get_bodytext()
 
-# print("get web page")
-time.sleep(5)
-soup = BeautifulSoup(browser.page_source, 'html.parser')
-# print(soup)
-get_info()
+# 第一阶段
+    #开始获取信息
 
-if len(webtext)<15:
-    time.sleep(10)
-    print("messeage less")
-    webtext=[]
-    soup = BeautifulSoup(browser.page_source, 'html.parser')
     get_info()
+    #信息太少可能有跳转等待 重新获取
+    if len(webinfo['webtext'])<15:
+        time.sleep(65)
+        initwebinfo()
+        soup = BeautifulSoup(browser.page_source, 'html.parser')
+        get_info()
 
-
-skip_text = ['点击','跳转','进入']
-href_text = ['index', 'main','default']
-#数据太少  找到所有的a标签 访问
-if len(webtext)<15:
-    soup = BeautifulSoup(browser.page_source, 'html.parser')
-    atag = soup.find_all('a')
-    js1 = """var ipt = document.getElementsByTagName("a");
-            for (i = 0; i<ipt.length; i ++){
-                if (ipt[i].innerText.trim() == arguments[0]){
-                    ipt[i].target = "_self";
-                    ipt[i].click();
-                    return ;
-                }
-            }"""
-    # 点击href符合的链接
-    js2 = """var ipt = document.getElementsByTagName("a");
-            for (i = 0; i<ipt.length; i ++){
-                if (ipt[i].getAttribute('href').trim() == arguments[0]){
-                    ipt[i].target = "_self";
-                    ipt[i].click();
-                    return ;
-                }
-            }"""
-    for tag in atag:
-        if len(webtext)<15:
-            if tag.get_text():
-                for keyword in skip_text:   #访问可能的跳转页面
-                    if keyword in tag.get_text():
-                        browser.execute_script(js1,tag.get_text().strip())
-                        time.sleep(10)
-                        soup = BeautifulSoup(browser.page_source, 'html.parser')
-                        get_info()
-                        break
-            else:
-                for keyword in href_text:
-                    if keyword in tag['href']:
-                        browser.execute_script(js2,tag['href'].strip())
-                        time.sleep(10)
-                        soup = BeautifulSoup(browser.page_source, 'html.parser')
-                        get_info()
-                        break
     
+    skip_text = ['点击','跳转','进入']
+    href_text = ['index', 'main','default','info']
+    #数据太少  找到所有的a标签 选择合适的访问
+    if len(webinfo['webtext'])<15:
+        soup = BeautifulSoup(browser.page_source, 'html.parser')
+        atag = soup.find_all('a')
+        js1 = """var ipt = document.getElementsByTagName("a");
+                for (i = 0; i<ipt.length; i ++){
+                    if (ipt[i].innerText.trim() == arguments[0]){
+                        ipt[i].target = "_self";
+                        ipt[i].click();
+                        return ;
+                    }
+                }"""
+        # 点击href符合的链接
+        js2 = """var ipt = document.getElementsByTagName("a");
+                for (i = 0; i<ipt.length; i ++){
+                    if (ipt[i].getAttribute('href').trim() == arguments[0]){
+                        ipt[i].target = "_self";
+                        ipt[i].click();
+                        return ;
+                    }
+                }"""
+        for tag in atag:
+            if len(webinfo['webtext'])<15:
+                if tag.get_text():
+                    for keyword in skip_text:   #访问可能的跳转页面
+                        if keyword in tag.get_text():
+                            browser.execute_script(js1,tag.get_text().strip())
+                            time.sleep(10)
+                            soup = BeautifulSoup(browser.page_source, 'html.parser')
+                            get_info()
+                            break
+                else:
+                    for keyword in href_text:
+                        if keyword in tag['href']:
+                            browser.execute_script(js2,tag['href'].strip())
+                            time.sleep(10)
+                            soup = BeautifulSoup(browser.page_source, 'html.parser')
+                            get_info()
+                            break
+    
+    #  可能有frame 寻找全部frame
+    while True:
+        try:
+            i = 0
+            while  True:
+            # while  len(webinfo['webtext'])<15:
+                browser.switch_to.frame(i)
+                i=i+1
+                soup = BeautifulSoup(browser.page_source, 'html.parser')
+                get_info()
+                # print(webinfo)
+                browser.switch_to.default_content()
+        except :
+            break
 
-# 查找frame
-if len(webtext)<15:
-    try:
-        i = 0
-        while  len(webtext)<15:
-            print ("1")
-            browser.switch_to.frame(i)
-            print ("2")
-            # browser.switch_to.frame(1)
-        # browser.switch_to.frame(0)
-            i=i+1
-            soup = BeautifulSoup(browser.page_source, 'html.parser')
-            # print(soup)
-            get_info()
-            print(webinfo)
-            browser.switch_to.default_content()
-    except :
-        pass
-
-print('len(webtext)')
-print(len(webtext))
-# print(webinfo)
-def havekey(tag):
-    if  tag.has_attr('href') or  tag.has_attr('data-href'):
-        if tag.has_attr('title'):
-            if len(tag['title'].strip()) < 8 :
-                searchObj = re.search("关于.{0,4}", tag['title'], flags=0)
+# 第二阶段
+    #寻找是否存在介绍该网站的链接 如 关于我们 公司简介 等
+    def havekey(tag):
+        if  tag.has_attr('href') or  tag.has_attr('data-href'):
+            if tag.string != None and len(tag.string.strip()) < 8:
+                searchObj = re.search("关于.{0,4}", tag.string, flags=0)
                 if searchObj:
                     return True
-                searchObj = re.search("[\u4e00-\u9fa5]{1,3}简介", tag['title'], flags=0)
+                searchObj = re.search(".{0,3}简介", tag.string, flags=0)
                 if searchObj:
                     return True
-                searchObj = re.search("[\u4e00-\u9fa5]{1,3}概况", tag['title'], flags=0)
+                searchObj = re.search(".{0,3}概况", tag.string, flags=0)
                 if searchObj:
                     return True
-                searchObj = re.search("[\u4e00-\u9fa5]{1,3}介绍", tag['title'], flags=0)
+                searchObj = re.search(".{0,3}介绍", tag.string, flags=0)
                 if searchObj:
                     return True
-                searchObj = re.search("了解[\u4e00-\u9fa5]{1,3}", tag['title'], flags=0)
+                searchObj = re.search("了解[\u4e00-\u9fa5]{1,3}", tag.string, flags=0)
                 if searchObj:
                     return True
-        if tag.string != None and len(tag.string.strip()) < 8 :
-            searchObj = re.search("关于.{0,4}", tag.string, flags=0)
-            if searchObj:
-                # print(searchObj.group())
-                return True
-            searchObj = re.search("[\u4e00-\u9fa5]{1,3}简介", tag.string, flags=0)
-            if searchObj:
-                return True
-            searchObj = re.search("[\u4e00-\u9fa5]{1,3}概况", tag.string, flags=0)
-            if searchObj:
-                return True
-            searchObj = re.search("[\u4e00-\u9fa5]{1,3}介绍", tag.string, flags=0)
-            if searchObj:
-                return True
-            searchObj = re.search("了解[\u4e00-\u9fa5]{1,3}", tag.string, flags=0)
-            if searchObj:
-                return True
+    soup = BeautifulSoup(browser.page_source, 'html.parser')
+    about = soup.find_all(havekey)
+    # 寻找关于页面的链接
+    for href in about:
+        if href.string !=None:
+            aboutlist.append(href.string.strip())
+        elif href.has_attr('title'):
+            aboutlist.append(href['title'].strip())
+    aboutlist = list(set(aboutlist))    #去重
 
-soup = BeautifulSoup(browser.page_source, 'html.parser')
-about = soup.find_all(havekey)
-
-print("about")
-print(about)
-# 寻找关于页面的链接
-for href in about:
-    if href.string !=None:
-        aboutlist.append(href.string.strip())
-    elif href.has_attr('title'):
-        aboutlist.append(href['title'].strip())
-aboutlist = list(set(aboutlist))    #去重
-print('aboutlist)')
-print(aboutlist)
-
-# 如果有关于页面，点击访问
-if len(aboutlist)>0:
-    print('aboutlist[0]')
-    print(aboutlist[0])
-    aboutcount = min(len(aboutlist),3)
-    print('aboutcount')
-    print(aboutcount)
-    js = """var ipt = document.getElementsByTagName("a");
+    if len(aboutlist)>0:
+        aboutcount = min(len(aboutlist),3)
+        js = """var ipt = document.getElementsByTagName("a");
             for (i = 0; i<ipt.length; i ++){
                 if (ipt[i].innerText.trim() == arguments[0]){
                     ipt[i].target = "_self";
@@ -355,40 +362,77 @@ if len(aboutlist)>0:
                 }
             } 
             """
-    for i in range(0, aboutcount):
-        browser.execute_script(js,aboutlist[i])
-        time.sleep(10)
-        soup = BeautifulSoup(browser.page_source, 'html.parser')
-        script = [s.extract() for s in soup('script')]
-        style = [s.extract() for s in soup('style')]
-        for element in soup(text = lambda text: isinstance(text, Comment)):
-            element.extract()
-        head = soup.head
+        for i in range(0, aboutcount):
+            browser.execute_script(js,aboutlist[i])
+            time.sleep(2)
+            soup = BeautifulSoup(browser.page_source, 'html.parser')
+            script = [s.extract() for s in soup('script')]
+            style = [s.extract() for s in soup('style')]
+            for element in soup(text = lambda text: isinstance(text, Comment)):
+                element.extract()
+            get_headtext()
+            [s.extract() for s in soup('head')]
+            for textstring in soup.stripped_strings:
+                if len(repr(textstring))>8:
+                    abouttext.append(repr(textstring))
+                    # print(repr(textstring))
+            try:
+                browser.back()
+            except   TimeoutException:
+                browser.execute_script('window.stop()')
+        webinfo['abouttext'] = abouttext
+    else:
+        webinfo['abouttext'] = []
+    return webinfo
 
-        get_headtext()
-        [s.extract() for s in soup('head')]
-        for textstring in soup.stripped_strings:
-            if len(repr(textstring))>8:
-                abouttext.append(repr(textstring))
-                # print(repr(textstring))
-        try:
-            browser.back()
-        except   TimeoutException:
-            browser.execute_script('window.stop()')
-        except UnexpectedAlertPresentException:
-            print("aa")
-            time.sleep(5)
-            element = browser.switch_to.active_element
-            element.click()
-        except Exception as e:
-            print (e)
-            quit()
-    webinfo['abouttext']  = abouttext
-else:
-    webinfo['abouttext'] = []
+ #将数据写入文件
 
-print(webinfo)
-# browser.close()
+
+
+badtitles=['404', '找不到',  'null', 'Not Found','阻断页','Bad Request','Time-out','No configuration',
+'TestPage','IIS7','Default','已暂停' ,'Server Error','403 Forbidden','禁止访问','载入出错','没有找到',
+'无法显示','无法访问','Bad Gateway','正在维护','配置未生效','访问报错','Welcome to nginx','Suspended Domain',
+'IIS Windows','Invalid URL','服务器错误','400 Unknown Virtual Host','无法找到','资源不存在',
+'Temporarily Unavailable','Database Error','temporarily unavailable','Bad gateway','不再可用','error Page',
+'Internal Server Error','升级维护中','Service Unavailable','站点不存在','405','Access forbidden','System Error',
+'详细错误','页面载入出错','Error','错误','Connection timed out','域名停靠','网站访问报错','错误提示','临时域名',
+'未被授权查看','Test Page','发生错误','非法阻断','链接超时','403 Frobidden','建设中','访问出错']
+
+
+
+url = "www.zhengjimt.com"
+
+
+try:
+    print("1")
+    httpsurl =  'http://' + url
+    resultdata = requesturl(httpsurl)
+    #网页是否无法访问
+    for badtitle in badtitles:
+        if badtitle in resultdata['title']:
+            print('title error')
+            raise Exception
+except Exception as e:
+    print (e)
+
+    try:
+        print("2")
+
+        if url.split(".")[0]!="www":
+            httpsurl = 'http://www.' + url
+        else:
+            httpsurl = 'http://' + url.replace('www.','',1)
+        resultdata = requesturl(httpsurl)
+        #网页是否无法访问
+        for badtitle in badtitles:
+            if badtitle in resultdata['title']:
+                raise Exception
+        # good_result1.append(url)
+    except Exception as e:
+        print (e)
+        # print("fail ", url)
+
+# browser.quit()
 
 
 

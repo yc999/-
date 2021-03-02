@@ -13,6 +13,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.common.exceptions import TimeoutException
+from selenium.common.exceptions import UnexpectedAlertPresentException
 
 badtitles=['404', '找不到',  'null', 'Not Found','阻断页','Bad Request','Time-out','No configuration',
 'TestPage','IIS7','Default','已暂停' ,'Server Error','403 Forbidden','禁止访问','载入出错','没有找到',
@@ -51,7 +52,8 @@ browser.implicitly_wait(time_limit)
 browser.set_page_load_timeout(time_limit)
 
 # 查询网址，爬取内容
-def requesturl(url, savefilepath):
+# def requesturl(url, savefilepath):
+def requesturl(url):
     print(url)
     webinfo={}  #最后保存的数据
     webtext = []    #首页内容文本
@@ -68,6 +70,10 @@ def requesturl(url, savefilepath):
         WebDriverWait(browser, time_limit, 1).until_not(EC.title_is(""))
     except   TimeoutException:
         browser.execute_script('window.stop()') #   超时停止js脚步
+    except UnexpectedAlertPresentException:
+        time.sleep(5)
+        element = browser.switch_to.active_element
+        element.click()
     # r.encoding = r.apparent_encoding
 
     time.sleep(5)
@@ -322,7 +328,7 @@ for filename in fs:
             if url + ".txt" not in savedfileslist and "www." + url + ".txt" not in savedfileslist:
                 try:
                     httpsurl =  'http://' + url
-                    resultdata = requesturl(httpsurl, savefilepath)
+                    resultdata = requesturl(httpsurl)
                     #网页是否无法访问
                     for badtitle in badtitles:
                         if badtitle in resultdata['title']:
@@ -337,7 +343,7 @@ for filename in fs:
                         else:
                             httpsurl = 'http://' + url.replace('www.','',1)
                             savefilepath = dirpath +"/" + url.replace('www.','',1) + ".txt"
-                        resultdata = requesturl(httpsurl, savefilepath)
+                        resultdata = requesturl(httpsurl)
                         #网页是否无法访问
                         for badtitle in badtitles:
                             if badtitle in resultdata['title']:
