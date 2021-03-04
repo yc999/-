@@ -297,7 +297,7 @@ def requesturl(url):
         webinfo['abouttext'] = []
 
 
-## 结束
+## 结束 新开页面 关闭之前的页面 防止之前的页面被新页面利用
     if browser.current_url =="about:blank":
         print("about:blank")
         raise Exception
