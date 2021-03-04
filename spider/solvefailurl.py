@@ -79,7 +79,11 @@ def requesturl(url):
         element.click()
     # r.encoding = r.apparent_encoding
 
-    time.sleep(5)
+    if browser.current_url =="about:blank":
+        print("about:blank")
+        raise Exception
+
+    time.sleep(3)
     initwebinfo()
     soup = BeautifulSoup(browser.page_source, 'html.parser')
 
@@ -272,7 +276,7 @@ def requesturl(url):
             """
         for i in range(0, aboutcount):
             browser.execute_script(js,aboutlist[i])
-            time.sleep(2)
+            time.sleep(5)
             soup = BeautifulSoup(browser.page_source, 'html.parser')
             script = [s.extract() for s in soup('script')]
             style = [s.extract() for s in soup('style')]
@@ -284,7 +288,6 @@ def requesturl(url):
             for textstring in soup.stripped_strings:
                 if len(repr(textstring))>8:
                     abouttext.append(repr(textstring))
-                    # print(repr(textstring))
             try:
                 browser.back()
             except   TimeoutException:
@@ -292,6 +295,20 @@ def requesturl(url):
         webinfo['abouttext'] = abouttext
     else:
         webinfo['abouttext'] = []
+
+
+## 结束
+    if browser.current_url =="about:blank":
+        print("about:blank")
+        raise Exception
+    js = 'window.open("");'
+
+    browser.execute_script(js)
+    browser.close()
+    handles = browser.window_handles
+    browser.switch_to.window(handles[0])
+    time.sleep(3)
+
     return webinfo
 
  #将数据写入文件
@@ -352,7 +369,6 @@ for filename in fs:
                             if badtitle in resultdata['title']:
                                 raise Exception
                         writedata(savefilepath, resultdata)
-                        # good_result1.append(url)
                     except Exception as e:
                         print (e)
                         # print("fail ", url)

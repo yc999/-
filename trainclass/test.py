@@ -10,6 +10,8 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.common.exceptions import TimeoutException
 from selenium.common.exceptions import UnexpectedAlertPresentException
+from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.common.action_chains import ActionChains
 s=requests.session()
 s.keep_alive = False
 url =  "ebrun.com"
@@ -169,6 +171,9 @@ def requesturl(url):
         element.click()
     except Exception as e:
         print (e)
+
+    if browser.current_url =="about:blank":
+        raise Exception
 
     print("333")
     time.sleep(5)
@@ -343,12 +348,16 @@ def requesturl(url):
     soup = BeautifulSoup(browser.page_source, 'html.parser')
     about = soup.find_all(havekey)
     # 寻找关于页面的链接
+    print(" step 2 1")
+
     for href in about:
         if href.string !=None:
             aboutlist.append(href.string.strip())
         elif href.has_attr('title'):
             aboutlist.append(href['title'].strip())
     aboutlist = list(set(aboutlist))    #去重
+
+    print(" step 2 2")
 
     if len(aboutlist)>0:
         aboutcount = min(len(aboutlist),3)
@@ -400,6 +409,26 @@ def requesturl(url):
     else:
         webinfo['abouttext'] = []
     # print(webinfo['title'])
+    
+
+    if browser.current_url =="about:blank":
+        print(browser.current_url)
+        raise Exception
+        
+    
+    js = 'window.open("");'
+    browser.execute_script(js)
+    # time.sleep(10)
+
+    browser.close()
+
+    handles = browser.window_handles
+    time.sleep(10)
+    
+    browser.switch_to.window(handles[0])
+    # browser.close()
+    print(" step 2 3")
+
     return webinfo
 
  #将数据写入文件
@@ -422,6 +451,9 @@ url = "www.zhengjimt.com"
 # url = "health.china.com.cn"
 url="p2p.hexun.com"
 
+# browser.get(url)
+# browser.get("about:preferences")#进入选项页面
+# browser.find_element(By.ID, "linkTargeting").click()
 
 try:
     print("1")
@@ -456,4 +488,38 @@ except Exception as e:
 # browser.quit()
 
 
+
+url="ahhouse.com"
+# url="p2p.hexun.com"
+
+
+try:
+    print("1")
+    httpsurl =  'http://' + url
+    resultdata = requesturl(httpsurl)
+    #网页是否无法访问
+    for badtitle in badtitles:
+        if badtitle in resultdata['title']:
+            print('title error')
+            print(badtitle)
+            raise Exception
+except Exception as e:
+    print (e)
+
+    try:
+        print("2")
+
+        if url.split(".")[0]!="www":
+            httpsurl = 'http://www.' + url
+        else:
+            httpsurl = 'http://' + url.replace('www.','',1)
+        resultdata = requesturl(httpsurl)
+        #网页是否无法访问
+        for badtitle in badtitles:
+            if badtitle in resultdata['title']:
+                raise Exception
+        # good_result1.append(url)
+    except Exception as e:
+        print (e)
+        # print("fail ", url)
 
