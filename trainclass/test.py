@@ -157,6 +157,17 @@ def requesturl(url):
     stopjs = """
                 window.stop ? window.stop() : document.execCommand("Stop");
                 """
+
+    js = 'window.open("");'
+    browser.execute_script(js)
+    handles = browser.window_handles
+    time.sleep(2)
+
+    if len(handles)>1:
+        print("len1 ",len(handles))
+        browser.close()
+        browser.switch_to.window(handles[1])
+
     try:
         browser.get(url)
         WebDriverWait(browser, time_limit, 1).until_not(EC.title_is(""))
@@ -410,28 +421,24 @@ def requesturl(url):
     # print(webinfo['title'])
     
 
-    if browser.current_url =="about:blank":
-        print(browser.current_url)
-        raise Exception
+    # if browser.current_url =="about:blank":
+    #     print(browser.current_url)
+    #     raise Exception
         
     
-    js = 'window.open("");'
-    browser.execute_script(js)
+    # js = 'window.open("");'
+    # browser.execute_script(js)
+    # # time.sleep(10)
+    # browser.close()
+    # handles = browser.window_handles
     # time.sleep(10)
-
-    browser.close()
-
-    handles = browser.window_handles
-    time.sleep(10)
-    
-    browser.switch_to.window(handles[0])
+    # browser.switch_to.window(handles[0])
     # browser.close()
     print(" step 2 3")
 
     return webinfo
 
  #将数据写入文件
-
 
 
 badtitles=['404 Not Found', '找不到',  'null', 'Not Found','阻断页','Bad Request','Time-out','No configuration',
@@ -489,6 +496,8 @@ except Exception as e:
 
 
 url="ahhouse.com"
+url = "esoogle.com"
+url = "beijing.1686888.com"
 # url="p2p.hexun.com"
 
 

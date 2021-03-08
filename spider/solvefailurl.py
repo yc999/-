@@ -68,6 +68,17 @@ def requesturl(url):
         webinfo['keywords'] = ""
         webinfo['webtext'] = []
     
+
+    js = 'window.open("");'
+    browser.execute_script(js)
+    handles = browser.window_handles
+    time.sleep(2)
+
+    if len(handles)>1:
+        # print("len1 ",len(handles))
+        browser.close()
+        browser.switch_to.window(handles[1])
+
     try:
         browser.get(url)
         WebDriverWait(browser, time_limit, 1).until_not(EC.title_is(""))
@@ -79,9 +90,7 @@ def requesturl(url):
         element.click()
     # r.encoding = r.apparent_encoding
 
-    if browser.current_url =="about:blank":
-        print("about:blank")
-        raise Exception
+
 
     time.sleep(3)
     initwebinfo()
@@ -298,16 +307,6 @@ def requesturl(url):
 
 
 ## 结束 新开页面 关闭之前的页面 防止之前的页面被新页面利用
-    if browser.current_url =="about:blank":
-        print("about:blank")
-        raise Exception
-    js = 'window.open("");'
-
-    browser.execute_script(js)
-    browser.close()
-    handles = browser.window_handles
-    browser.switch_to.window(handles[0])
-    time.sleep(3)
 
     return webinfo
 
