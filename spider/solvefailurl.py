@@ -89,6 +89,8 @@ def requesturl(url):
     if len(handles)>1:
         browser.close()
         browser.switch_to.window(handles[1])
+    else:
+        print("brower wrong")
 
     try:
         browser.get(url)
