@@ -78,11 +78,13 @@ def requesturl(url):
         webinfo['keywords'] = ""
         webinfo['webtext'] = []
 
-
-    js = 'void(window.open(""));'
-    browser.execute_script(js)
-    handles = browser.window_handles
-    time.sleep(3)
+    try:
+        js = 'void(window.open(""));'
+        browser.execute_script(js)
+        handles = browser.window_handles
+        time.sleep(3)
+    except:
+        pass
 
     if len(handles)>1:
         browser.close()
