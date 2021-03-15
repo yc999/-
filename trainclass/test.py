@@ -457,6 +457,7 @@ url = "www.zhengjimt.com"
 # url = "caenet.cn"
 # url = "health.china.com.cn"
 url="p2p.hexun.com"
+url = "www.ttce.cn"
 
 # browser.get(url)
 # browser.get("about:preferences")#进入选项页面
@@ -499,6 +500,8 @@ except Exception as e:
 url="ahhouse.com"
 url = "esoogle.com"
 url = "beijing.1686888.com"
+url = "cb.qq.com"
+url = "tianjin.1686888.com"
 # url="p2p.hexun.com"
 
 

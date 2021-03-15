@@ -26,6 +26,16 @@ badtitles=['404 Not Found', '找不到',  'null', 'Not Found','阻断页','Bad R
 
 time_limit = 40  #set timeout time 3s
 
+# 判断标题是否正常 
+# mytitle 需要判断的title 
+# 正常返回 False 不正常返回 True
+def ifbadtitle(mytitle):
+    for badtitle in badtitles:
+        if badtitle in mytitle:
+            return True
+    return False
+    
+                            
 
 # 保存从chinaz所有网站的内容
 # savepath = "E:/webdata/"
@@ -60,23 +70,21 @@ def requesturl(url):
     webtext = []    #首页内容文本
     abouttext = []  #关于页面内容文本
     aboutlist = []  # 关于页面的连接
-    stopjs = """
-                window.stop ? window.stop() : document.execCommand("Stop");
-                """
+    stopjs = """window.stop ? window.stop() : document.execCommand("Stop");"""
+
     def initwebinfo():
         webinfo['title'] = ""
         webinfo['description'] = ""
         webinfo['keywords'] = ""
         webinfo['webtext'] = []
-    
 
-    js = 'window.open("");'
+
+    js = 'void(window.open(""));'
     browser.execute_script(js)
     handles = browser.window_handles
-    time.sleep(2)
+    time.sleep(3)
 
     if len(handles)>1:
-        # print("len1 ",len(handles))
         browser.close()
         browser.switch_to.window(handles[1])
 
@@ -99,8 +107,7 @@ def requesturl(url):
 
     # 获取网页head中元素 title keywords description 存入webinfo中
     def get_headtext():
-        # soup = BeautifulSoup(r.text, 'html.parser')
-        # soup = BeautifulSoup(browser.page_source, 'lxml')
+        # soup = BeautifulSoup(r.text, 'html.parser')  soup = BeautifulSoup(browser.page_source, 'lxml')
             [s.extract() for s in soup('script')]
             [s.extract() for s in soup('style')]
             for element in soup(text = lambda text: isinstance(text, Comment)):
@@ -162,6 +169,10 @@ def requesturl(url):
     #开始获取信息
 
     get_info()
+    # 如果是无效网站提前返回
+    if ifbadtitle(webinfo['title']):
+        return webinfo
+
     #信息太少可能有跳转等待 重新获取
     if len(webinfo['webtext'])<15:
         time.sleep(65)
@@ -223,7 +234,6 @@ def requesturl(url):
                 i=i+1
                 soup = BeautifulSoup(browser.page_source, 'html.parser')
                 get_info()
-                # print(webinfo)
                 browser.switch_to.default_content()
         except :
             break
@@ -306,9 +316,7 @@ def requesturl(url):
     else:
         webinfo['abouttext'] = []
 
-
 ## 结束 新开页面 关闭之前的页面 防止之前的页面被新页面利用
-
     return webinfo
 
  #将数据写入文件
@@ -350,8 +358,7 @@ for filename in fs:
                     httpsurl =  'http://' + url
                     resultdata = requesturl(httpsurl)
                     #网页是否无法访问
-                    for badtitle in badtitles:
-                        if badtitle in resultdata['title']:
+                    if ifbadtitle(resultdata['title']):
                             print('title error')
                             raise Exception
                     writedata(savefilepath,resultdata)
@@ -365,14 +372,14 @@ for filename in fs:
                             savefilepath = dirpath +"/" + url.replace('www.','',1) + ".txt"
                         resultdata = requesturl(httpsurl)
                         #网页是否无法访问
-                        for badtitle in badtitles:
-                            if badtitle in resultdata['title']:
+                        if ifbadtitle(resultdata['title']):
                                 raise Exception
                         writedata(savefilepath, resultdata)
                     except Exception as e:
                         print (e)
                         # print("fail ", url)
-                        makelog("fail "+ url)
+                        makelog(e + url)
         except:
             pass
+
 browser.quit()
