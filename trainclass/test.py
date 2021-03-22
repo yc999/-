@@ -159,7 +159,7 @@ def requesturl(url):
                 window.stop ? window.stop() : document.execCommand("Stop");
                 """
 
-    js = 'window.open("");'
+    js = 'void(window.open(""));'
     browser.execute_script(js)
     handles = browser.window_handles
     time.sleep(2)
@@ -174,7 +174,6 @@ def requesturl(url):
         WebDriverWait(browser, time_limit, 1).until_not(EC.title_is(""))
     except   TimeoutException:
         print('加载超过5秒，强制停止加载....')
-        
         browser.execute_script(stopjs) #   超时停止js脚步
     except UnexpectedAlertPresentException:
         time.sleep(5)
@@ -262,7 +261,7 @@ def requesturl(url):
 
     #信息太少可能有跳转等待 重新获取
     if len(webinfo['webtext'])<15:
-        time.sleep(65)
+        time.sleep(10)
         initwebinfo()
         soup = BeautifulSoup(browser.page_source, 'html.parser')
         get_info()
@@ -293,27 +292,60 @@ def requesturl(url):
                 }"""
         for tag in atag:
             if len(webinfo['webtext'])<15:
+                tmpbool = True
                 if tag.get_text():
                     for keyword in skip_text:   #访问可能的跳转页面
                         if keyword in tag.get_text():
+                            tmpbool = False
                             browser.execute_script(js1,tag.get_text().strip())
                             time.sleep(10)
                             soup = BeautifulSoup(browser.page_source, 'html.parser')
                             get_info()
                             break
-                else:
-                    
+                if tmpbool:
+                    tmpurl = url.replace("http://","",1)
+                    tmpurl = tmpurl.replace("www.","",1)
                     for keyword in href_text:
-                        print(tag)
                         if tag.has_attr('href'):
-                            if keyword in tag['href']:
-                                browser.execute_script(js2,tag['href'].strip())
-                                time.sleep(10)
+                            if tmpurl in tag['href'] and keyword in tag['href']:
+                                print(tag)
+                            # if keyword in tag['href']:
+                                try:
+                                    browser.execute_script(js2,tag['href'].strip())
+                                    # browser.switch_to.alert.accept()
+                                    time.sleep(3)
+                                    print("aaaa")
+                                    browser.find_element_by_id('alert').click()
+                                    time.sleep(3)
+                                    print("aaaa")
+
+                                    element = browser.switch_to.active_element
+                                    print("bbb")
+
+                                    print(element)
+                                    element.click()
+                                    print("ccc")
+
+                                    time.sleep(3)
+
+                                except Exception as e:
+                                    print("sss")
+                                    print(e)
+                                    # browser.switch_to.alert().accept()
+                                    element = browser.switch_to.active_element
+                                    print(element)
+                                    element.click()
+                                    # browser.find_element_by_id('alert').click()
+                                    print("aaaa")
+
+                                    # element = browser.switch_to.active_element
+                                    # print(element)
+                                    # element.click()
+                                    time.sleep(3)
                                 soup = BeautifulSoup(browser.page_source, 'html.parser')
                                 get_info()
                                 break
     
-
     print(" step 1 2")
 
     #  可能有frame 寻找全部frame
@@ -456,8 +488,8 @@ badtitles=['404 Not Found', '找不到',  'null', 'Not Found','阻断页','Bad R
 url = "www.zhengjimt.com"
 # url = "caenet.cn"
 # url = "health.china.com.cn"
-url="p2p.hexun.com"
-url = "www.ttce.cn"
+# url="p2p.hexun.com"
+url = "360tuan.com"
 
 # browser.get(url)
 # browser.get("about:preferences")#进入选项页面
@@ -497,41 +529,42 @@ except Exception as e:
 
 
 
-url="ahhouse.com"
-url = "esoogle.com"
-url = "beijing.1686888.com"
-url = "cb.qq.com"
-url = "tianjin.1686888.com"
-# url="p2p.hexun.com"
+# url = "www.zhengjimt.com"
+# # url = "caenet.cn"
+# # url = "health.china.com.cn"
+# # url="p2p.hexun.com"
+# # url = "360tuan.com"
 
+# # browser.get(url)
+# # browser.get("about:preferences")#进入选项页面
+# # browser.find_element(By.ID, "linkTargeting").click()
 
-try:
-    print("1")
-    httpsurl =  'http://' + url
-    resultdata = requesturl(httpsurl)
-    #网页是否无法访问
-    for badtitle in badtitles:
-        if badtitle in resultdata['title']:
-            print('title error')
-            print(badtitle)
-            raise Exception
-except Exception as e:
-    print (e)
+# try:
+#     print("1")
+#     httpsurl =  'http://' + url
+#     resultdata = requesturl(httpsurl)
+#     #网页是否无法访问
+#     for badtitle in badtitles:
+#         if badtitle in resultdata['title']:
+#             print('title error')
+#             print(badtitle)
+#             raise Exception
+# except Exception as e:
+#     print (e)
 
-    try:
-        print("2")
+#     try:
+#         print("2")
 
-        if url.split(".")[0]!="www":
-            httpsurl = 'http://www.' + url
-        else:
-            httpsurl = 'http://' + url.replace('www.','',1)
-        resultdata = requesturl(httpsurl)
-        #网页是否无法访问
-        for badtitle in badtitles:
-            if badtitle in resultdata['title']:
-                raise Exception
-        # good_result1.append(url)
-    except Exception as e:
-        print (e)
-        # print("fail ", url)
-
+#         if url.split(".")[0]!="www":
+#             httpsurl = 'http://www.' + url
+#         else:
+#             httpsurl = 'http://' + url.replace('www.','',1)
+#         resultdata = requesturl(httpsurl)
+#         #网页是否无法访问
+#         for badtitle in badtitles:
+#             if badtitle in resultdata['title']:
+#                 raise Exception
+#         # good_result1.append(url)
+#     except Exception as e:
+#         print (e)
+#         # print("fail ", url)
