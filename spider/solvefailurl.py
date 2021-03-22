@@ -85,12 +85,11 @@ def requesturl(url):
         time.sleep(3)
     except:
         pass
-
-    if len(handles)>1:
+    
+    while len(handles)>1:
         browser.close()
         browser.switch_to.window(handles[1])
-    else:
-        print("brower wrong")
+        handles = browser.window_handles
 
     try:
         browser.get(url)
@@ -210,23 +209,39 @@ def requesturl(url):
                 }"""
         for tag in atag:
             if len(webinfo['webtext'])<15:
+                tmpbool = True
                 if tag.get_text():
                     for keyword in skip_text:   #访问可能的跳转页面
                         if keyword in tag.get_text():
-                            browser.execute_script(js1,tag.get_text().strip())
-                            time.sleep(10)
-                            soup = BeautifulSoup(browser.page_source, 'html.parser')
-                            get_info()
-                            break
-                else:
-                    for keyword in href_text:
-                        if tag.has_attr('href'):
-                            if keyword in tag['href']:
-                                browser.execute_script(js2,tag['href'].strip())
+                            tmpbool = False
+                            try:
+                                browser.execute_script(js1,tag.get_text().strip())
                                 time.sleep(10)
                                 soup = BeautifulSoup(browser.page_source, 'html.parser')
                                 get_info()
                                 break
+                            except Exception as e:
+                                pass
+                            soup = BeautifulSoup(browser.page_source, 'html.parser')
+                            get_info()
+                if tmpbool:
+                    tmpurl = url.replace("http://","",1)
+                    tmpurl = tmpurl.replace("www.","",1)
+                    for keyword in href_text:
+                        if tag.has_attr('href'):
+                            if tmpurl in tag['href'] and keyword in tag['href']:
+                                try:
+                                    browser.execute_script(js2,tag['href'].strip())
+                                    time.sleep(5)
+                                    browser.switch_to.alert.accept()
+                                    time.sleep(3)
+                                except Exception as e:
+                                    print(e)
+                                    pass
+                                soup = BeautifulSoup(browser.page_source, 'html.parser')
+                                get_info()
+                                break
+                
     
     #  可能有frame 寻找全部frame
     while True:

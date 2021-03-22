@@ -16,7 +16,14 @@ s.keep_alive = False
 url =  "ebrun.com"
 url =  "dennis.com.cn"
 
-
+badtitles=['404 Not Found', '找不到',  'null', 'Not Found','阻断页','Bad Request','Time-out','No configuration',
+'TestPage','IIS7','Default','已暂停' ,'Server Error','403 Forbidden','禁止访问','载入出错','没有找到',
+'无法显示','无法访问','Bad Gateway','正在维护','配置未生效','访问报错','Welcome to nginx','Suspended Domain',
+'IIS Windows','Invalid URL','服务器错误','400 Unknown Virtual Host','无法找到','资源不存在',
+'Temporarily Unavailable','Database Error','temporarily unavailable','Bad gateway','不再可用','error Page',
+'Internal Server Error','升级维护中','Service Unavailable','站点不存在','405','Access forbidden','System Error',
+'详细错误','页面载入出错','Error','错误','Connection timed out','域名停靠','网站访问报错','错误提示','临时域名',
+'未被授权查看','Test Page','发生错误','非法阻断','链接超时','403 Frobidden','建设中','访问出错']
 headers={   
 'User-Agent':'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/34.0.1847.137 Safari/537.36 LBBROWSER'
         } 
@@ -130,7 +137,11 @@ aboutlist = []  # 关于页面的连接
 #     print("aa")
 #     print (e)
 #     quit()
-
+def ifbadtitle(mytitle):
+    for badtitle in badtitles:
+        if badtitle in mytitle:
+            return True
+    return False
 time_limit = 10  #set timeout time 3s
 
 option = Options()
@@ -164,10 +175,10 @@ def requesturl(url):
     handles = browser.window_handles
     time.sleep(2)
 
-    if len(handles)>1:
-        print("len1 ",len(handles))
+    while len(handles)>1:
         browser.close()
         browser.switch_to.window(handles[1])
+        handles = browser.window_handles
 
     try:
         browser.get(url)
@@ -253,12 +264,12 @@ def requesturl(url):
 
 # 第一阶段
     print(" step 1")
-
     #开始获取信息
     get_info()
     # print(webinfo['title'])
     print(" step 1 1")
-
+    if ifbadtitle(webinfo['title']):
+        return webinfo
     #信息太少可能有跳转等待 重新获取
     if len(webinfo['webtext'])<15:
         time.sleep(10)
@@ -308,44 +319,23 @@ def requesturl(url):
                     for keyword in href_text:
                         if tag.has_attr('href'):
                             if tmpurl in tag['href'] and keyword in tag['href']:
-                                print(tag)
-                            # if keyword in tag['href']:
                                 try:
                                     browser.execute_script(js2,tag['href'].strip())
-                                    # browser.switch_to.alert.accept()
-                                    time.sleep(3)
+                                    time.sleep(5)
                                     print("aaaa")
-                                    browser.find_element_by_id('alert').click()
+                                    browser.switch_to.alert.accept()
                                     time.sleep(3)
-                                    print("aaaa")
-
-                                    element = browser.switch_to.active_element
-                                    print("bbb")
-
-                                    print(element)
-                                    element.click()
-                                    print("ccc")
-
-                                    time.sleep(3)
-
                                 except Exception as e:
                                     print("sss")
                                     print(e)
-                                    # browser.switch_to.alert().accept()
                                     element = browser.switch_to.active_element
                                     print(element)
                                     element.click()
-                                    # browser.find_element_by_id('alert').click()
                                     print("aaaa")
-
-                                    # element = browser.switch_to.active_element
-                                    # print(element)
-                                    # element.click()
                                     time.sleep(3)
                                 soup = BeautifulSoup(browser.page_source, 'html.parser')
                                 get_info()
                                 break
-    
     print(" step 1 2")
 
     #  可能有frame 寻找全部frame
@@ -453,35 +443,12 @@ def requesturl(url):
         webinfo['abouttext'] = []
     # print(webinfo['title'])
     
-
-    # if browser.current_url =="about:blank":
-    #     print(browser.current_url)
-    #     raise Exception
-        
-    
-    # js = 'window.open("");'
-    # browser.execute_script(js)
-    # # time.sleep(10)
-    # browser.close()
-    # handles = browser.window_handles
-    # time.sleep(10)
-    # browser.switch_to.window(handles[0])
-    # browser.close()
     print(" step 2 3")
 
     return webinfo
 
  #将数据写入文件
 
-
-badtitles=['404 Not Found', '找不到',  'null', 'Not Found','阻断页','Bad Request','Time-out','No configuration',
-'TestPage','IIS7','Default','已暂停' ,'Server Error','403 Forbidden','禁止访问','载入出错','没有找到',
-'无法显示','无法访问','Bad Gateway','正在维护','配置未生效','访问报错','Welcome to nginx','Suspended Domain',
-'IIS Windows','Invalid URL','服务器错误','400 Unknown Virtual Host','无法找到','资源不存在',
-'Temporarily Unavailable','Database Error','temporarily unavailable','Bad gateway','不再可用','error Page',
-'Internal Server Error','升级维护中','Service Unavailable','站点不存在','405','Access forbidden','System Error',
-'详细错误','页面载入出错','Error','错误','Connection timed out','域名停靠','网站访问报错','错误提示','临时域名',
-'未被授权查看','Test Page','发生错误','非法阻断','链接超时','403 Frobidden','建设中','访问出错']
 
 
 
@@ -507,10 +474,8 @@ try:
             raise Exception
 except Exception as e:
     print (e)
-
     try:
         print("2")
-
         if url.split(".")[0]!="www":
             httpsurl = 'http://www.' + url
         else:
@@ -525,6 +490,46 @@ except Exception as e:
         print (e)
         # print("fail ", url)
 
+url = "www.zhengjimt.com"
+# url = "caenet.cn"
+# url = "health.china.com.cn"
+url="p2p.hexun.com"
+# url = "360tuan.com"
+url="www.huanbaoj.com/"
+
+# browser.get(url)
+# browser.get("about:preferences")#进入选项页面
+# browser.find_element(By.ID, "linkTargeting").click()
+
+try:
+    print("1")
+    httpsurl =  'http://' + url
+    resultdata = requesturl(httpsurl)
+    print(resultdata)
+    #网页是否无法访问
+    for badtitle in badtitles:
+        if badtitle in resultdata['title']:
+            print('title error')
+            print(badtitle)
+            raise Exception
+except Exception as e:
+    print (e)
+    try:
+        print("2")
+        if url.split(".")[0]!="www":
+            httpsurl = 'http://www.' + url
+        else:
+            httpsurl = 'http://' + url.replace('www.','',1)
+        resultdata = requesturl(httpsurl)
+        print(resultdata)
+        #网页是否无法访问
+        for badtitle in badtitles:
+            if badtitle in resultdata['title']:
+                raise Exception
+        # good_result1.append(url)
+    except Exception as e:
+        print (e)
+        # print("fail ", url)
 # browser.quit()
 
 
