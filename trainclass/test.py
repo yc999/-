@@ -3,6 +3,7 @@ from bs4 import  BeautifulSoup, Comment
 import random
 import re
 import time
+import traceback
 from selenium.webdriver.firefox.options import Options
 from selenium import webdriver
 from selenium.webdriver.support import expected_conditions as EC
@@ -27,12 +28,9 @@ badtitles=['404 Not Found', '找不到',  'null', 'Not Found','阻断页','Bad R
 headers={   
 'User-Agent':'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/34.0.1847.137 Safari/537.36 LBBROWSER'
         } 
-# if url.split(".")[0]!="www":
-#     httpsurl = 'https://www.' + url
-# else:
+
 httpsurl =  'http://www.' + url
 httpsurl = "http://www.keke289.com/"
-# httpsurl = "http://www.auchan.com.cn"
 httpsurl = "http://www.crv.com.cn"
 httpsurl = "http://www.spdb.com.cn"
 httpsurl = "http://qjmotor.com/"
@@ -94,10 +92,6 @@ httpsurl="https://ww.8220966.com/?id=1"
 
 
 
-
-
-
-
 # r = s.get(httpsurl,timeout=15,headers=headers)
 # print(r.text)
 webinfo={}  #最后保存的数据
@@ -105,38 +99,7 @@ webtext = []    #首页内容文本
 abouttext = []  #关于页面内容文本
 aboutlist = []  # 关于页面的连接
 
-# time_limit = 40  #set timeout time 3s
 
-# # option = webdriver.ChromeOptions()
-# option = Options()
-# option.add_argument('--no-sandbox')
-# option.add_argument('--disable-dev-shm-usage')
-# # option.add_argument('--headless') #静默运行
-# # option.add_argument('--disable-gpu')  # 禁用GPU加速,GPU加速可能会导致Chrome出现黑屏，且CPU占用率高达80%以上
-# # option.add_experimental_option('excludeSwitches', ['enable-logging'])
-# try:
-#     # browser = webdriver.Chrome(options=option)
-#     browser = webdriver.Firefox(options=option)
-#     browser.set_page_load_timeout(time_limit)
-#     browser.implicitly_wait(time_limit)
-#     browser.get(httpsurl)
-#     WebDriverWait(browser, time_limit, 0.5).until_not(EC.title_is(""))
-#     # time.sleep(10)
-# except   TimeoutException:
-#     print("time out")
-#     browser.execute_script('window.stop()')
-# except UnexpectedAlertPresentException:
-#     time.sleep(5)
-#     element = browser.switch_to.active_element
-#     element.click()
-#     # a = browser.switch_to_alert()
-#     # a.accept()
-#     # browser.delete_all_cookies()
-
-# except Exception as e:
-#     print("aa")
-#     print (e)
-#     quit()
 def ifbadtitle(mytitle):
     for badtitle in badtitles:
         if badtitle in mytitle:
@@ -179,6 +142,7 @@ def requesturl(url):
         browser.close()
         browser.switch_to.window(handles[1])
         handles = browser.window_handles
+        time.sleep(2)
 
     try:
         browser.get(url)
@@ -190,8 +154,8 @@ def requesturl(url):
         time.sleep(5)
         element = browser.switch_to.active_element
         element.click()
-    except Exception as e:
-        print (e)
+    # except Exception as e:
+    #     print (e)
 
     if browser.current_url =="about:blank":
         raise Exception
@@ -326,16 +290,46 @@ def requesturl(url):
                                     browser.switch_to.alert.accept()
                                     time.sleep(3)
                                 except Exception as e:
-                                    print("sss")
                                     print(e)
-                                    element = browser.switch_to.active_element
-                                    print(element)
-                                    element.click()
-                                    print("aaaa")
-                                    time.sleep(3)
+                                    pass
                                 soup = BeautifulSoup(browser.page_source, 'html.parser')
                                 get_info()
                                 break
+    #找input 
+    if len(webinfo['webtext'])<15:
+        print("find input")
+        soup = BeautifulSoup(browser.page_source, 'html.parser')
+        inputag = soup.find_all('input')
+        print(inputag)
+        js1 = """var ipt = document.getElementsByTagName("input");
+                for (i = 0; i<ipt.length; i ++){
+                    if (ipt[i].name == arguments[0]){
+                        ipt[i].target = "_self";
+                        ipt[i].click();
+                        return ;
+                    }
+                }"""
+        for tag in inputag:
+            # print( str(tag))
+            print(tag['name'])
+            tmpbool=True
+            if tmpbool:
+                if tag.has_attr('name') :
+                    for keyword in href_text:   #访问可能的跳转页面
+                        if keyword in str(tag):
+                            try:
+                                print(tag)
+                                browser.execute_script(js1,tag['name'].strip())
+                                time.sleep(10)
+                            except Exception as e:
+                                print(e)
+                                pass
+                            soup = BeautifulSoup(browser.page_source, 'html.parser')
+                            get_info()
+                            tmpbool=False
+                            break
+            else:
+                break
     print(" step 1 2")
 
     #  可能有frame 寻找全部frame
@@ -390,8 +384,8 @@ def requesturl(url):
             aboutlist.append(href['title'].strip())
     aboutlist = list(set(aboutlist))    #去重
 
-    print(" step 2 2")
-
+    print(" step 2 2  aboutlist")
+    print(aboutlist)
     if len(aboutlist)>0:
         aboutcount = min(len(aboutlist),3)
         js = """var ipt = document.getElementsByTagName("a");
@@ -457,7 +451,9 @@ url = "www.zhengjimt.com"
 # url = "health.china.com.cn"
 # url="p2p.hexun.com"
 url = "360tuan.com"
-
+url="www.stheadline1.com"
+url = "topbiz360.com"
+url = "hengcheng-tools.com.cn"
 # browser.get(url)
 # browser.get("about:preferences")#进入选项页面
 # browser.find_element(By.ID, "linkTargeting").click()
@@ -469,9 +465,8 @@ try:
     #网页是否无法访问
     for badtitle in badtitles:
         if badtitle in resultdata['title']:
-            print('title error')
             print(badtitle)
-            raise Exception
+            raise Exception("title error")
 except Exception as e:
     print (e)
     try:
@@ -484,10 +479,16 @@ except Exception as e:
         #网页是否无法访问
         for badtitle in badtitles:
             if badtitle in resultdata['title']:
-                raise Exception
+                raise Exception("title error")
         # good_result1.append(url)
     except Exception as e:
         print (e)
+        print("aaa")
+        print(str(e))
+        # print(traceback.format_exc()) 
+        if "Reached error page" in str(e):
+            print("aaa")
+            print(type(e))
         # print("fail ", url)
 
 url = "www.zhengjimt.com"
@@ -495,8 +496,8 @@ url = "www.zhengjimt.com"
 # url = "health.china.com.cn"
 url="p2p.hexun.com"
 # url = "360tuan.com"
-url="www.huanbaoj.com/"
-
+url="www.huanbaoj.com"
+url = "shansteelgroup.com"
 # browser.get(url)
 # browser.get("about:preferences")#进入选项页面
 # browser.find_element(By.ID, "linkTargeting").click()
@@ -505,7 +506,7 @@ try:
     print("1")
     httpsurl =  'http://' + url
     resultdata = requesturl(httpsurl)
-    print(resultdata)
+    # print(resultdata)
     #网页是否无法访问
     for badtitle in badtitles:
         if badtitle in resultdata['title']:

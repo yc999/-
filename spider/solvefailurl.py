@@ -90,6 +90,7 @@ def requesturl(url):
         browser.close()
         browser.switch_to.window(handles[1])
         handles = browser.window_handles
+        time.sleep(2)
 
     try:
         browser.get(url)
@@ -101,8 +102,6 @@ def requesturl(url):
         element = browser.switch_to.active_element
         element.click()
     # r.encoding = r.apparent_encoding
-
-
 
     time.sleep(3)
     initwebinfo()
@@ -182,7 +181,6 @@ def requesturl(url):
         initwebinfo()
         soup = BeautifulSoup(browser.page_source, 'html.parser')
         get_info()
-
     
     skip_text = ['点击','跳转','进入']
     href_text = ['index', 'main','default','info']
@@ -217,10 +215,11 @@ def requesturl(url):
                             try:
                                 browser.execute_script(js1,tag.get_text().strip())
                                 time.sleep(10)
-                                soup = BeautifulSoup(browser.page_source, 'html.parser')
-                                get_info()
+                                browser.switch_to.alert.accept()
+                                time.sleep(3)
                                 break
                             except Exception as e:
+                                print(e)
                                 pass
                             soup = BeautifulSoup(browser.page_source, 'html.parser')
                             get_info()
@@ -232,7 +231,7 @@ def requesturl(url):
                             if tmpurl in tag['href'] and keyword in tag['href']:
                                 try:
                                     browser.execute_script(js2,tag['href'].strip())
-                                    time.sleep(5)
+                                    time.sleep(8)
                                     browser.switch_to.alert.accept()
                                     time.sleep(3)
                                 except Exception as e:
@@ -241,8 +240,41 @@ def requesturl(url):
                                 soup = BeautifulSoup(browser.page_source, 'html.parser')
                                 get_info()
                                 break
-                
-    
+    #找input 
+    if len(webinfo['webtext'])<15:
+        print("find input")
+        soup = BeautifulSoup(browser.page_source, 'html.parser')
+        inputag = soup.find_all('input')
+        print(inputag)
+        js1 = """var ipt = document.getElementsByTagName("input");
+                for (i = 0; i<ipt.length; i ++){
+                    if (ipt[i].name == arguments[0]){
+                        ipt[i].target = "_self";
+                        ipt[i].click();
+                        return ;
+                    }
+                }"""
+        for tag in inputag:
+            # print( str(tag))
+            print(tag['name'])
+            tmpbool=True
+            if tmpbool:
+                if tag.has_attr('name') :
+                    for keyword in href_text:   #访问可能的跳转页面
+                        if keyword in str(tag):
+                            try:
+                                print(tag)
+                                browser.execute_script(js1,tag['name'].strip())
+                                time.sleep(10)
+                            except Exception as e:
+                                print(e)
+                                pass
+                            soup = BeautifulSoup(browser.page_source, 'html.parser')
+                            get_info()
+                            tmpbool=False
+                            break
+            else:
+                break
     #  可能有frame 寻找全部frame
     while True:
         try:
@@ -254,7 +286,8 @@ def requesturl(url):
                 soup = BeautifulSoup(browser.page_source, 'html.parser')
                 get_info()
                 browser.switch_to.default_content()
-        except :
+        except:
+            browser.switch_to.default_content()
             break
 
 # 第二阶段
@@ -335,7 +368,7 @@ def requesturl(url):
     else:
         webinfo['abouttext'] = []
 
-## 结束 新开页面 关闭之前的页面 防止之前的页面被新页面利用
+## 结束 
     return webinfo
 
  #将数据写入文件
@@ -376,10 +409,8 @@ for filename in fs:
                 try:
                     httpsurl =  'http://' + url
                     resultdata = requesturl(httpsurl)
-                    #网页是否无法访问
                     if ifbadtitle(resultdata['title']):
-                            print('title error')
-                            raise Exception
+                        raise Exception("title error")
                     writedata(savefilepath,resultdata)
                 except:
                     try:
@@ -392,12 +423,12 @@ for filename in fs:
                         resultdata = requesturl(httpsurl)
                         #网页是否无法访问
                         if ifbadtitle(resultdata['title']):
-                                raise Exception
+                            raise Exception("title error")
                         writedata(savefilepath, resultdata)
                     except Exception as e:
                         print (e)
-                        # print("fail ", url)
-                        makelog(e + url)
+                        if "Reached error page" not in str(e) and "title error" not in str(e):
+                            makelog(e + url)
         except:
             pass
 
