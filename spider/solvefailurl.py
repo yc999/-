@@ -22,7 +22,7 @@ badtitles=['404 Not Found', '找不到',  'null', 'Not Found','阻断页','Bad R
 'Temporarily Unavailable','Database Error','temporarily unavailable','Bad gateway','不再可用','error Page',
 'Internal Server Error','升级维护中','Service Unavailable','站点不存在','405','Access forbidden','System Error',
 '详细错误','页面载入出错','Error','错误','Connection timed out','域名停靠','网站访问报错','错误提示','临时域名',
-'未被授权查看','Test Page','发生错误','非法阻断','链接超时','403 Frobidden','建设中','访问出错']
+'未被授权查看','Test Page','发生错误','非法阻断','链接超时','403 Frobidden','建设中','访问出错','出错啦']
 
 time_limit = 40  #set timeout time 3s
 
@@ -81,23 +81,25 @@ def requesturl(url):
     try:
         js = 'void(window.open(""));'
         browser.execute_script(js)
-        handles = browser.window_handles
         time.sleep(3)
     except:
+        print ("window.open("")  error")
         pass
-    
+
+    handles = browser.window_handles
     while len(handles)>1:
         browser.close()
         browser.switch_to.window(handles[1])
         handles = browser.window_handles
         time.sleep(2)
-
     try:
         browser.get(url)
         WebDriverWait(browser, time_limit, 1).until_not(EC.title_is(""))
     except   TimeoutException:
+        print("TimeoutException")
         browser.execute_script(stopjs) #   超时停止js脚步
     except UnexpectedAlertPresentException:
+        print("UnexpectedAlertPresentException")
         time.sleep(5)
         element = browser.switch_to.active_element
         element.click()
@@ -119,43 +121,30 @@ def requesturl(url):
                 try:
                     webinfo['title'] += head.title.string.strip()
                 except:
-                    # webinfo['title'] = ""
                     pass
-        # if webinfo['description'] == "":
             try:
                 webinfo['description'] += head.find('meta',attrs={'name':'description'})['content']
             except:
-                # webinfo['description'] = ""
                 pass
-        # if webinfo['description'] == "":
             try:
                 webinfo['description'] += head.find('meta',attrs={'name':'Description'})['content']
             except:
-                # webinfo['description'] = ""
                 pass
-        # if webinfo['description'] == "":
             try:
                 webinfo['description'] += head.find('meta',attrs={'name':'DESCRIPTION'})['content']
             except:
-                # webinfo['description'] = ""
                 pass
-        # if webinfo['keywords'] == "":
             try:
                 webinfo['keywords'] += head.find('meta',attrs={'name':'keywords'})['content']
             except:
-                # webinfo['keywords'] = ""
                 pass
-        # if webinfo['keywords'] == "":
             try:
                 webinfo['keywords'] += head.find('meta',attrs={'name':'Keywords'})['content']
             except:
-                # webinfo['keywords'] = ""
                 pass
-        # if webinfo['keywords'] == "":
             try:
                 webinfo['keywords'] += head.find('meta',attrs={'name':'KEYWORDS'})['content']
             except:
-                # webinfo['keywords'] = ""
                 pass
     def get_bodytext():
         for textstring in soup.stripped_strings:
@@ -287,6 +276,7 @@ def requesturl(url):
                 get_info()
                 browser.switch_to.default_content()
         except:
+            print("frame error")
             browser.switch_to.default_content()
             break
 
@@ -363,6 +353,7 @@ def requesturl(url):
             try:
                 browser.back()
             except   TimeoutException:
+                print("step2 TimeoutException")
                 browser.execute_script(stopjs)
         webinfo['abouttext'] = abouttext
     else:

@@ -120,6 +120,7 @@ browser.set_page_load_timeout(time_limit)
 # 查询网址，爬取内容
 def requesturl(url):
     print(url)
+    browser.delete_all_cookies()
     webinfo={}  #最后保存的数据
     webtext = []    #首页内容文本
     abouttext = []  #关于页面内容文本
@@ -133,11 +134,14 @@ def requesturl(url):
                 window.stop ? window.stop() : document.execCommand("Stop");
                 """
 
-    js = 'void(window.open(""));'
-    browser.execute_script(js)
+    try:
+        js = 'void(window.open(""));'
+        browser.execute_script(js)
+        time.sleep(3)
+    except:
+        print ("window.open("")  error")
+        pass
     handles = browser.window_handles
-    time.sleep(2)
-
     while len(handles)>1:
         browser.close()
         browser.switch_to.window(handles[1])
@@ -157,10 +161,7 @@ def requesturl(url):
     # except Exception as e:
     #     print (e)
 
-    if browser.current_url =="about:blank":
-        raise Exception
 
-    print("333")
     time.sleep(5)
     initwebinfo()
     soup = BeautifulSoup(browser.page_source, 'html.parser')
@@ -454,6 +455,7 @@ url = "360tuan.com"
 url="www.stheadline1.com"
 url = "topbiz360.com"
 url = "hengcheng-tools.com.cn"
+url = "bigpian.cn"
 # browser.get(url)
 # browser.get("about:preferences")#进入选项页面
 # browser.find_element(By.ID, "linkTargeting").click()
@@ -498,9 +500,8 @@ url="p2p.hexun.com"
 # url = "360tuan.com"
 url="www.huanbaoj.com"
 url = "shansteelgroup.com"
-# browser.get(url)
-# browser.get("about:preferences")#进入选项页面
-# browser.find_element(By.ID, "linkTargeting").click()
+url = "www.miaobolive.com"
+
 
 try:
     print("1")
@@ -540,37 +541,3 @@ except Exception as e:
 # # url = "health.china.com.cn"
 # # url="p2p.hexun.com"
 # # url = "360tuan.com"
-
-# # browser.get(url)
-# # browser.get("about:preferences")#进入选项页面
-# # browser.find_element(By.ID, "linkTargeting").click()
-
-# try:
-#     print("1")
-#     httpsurl =  'http://' + url
-#     resultdata = requesturl(httpsurl)
-#     #网页是否无法访问
-#     for badtitle in badtitles:
-#         if badtitle in resultdata['title']:
-#             print('title error')
-#             print(badtitle)
-#             raise Exception
-# except Exception as e:
-#     print (e)
-
-#     try:
-#         print("2")
-
-#         if url.split(".")[0]!="www":
-#             httpsurl = 'http://www.' + url
-#         else:
-#             httpsurl = 'http://' + url.replace('www.','',1)
-#         resultdata = requesturl(httpsurl)
-#         #网页是否无法访问
-#         for badtitle in badtitles:
-#             if badtitle in resultdata['title']:
-#                 raise Exception
-#         # good_result1.append(url)
-#     except Exception as e:
-#         print (e)
-#         # print("fail ", url)
