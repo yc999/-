@@ -1,5 +1,5 @@
 #-- coding: utf-8 --
-# 找到爬过的非目标网页
+# 根据关键词 找到可疑爬过的非目标网页
 import sys
 # print(sys.path)
 import os

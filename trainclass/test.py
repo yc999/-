@@ -105,7 +105,7 @@ def ifbadtitle(mytitle):
         if badtitle in mytitle:
             return True
     return False
-time_limit = 10  #set timeout time 3s
+time_limit = 40  #set timeout time 3s
 
 option = Options()
 option.add_argument('--no-sandbox')
@@ -113,6 +113,9 @@ option.add_argument('log-level=3')
 # option.add_argument('--disable-dev-shm-usage')
 # option.add_argument('--headless') #静默运行
 option.add_argument('--disable-gpu')  # 禁用GPU加速,GPU加速可能会导致Chrome出现黑屏，且CPU占用率高达80%以上
+# prefs = { "profile.managed_default_content_settings.images": 2 }
+option.set_preference('permissions.default.stylesheet',2)
+option.set_preference('permissions.default.image', 2)
 browser = webdriver.Firefox(options=option)
 # browser = webdriver.Chrome(options=option)
 browser.implicitly_wait(time_limit)
