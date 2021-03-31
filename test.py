@@ -2,7 +2,9 @@
 import  requests
 from bs4 import  BeautifulSoup
 
-response=requests.get('http://www.360tuan.com/index.php?mod=user&act=index')
+# response=requests.get('http://www.bigpian.cn')
+response=requests.get('http://www.vslai.com/')
+# http://www.vslai.com/
 re_text=response.text
 re_content=response.content
 print(re_text)
