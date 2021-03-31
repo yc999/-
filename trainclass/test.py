@@ -105,7 +105,7 @@ def ifbadtitle(mytitle):
         if badtitle in mytitle:
             return True
     return False
-time_limit = 40  #set timeout time 3s
+time_limit = 30  #set timeout time 3s
 
 option = Options()
 option.add_argument('--no-sandbox')
@@ -114,8 +114,8 @@ option.add_argument('log-level=3')
 # option.add_argument('--headless') #静默运行
 option.add_argument('--disable-gpu')  # 禁用GPU加速,GPU加速可能会导致Chrome出现黑屏，且CPU占用率高达80%以上
 # prefs = { "profile.managed_default_content_settings.images": 2 }
-option.set_preference('permissions.default.stylesheet',2)
-option.set_preference('permissions.default.image', 2)
+# option.set_preference('permissions.default.stylesheet',2)
+# option.set_preference('permissions.default.image', 2)
 browser = webdriver.Firefox(options=option)
 # browser = webdriver.Chrome(options=option)
 browser.implicitly_wait(time_limit)
@@ -133,10 +133,7 @@ def requesturl(url):
         webinfo['description'] = ""
         webinfo['keywords'] = ""
         webinfo['webtext'] = []
-    stopjs = """
-                window.stop ? window.stop() : document.execCommand("Stop");
-                """
-
+    stopjs = """ window.stop ? window.stop() : document.execCommand("Stop"); """
     try:
         js = 'void(window.open(""));'
         browser.execute_script(js)
@@ -157,6 +154,7 @@ def requesturl(url):
     except   TimeoutException:
         print('加载超过5秒，强制停止加载....')
         browser.execute_script(stopjs) #   超时停止js脚步
+        print("badf")
     except UnexpectedAlertPresentException:
         time.sleep(5)
         element = browser.switch_to.active_element
@@ -164,8 +162,10 @@ def requesturl(url):
     # except Exception as e:
     #     print (e)
 
-
+    print("aaa")
     time.sleep(5)
+    print("aaa")
+
     initwebinfo()
     soup = BeautifulSoup(browser.page_source, 'html.parser')
 
