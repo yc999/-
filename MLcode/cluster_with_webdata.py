@@ -89,7 +89,6 @@ initclass(filepath)
 # 标签下标存入 Y_train_text
 X_train_text = []
 Y_train = []
-jieba.setLogLevel(logging.INFO)
 #读取保存的网页信息
 path = "D:/dnswork/sharevm/topchinaz/"
 fs = os.listdir(path)
