@@ -1,36 +1,17 @@
-# -*- coding: utf-8 -*-
 import sys
-from gensim.models import Word2Vec
-# from LoadData import loadData
-import numpy as np
-from keras.preprocessing import sequence
-from keras.models import Sequential
-# from keras.layers import Dropout,Dense,Embedding,LSTM,Activation
-from keras.layers import Dense, LSTM, Embedding, Dropout, Conv1D, MaxPooling1D, Bidirectional, Activation,Masking
-import pickle
-from sklearn.model_selection import train_test_split
-from gensim.corpora.dictionary import Dictionary
-
-import re
-from gensim import corpora,models,similarities
-import sys
-import io
-import jieba
-import codecs
-from gensim import corpora
-# from gensim import models
-# from gensim.corpora import Dictionary
-import json
-import logging
+# print(sys.path)
 import os
+import numpy as np
+# print(os.path.realpath('./MLcode/'))
+sys.path.append(os.path.realpath('./Clustering'))
+sys.path.append(os.path.realpath('../Clustering'))
 sys.path.append(os.path.realpath('./spider'))
 sys.path.append(os.path.realpath('../spider'))
 
-import spider.mytool as mytool
+import meanShift as ms
+import mytool
 
-
-
-# 步骤1 读取预训练词向量  
+# 步骤1 加载词向量  
 # embeddings_index 为字典  单词 ：下标
 # embedding_matrix 词向量数组 
 
@@ -52,6 +33,16 @@ for line in f:
     i = i+1
 print('Found %s word vectors.' % i)
 f.close()
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -92,6 +83,7 @@ filepath = "D:/dnswork/sharevm/top.chinaz.txt"
 initclass(filepath)
 
 
+
 #2.3 读取爬取的网页信息
 # 数据存入 X_train_text 网页中所有语句合成一句
 # 标签下标存入 Y_train_text
@@ -127,7 +119,6 @@ print(j)
 # X_train 训练数据
 X_train = []
 
-
 # 将单词转为词向量的下标,下标从1开始 返回下标的list
 def words2index(words):
     index_list = []
@@ -139,48 +130,4 @@ def words2index(words):
 for sentence in X_train_text:
     tmp_words = mytool.seg_sentence(sentence,stopwordslist)
     X_train.append(words2index(tmp_words))
-
-
-
-
-# 3 机器学习训练
-
-# def get_lstm_model(max_features, embed_size):
-def get_lstm_model():
-    model = Sequential()
-    # model.add(Masking(mask_value= [-1. -1.      -1.   -1.  ],input_shape=(3,4)))
-    model.add(Embedding(EMBEDDING_length + 1,
-                            EMBEDDING_DIM,
-                            weights=[embedding_matrix],
-                            # input_length=MAX_SEQUENCE_LENGTH,
-                            mask_zero = True,
-                            trainable=False))
-    model.add(LSTM(3, recurrent_dropout=0.1))
-    model.add(Dropout(0.25))
-    model.add(Dense(64))
-    model.add(Dropout(0.3))
-    model.add(Dense(1, activation='softmax'))
-    model.summary()
-    model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['acc'])
-    return model
-
-MAX_NB_WORDS = 50000
-# 每条cut_review最大的长度
-MAX_SEQUENCE_LENGTH = 250
-# 设置Embeddingceng层的维度
-EMBEDDING_DIM = 100
-
-data1 = np.random.random(size=( 5,3, 4)) # batch_size = 1, timespan = 100
-print(data1)
-data1[1,2]=-1
-print(data1)
-y_train = np.random.random(size=(5))
-print(y_train)
-# model = get_lstm_model(max_features, embed_size)
-model = get_lstm_model()
-def model_fit(model, x, y):
-    return model.fit(x, y, batch_size=1, epochs=2, validation_split=0.2)
-model_train = model_fit(model, data1, y_train)
-# tokenizer = Tokenizer(num_words=MAX_NB_WORDS, filters='!"#$%&()*+,-./:;<=>?@[\]^_`{|}~', lower=True)
-# tokenizer.fit_on_texts(df['cut_review'].values)
 
