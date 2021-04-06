@@ -4,8 +4,7 @@ import sys
 # print(sys.path)
 import os
 # print(os.path.realpath('./MLcode/'))
-sys.path.append(os.path.realpath('./MLcode'))
-sys.path.append(os.path.realpath('../MLcode'))
+
 import mytool
 
 filepath = '/home/jiangy2/webdata'

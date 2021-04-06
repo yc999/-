@@ -42,12 +42,17 @@ def ifbadtitle(mytitle):
 # logpath = "E:/webdata/relog.txt"
 savepath = "../../newwebdata/"
 logpath = "../../newwebdata/relog.txt"
+messageless_log_path =  "../../newwebdata/messagelog.txt"
 if not os.path.isdir(savepath):
     os.mkdir(savepath)
 
 logfile = open(logpath,'a+')
 def makelog(logmessage):
     logfile.write(logmessage + '\n')
+
+messagelogfile = open(messageless_log_path,'a+')
+def messagelesslog(logmessage):
+    messagelogfile.write(logmessage + '\n')
 
 # option = webdriver.ChromeOptions()
 
@@ -362,14 +367,13 @@ def requesturl(url):
 ## 结束 
     return webinfo
 
- #将数据写入文件
+#将数据写入文件
 def writedata(savefilepath,webinfo):
     if len(webinfo['webtext'])<15:
-        makelog(url + " too less message")
+        messagelesslog(url + " too less message")
     f = open(savefilepath, "w",encoding="utf-8")
     f.write(json.dumps(webinfo, ensure_ascii=False))
     f.close()#关闭文件
-
 
 
 # 读取网页url
