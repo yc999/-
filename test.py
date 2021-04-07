@@ -14,3 +14,5 @@ print(type(re_content))
 response.encoding='utf-8'
 re_text=response.text
 print(re_text)
+
+

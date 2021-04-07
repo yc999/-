@@ -11,6 +11,57 @@ sys.path.append(os.path.realpath('../spider'))
 import meanShift as ms
 import mytool
 
+
+
+# import mean_shift as ms
+import matplotlib.pyplot as plt
+# import numpy as np
+
+data = np.genfromtxt('data.csv', delimiter=',')
+
+mean_shifter = ms.MeanShift()
+mean_shift_result = mean_shifter.cluster(data, kernel_bandwidth = 1)
+
+original_points =  mean_shift_result.original_points
+shifted_points = mean_shift_result.shifted_points
+cluster_assignments = mean_shift_result.cluster_ids
+
+x = original_points[:,0]
+y = original_points[:,1]
+Cluster = cluster_assignments
+centers = shifted_points
+
+fig = plt.figure()
+ax = fig.add_subplot(111)
+scatter = ax.scatter(x,y,c=Cluster,s=50)
+for i,j in centers:
+    ax.scatter(i,j,s=50,c='red',marker='+')
+ax.set_xlabel('x')
+ax.set_ylabel('y')
+plt.colorbar(scatter)
+
+fig.savefig("mean_shift_result")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 # 步骤1 加载词向量  
 # embeddings_index 为字典  单词 ：下标
 # embedding_matrix 词向量数组 
@@ -110,7 +161,9 @@ for subpath in fs:
                     X_train_text.append(mytool.get_all_webdata(webdata))
                     Y_train.append(webdata_class_index)
 
+print("已爬取网页数：")
 print(i)
+print("有效网页数：")
 print(j)
 
 
