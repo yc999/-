@@ -50,7 +50,6 @@ import matplotlib.pyplot as plt
 
 
 
-
 def get_mean_shift_result(mean_shift_result, maxlen=300):
     original_points =  mean_shift_result.original_points
     cluster_assignments = mean_shift_result.cluster_ids
@@ -75,9 +74,21 @@ def get_mean_shift_result(mean_shift_result, maxlen=300):
         cluster_choose_result = random.sample(cluster_dic[key], int(choose_count))
         result_point = result_point + cluster_choose_result
 
-    if len(result_point) < maxlen:
-        result_point = result_point + random.sample(list(original_points), maxlen- len(result_point))
+    
+    len_result_point = len(result_point)
+    while len_result_point < maxlen
+        random_number = random.randint(0,sum_point-1)
+        if random_number not in result_point:
+            result_point.append(random_number)
+            len_result_point = len_result_point + 1
     return result_point
+
+
+
+
+
+
+
 
 
 data = np.genfromtxt('D:/GitHubcode/-/MLcode/data.csv', delimiter=',')
