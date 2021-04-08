@@ -1,69 +1,120 @@
+# -*- coding: utf-8 -*-
 import sys
-# print(sys.path)
+from gensim.models import Word2Vec
+# from LoadData import loadData
+import numpy as np
+from keras.preprocessing import sequence
+from keras.models import Sequential
+# from keras.layers import Dropout,Dense,Embedding,LSTM,Activation
+from keras.layers import Dense, LSTM, Embedding, Dropout, Conv1D, MaxPooling1D, Bidirectional, Activation,Masking
+import pickle
+from sklearn.model_selection import train_test_split
+from gensim.corpora.dictionary import Dictionary
+import re
+from gensim import corpora,models,similarities
+import sys
+import io
+import codecs
+from gensim import corpora
+# from gensim import models
+# from gensim.corpora import Dictionary
+import json
+import logging
 import os
+from gensim.models import KeyedVectors
+from tensorflow.keras.preprocessing.sequence import pad_sequences
+from keras.utils.np_utils import *
 import numpy as np
 # print(os.path.realpath('./MLcode/'))
 sys.path.append(os.path.realpath('./Clustering'))
 sys.path.append(os.path.realpath('../Clustering'))
 sys.path.append(os.path.realpath('./spider'))
 sys.path.append(os.path.realpath('../spider'))
-
+import random
 import meanShift as ms
 import mytool
 
-
-
 # import mean_shift as ms
 import matplotlib.pyplot as plt
-# import numpy as np
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+def get_mean_shift_result(mean_shift_result, maxlen=300):
+    original_points =  mean_shift_result.original_points
+    cluster_assignments = mean_shift_result.cluster_ids
+    sum_point = len(cluster_assignments) # 总词数
+    # 词数小于最大长度 直接返回
+    if sum_point <= maxlen:
+        return []
+
+    # 将各类词的下标存入字典中
+    cluster_dic = {}
+    for index, cluster in enumerate(cluster_assignments):
+        if cluster  in cluster_dic:
+            cluster_dic[cluster].append(index)
+        else:
+            cluster_dic[cluster]=[index]
+
+    result_point = []
+    # 将每一类词取出放入list中
+    for key in cluster_dic:
+        cluster_count = len(cluster_dic[key]) # 该类词数
+        choose_count = maxlen * cluster_count / sum_point
+        cluster_choose_result = random.sample(cluster_dic[key], int(choose_count))
+        result_point = result_point + cluster_choose_result
+
+    if len(result_point) < maxlen:
+        result_point = result_point + random.sample(list(original_points), maxlen- len(result_point))
+    return result_point
+
 
 data = np.genfromtxt('D:/GitHubcode/-/MLcode/data.csv', delimiter=',')
 
 mean_shifter = ms.MeanShift()
 mean_shift_result = mean_shifter.cluster(data, kernel_bandwidth = 1)
 
+result = get_mean_shift_result(mean_shift_result, 100)
+# print (len(get_mean_shift_result(mean_shift_result, 100)))
+
+print(result)
+print(type(result))
+# aa = pad_sequences(result, maxlen=300)
+# print(aa)
+
+
+
+
+
+
+
+
+
+
+
+'''
+
+
 original_points =  mean_shift_result.original_points
 shifted_points = mean_shift_result.shifted_points
 cluster_assignments = mean_shift_result.cluster_ids
+print("original_points")
+print(len(original_points))
+print("shifted_points")
 
-print(original_points)
-print(cluster_assignments)
-
-
-x = original_points[:,0]
-y = original_points[:,1]
-Cluster = cluster_assignments
-centers = shifted_points
-
-# fig = plt.figure()
-# ax = fig.add_subplot(111)
-# scatter = ax.scatter(x,y,c=Cluster,s=50)
-# for i,j in centers:
-#     ax.scatter(i,j,s=50,c='red',marker='+')
-# ax.set_xlabel('x')
-# ax.set_ylabel('y')
-# plt.colorbar(scatter)
-
-# fig.savefig("mean_shift_result")
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+print(len(shifted_points))
+print(len(cluster_assignments))
 
 
 # 步骤1 加载词向量  
@@ -74,29 +125,23 @@ EMBEDDING_DIM = 200  #词向量长度
 EMBEDDING_length = 8824330
 MAX_SEQUENCE_LENGTH = 10
 
-filepath = 'Tencent_AILab_ChineseEmbedding.txt'
-f = open(filepath)
+
+
+word2vec_path = '/home/jiangy2/dnswork/glove/Tencent_AILab_ChineseEmbedding.txt'
+tc_wv_model = KeyedVectors.load_word2vec_format(word2vec_path, binary=False)
+# EMBEDDING_length = 8824330
+EMBEDDING_length = len(tc_wv_model.vocab.keys())
+print('Found %s word vectors.' % EMBEDDING_length)
+
 embeddings_index = {}
 embedding_matrix = np.zeros((EMBEDDING_length + 1, EMBEDDING_DIM))
-i = 1
-for line in f:
-    values = line.split()
-    word = values[0]
-    coefs = np.asarray(values[1:], dtype='float32')
-    embeddings_index[word] = i
-    embedding_matrix[i] = coefs
-    i = i+1
-print('Found %s word vectors.' % i)
-f.close()
 
+for counter, key in enumerate(tc_wv_model.vocab.keys()):
+    embeddings_index[key] = counter+1
+    coefs = np.asarray(tc_wv_model[key], dtype='float32')
+    embedding_matrix[counter+1] = coefs
 
-
-
-
-
-
-
-
+del tc_wv_model
 
 
 
@@ -107,7 +152,8 @@ f.close()
 # stopwordslist 保存所有停用词
 
 stopwordslist = []  # 停用词列表
-stopwordslist =mytool.read_stopwords("C:/Users/shinelon/Desktop/linuxfirefox/stopwords-master/stopwords-master/cn_stopwords.txt")
+stopwords_path = "/home/jiangy2/dnswork/stopwords/cn_stopwords.txt"
+stopwordslist =mytool.read_stopwords(stopwords_path)
 
 
 #2.2 设置分类类别
@@ -134,18 +180,21 @@ def initclass(filepath):
             classtype[parts[0]]=parts[2].strip('\n')
 
 
-filepath = "D:/dnswork/sharevm/top.chinaz.txt"
-initclass(filepath)
+# filepath = "D:/dnswork/sharevm/top.chinaz.txt"
+initfilepath = "/home/jiangy2/dnswork/top.chinaz.txt"
+initclass(initfilepath)
 
 
 
 #2.3 读取爬取的网页信息
 # 数据存入 X_train_text 网页中所有语句合成一句
-# 标签下标存入 Y_train_text
+# 标签下标存入 Y_train
 X_train_text = []
 Y_train = []
+
 #读取保存的网页信息
-path = "D:/dnswork/sharevm/topchinaz/"
+# path = "D:/dnswork/sharevm/topchinaz/"
+path = "/home/jiangy2/webdata/"
 fs = os.listdir(path)
 i=0
 j=0
@@ -169,6 +218,11 @@ print("已爬取网页数：")
 print(i)
 print("有效网页数：")
 print(j)
+
+
+
+
+
 
 
 # 2.4 将文本转为张量
@@ -195,45 +249,137 @@ for sentence in X_train_text:
 
 
 
+
+
+
+
+
 # 3 机器学习训练
 
-# def get_lstm_model(max_features, embed_size):
+# 3.1 定义模型
 def get_lstm_model():
     model = Sequential()
-    # model.add(Masking(mask_value= [-1. -1.      -1.   -1.  ],input_shape=(3,4)))
-    model.add(Embedding(EMBEDDING_length + 1,
-                            EMBEDDING_DIM,
+    model.add(Embedding(input_dim = EMBEDDING_length + 1,
+                            output_dim =EMBEDDING_DIM,
                             weights=[embedding_matrix],
-                            # input_length=MAX_SEQUENCE_LENGTH,
+                            # input_length=200,
                             mask_zero = True,
                             trainable=False))
-    model.add(LSTM(3, recurrent_dropout=0.1))
-    model.add(Dropout(0.25))
-    model.add(Dense(64))
+    model.add(LSTM(128, dropout=0.2, recurrent_dropout=0.2))
+    model.add(Dense(128, activation='relu'))
     model.add(Dropout(0.3))
-    model.add(Dense(1, activation='softmax'))
+    model.add(Dense(len(class_index), activation='softmax'))
     model.summary()
     model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['acc'])
     return model
 
-
-
-MAX_NB_WORDS = 50000
-# 每条cut_review最大的长度
-MAX_SEQUENCE_LENGTH = 250
-# 设置Embeddingceng层的维度
-EMBEDDING_DIM = 100
-
-data1 = np.random.random(size=( 5,3, 4)) # batch_size = 1, timespan = 100
-print(data1)
-data1[1,2]=-1
-print(data1)
-y_train = np.random.random(size=(5))
-print(y_train)
-# model = get_lstm_model(max_features, embed_size)
 model = get_lstm_model()
+model_cluster = get_lstm_model()
+
+
+
+
+# 3.2 划分数据集
+# 3.2.1 划分测试训练集
+# X_padded=pad_sequences(X_train, maxlen=300)
+# Y=to_categorical(Y_train, len(class_index))
+# x_train, x_test, y_train, y_test = train_test_split(X_padded, Y, test_size=0.2)
+
+Y=to_categorical(Y_train, len(class_index))
+x_train, x_test, y_train, y_test = train_test_split(X_train, Y, test_size=0.2)
+
+x_train_raw = pad_sequences(x_train, maxlen=300)
+x_test_raw = pad_sequences(x_test, maxlen=300)
+
+
+
+# 3.2.2 处理聚类后的数据
+
+#在每个类中选取等比例个词 
+# 某一类取词数 = maxlen * 该类词数/总词数 （最多不超过该类词数）
+# 比如maxlen = 10 总共有100个词 10个类 每个类都是10个词 那么每个类中取1个词 //优化：离中心点近的权重越大，被选择概率越大
+# 返回下标
+
+def get_mean_shift_result(mean_shift_result, maxlen=300):
+    original_points =  mean_shift_result.original_points
+    cluster_assignments = mean_shift_result.cluster_ids
+    sum_point = len(cluster_assignments) # 总词数
+    # 词数小于最大长度 直接返回
+    if sum_point <= maxlen:
+        return []
+
+    # 将各类词的下标存入字典中
+    cluster_dic = {}
+    for i, cluster in enumerate(cluster_assignments):
+        if cluster  in cluster_dic:
+            cluster_dic[cluster].append(i)
+        else:
+            cluster_dic[cluster]=[i]
+
+    result_point = []
+    # 将每一类词取出放入list中
+    for key in cluster_dic:
+        cluster_count = len(cluster_dic[key]) # 该类词数
+        choose_count = maxlen * cluster_count / sum_point
+        cluster_choose_result = random.sample(cluster_dic[key], int(choose_count))
+        result_point = result_point + cluster_choose_result
+
+    # if len(result_point) < maxlen:
+    #     result_point = result_point + random.sample(list(original_points), maxlen- len(result_point))
+    return result_point
+
+
+x_train_cluster = []
+mean_shifter = ms.MeanShift(kernel='multivariate_gaussian')
+kernel_bandwidth = [10]*200     # 带宽参数
+for data_index in x_train:
+    data = []
+    for index in data_index:
+        data.append(embedding_matrix[index])
+    mean_shift_result = mean_shifter.cluster(data, kernel_bandwidth = kernel_bandwidth)
+    index_result = get_mean_shift_result(mean_shift_result)
+
+    data = []
+    for index in index_result:
+        data.append(data_index[index])
+    x_train_cluster.append(data)
+
+
+
+x_test_cluster = []
+for data_index in x_test:
+    data = []
+    for index in data_index:
+        data.append(embedding_matrix[index])
+    mean_shift_result = mean_shifter.cluster(data, kernel_bandwidth = kernel_bandwidth)
+    index_result = get_mean_shift_result(mean_shift_result)
+
+    data = []
+    for index in index_result:
+        data.append(data_index[index])
+    x_test_cluster.append(data)
+
+
+# original_points =  mean_shift_result.original_points
+# shifted_points = mean_shift_result.shifted_points
+# cluster_assignments = mean_shift_result.cluster_ids
+
+
+
+# x = original_points[:,0]
+# y = original_points[:,1]
+# Cluster = cluster_assignments
+# centers = shifted_points
+
+
+
+# 3.3 训练
 def model_fit(model, x, y):
-    return model.fit(x, y, batch_size=1, epochs=2, validation_split=0.2)
-model_train = model_fit(model, data1, y_train)
-# tokenizer = Tokenizer(num_words=MAX_NB_WORDS, filters='!"#$%&()*+,-./:;<=>?@[\]^_`{|}~', lower=True)
-# tokenizer.fit_on_texts(df['cut_review'].values)
+    return model.fit(x, y, batch_size=10, epochs=5, validation_split=0.1)
+model_train = model_fit(model, x_train_raw, y_train)
+
+
+# 3.4 测试
+print(model.evaluate(x_test_raw, y_test))
+
+'''

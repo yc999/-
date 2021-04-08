@@ -143,6 +143,8 @@ for sentence in X_train_text:
 
 
 
+
+
 # 3 机器学习训练
 
 # def get_lstm_model(max_features, embed_size):
