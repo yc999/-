@@ -50,93 +50,6 @@ import matplotlib.pyplot as plt
 
 
 
-# def get_mean_shift_result(mean_shift_result, maxlen=300):
-#     original_points =  mean_shift_result.original_points
-#     cluster_assignments = mean_shift_result.cluster_ids
-#     sum_point = len(cluster_assignments) # 总词数
-#     # 词数小于最大长度 直接返回
-#     if sum_point <= maxlen:
-#         return []
-
-#     # 将各类词的下标存入字典中
-#     cluster_dic = {}
-#     for index, cluster in enumerate(cluster_assignments):
-#         if cluster  in cluster_dic:
-#             cluster_dic[cluster].append(index)
-#         else:
-#             cluster_dic[cluster]=[index]
-
-#     result_point = []
-#     # 将每一类词取出放入list中
-#     for key in cluster_dic:
-#         cluster_count = len(cluster_dic[key]) # 该类词数
-#         choose_count = maxlen * cluster_count / sum_point
-#         cluster_choose_result = random.sample(cluster_dic[key], int(choose_count))
-#         result_point = result_point + cluster_choose_result
-
-#     # 不足maxlen 随机添加未被选中的下标
-#     len_result_point = len(result_point)
-#     while len_result_point < maxlen:
-#         random_number = random.randint(0,sum_point-1)
-#         if random_number not in result_point:
-#             result_point.append(random_number)
-#             len_result_point = len_result_point + 1
-#     return result_point
-
-
-
-
-
-# data = np.genfromtxt('D:/GitHubcode/-/MLcode/data.csv', delimiter=',')
-
-# mean_shifter = ms.MeanShift()
-# mean_shift_result = mean_shifter.cluster(data, kernel_bandwidth = 1)
-
-# result = get_mean_shift_result(mean_shift_result, 100)
-# # print (len(get_mean_shift_result(mean_shift_result, 100)))
-
-# print(len(result))
-# print(result)
-# print(type(result))
-# # aa = pad_sequences(result, maxlen=300)
-# # print(aa)
-
-
-
-
-
-
-
-
-
-
-
-
-
-# original_points =  mean_shift_result.original_points
-# shifted_points = mean_shift_result.shifted_points
-# cluster_assignments = mean_shift_result.cluster_ids
-# print("original_points")
-# print(len(original_points))
-# print("shifted_points")
-
-# print(len(shifted_points))
-# print(len(cluster_assignments))
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -382,7 +295,8 @@ x_train_cluster = get_cluster_result(x_train, kernel_bandwidth)
 #测试集聚类 x_test_cluster
 x_test_cluster = get_cluster_result(x_test, kernel_bandwidth)
 
-
+x_train_cluster = pad_sequences(x_train_cluster, maxlen=model_max_len)
+x_test_cluster = pad_sequences(x_test_cluster, maxlen=model_max_len)
 
 
 
@@ -391,10 +305,10 @@ x_test_cluster = get_cluster_result(x_test, kernel_bandwidth)
 def model_fit(model, x, y):
     return model.fit(x, y, batch_size=10, epochs=5, validation_split=0.1)
 model_train = model_fit(model, x_train_raw, y_train)
-cluster_model_train = model_fit(model, x_train_raw, y_train)
+cluster_model_train = model_fit(model, x_train_cluster, y_train)
 
 
 # 3.4 测试
 print(model.evaluate(x_test_raw, y_test))
-print(model.evaluate(x_test_raw, y_test))
+print(model.evaluate(x_test_cluster, y_test))
 
