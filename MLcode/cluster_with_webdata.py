@@ -187,9 +187,6 @@ for sentence in X_train_text:
 
 
 
-
-
-
 # 3 机器学习训练
 model_max_len = 300
 
