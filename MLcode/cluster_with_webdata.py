@@ -35,7 +35,7 @@ import meanShift as ms
 import mytool
 
 # import mean_shift as ms
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 
 
 
@@ -43,10 +43,7 @@ import matplotlib.pyplot as plt
 
 
 
-
-
-
-
+# data = np.genfromtxt('D:\GitHubcode\-\MLcode\data.csv', delimiter=',')
 
 
 
@@ -276,6 +273,7 @@ def get_cluster_result(cluster_data, kernel_bandwidth):
             # 将下标转为数据点坐标值，然后聚类
             for index in data_index:
                 data.append(embedding_matrix[index])
+            data = np.array(data)
             mean_shift_result = mean_shifter.cluster(data, kernel_bandwidth = kernel_bandwidth)
             index_result = get_mean_shift_result(mean_shift_result)
             data = []
