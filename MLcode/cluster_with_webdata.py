@@ -300,10 +300,10 @@ x_test_cluster = pad_sequences(x_test_cluster, maxlen=model_max_len)
 def model_fit(model, x, y):
     return model.fit(x, y, batch_size=10, epochs=5, validation_split=0.1)
 model_train = model_fit(model, x_train_raw, y_train)
-cluster_model_train = model_fit(model, x_train_cluster, y_train)
+cluster_model_train = model_fit(model_cluster, x_train_cluster, y_train)
 
 
 # 3.4 测试
 print(model.evaluate(x_test_raw, y_test))
-print(model.evaluate(x_test_cluster, y_test))
+print(model_cluster.evaluate(x_test_cluster, y_test))
 
