@@ -50,59 +50,56 @@ import matplotlib.pyplot as plt
 
 
 
-def get_mean_shift_result(mean_shift_result, maxlen=300):
-    original_points =  mean_shift_result.original_points
-    cluster_assignments = mean_shift_result.cluster_ids
-    sum_point = len(cluster_assignments) # 总词数
-    # 词数小于最大长度 直接返回
-    if sum_point <= maxlen:
-        return []
+# def get_mean_shift_result(mean_shift_result, maxlen=300):
+#     original_points =  mean_shift_result.original_points
+#     cluster_assignments = mean_shift_result.cluster_ids
+#     sum_point = len(cluster_assignments) # 总词数
+#     # 词数小于最大长度 直接返回
+#     if sum_point <= maxlen:
+#         return []
 
-    # 将各类词的下标存入字典中
-    cluster_dic = {}
-    for index, cluster in enumerate(cluster_assignments):
-        if cluster  in cluster_dic:
-            cluster_dic[cluster].append(index)
-        else:
-            cluster_dic[cluster]=[index]
+#     # 将各类词的下标存入字典中
+#     cluster_dic = {}
+#     for index, cluster in enumerate(cluster_assignments):
+#         if cluster  in cluster_dic:
+#             cluster_dic[cluster].append(index)
+#         else:
+#             cluster_dic[cluster]=[index]
 
-    result_point = []
-    # 将每一类词取出放入list中
-    for key in cluster_dic:
-        cluster_count = len(cluster_dic[key]) # 该类词数
-        choose_count = maxlen * cluster_count / sum_point
-        cluster_choose_result = random.sample(cluster_dic[key], int(choose_count))
-        result_point = result_point + cluster_choose_result
+#     result_point = []
+#     # 将每一类词取出放入list中
+#     for key in cluster_dic:
+#         cluster_count = len(cluster_dic[key]) # 该类词数
+#         choose_count = maxlen * cluster_count / sum_point
+#         cluster_choose_result = random.sample(cluster_dic[key], int(choose_count))
+#         result_point = result_point + cluster_choose_result
 
-    
-    len_result_point = len(result_point)
-    while len_result_point < maxlen
-        random_number = random.randint(0,sum_point-1)
-        if random_number not in result_point:
-            result_point.append(random_number)
-            len_result_point = len_result_point + 1
-    return result_point
-
-
+#     # 不足maxlen 随机添加未被选中的下标
+#     len_result_point = len(result_point)
+#     while len_result_point < maxlen:
+#         random_number = random.randint(0,sum_point-1)
+#         if random_number not in result_point:
+#             result_point.append(random_number)
+#             len_result_point = len_result_point + 1
+#     return result_point
 
 
 
 
 
+# data = np.genfromtxt('D:/GitHubcode/-/MLcode/data.csv', delimiter=',')
 
+# mean_shifter = ms.MeanShift()
+# mean_shift_result = mean_shifter.cluster(data, kernel_bandwidth = 1)
 
-data = np.genfromtxt('D:/GitHubcode/-/MLcode/data.csv', delimiter=',')
+# result = get_mean_shift_result(mean_shift_result, 100)
+# # print (len(get_mean_shift_result(mean_shift_result, 100)))
 
-mean_shifter = ms.MeanShift()
-mean_shift_result = mean_shifter.cluster(data, kernel_bandwidth = 1)
-
-result = get_mean_shift_result(mean_shift_result, 100)
-# print (len(get_mean_shift_result(mean_shift_result, 100)))
-
-print(result)
-print(type(result))
-# aa = pad_sequences(result, maxlen=300)
-# print(aa)
+# print(len(result))
+# print(result)
+# print(type(result))
+# # aa = pad_sequences(result, maxlen=300)
+# # print(aa)
 
 
 
@@ -114,18 +111,33 @@ print(type(result))
 
 
 
-'''
 
 
-original_points =  mean_shift_result.original_points
-shifted_points = mean_shift_result.shifted_points
-cluster_assignments = mean_shift_result.cluster_ids
-print("original_points")
-print(len(original_points))
-print("shifted_points")
+# original_points =  mean_shift_result.original_points
+# shifted_points = mean_shift_result.shifted_points
+# cluster_assignments = mean_shift_result.cluster_ids
+# print("original_points")
+# print(len(original_points))
+# print("shifted_points")
 
-print(len(shifted_points))
-print(len(cluster_assignments))
+# print(len(shifted_points))
+# print(len(cluster_assignments))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 # 步骤1 加载词向量  
@@ -266,6 +278,8 @@ for sentence in X_train_text:
 
 
 # 3 机器学习训练
+model_max_len = 300
+
 
 # 3.1 定义模型
 def get_lstm_model():
@@ -299,88 +313,77 @@ model_cluster = get_lstm_model()
 Y=to_categorical(Y_train, len(class_index))
 x_train, x_test, y_train, y_test = train_test_split(X_train, Y, test_size=0.2)
 
-x_train_raw = pad_sequences(x_train, maxlen=300)
-x_test_raw = pad_sequences(x_test, maxlen=300)
+x_train_raw = pad_sequences(x_train, maxlen=model_max_len)
+x_test_raw = pad_sequences(x_test, maxlen=model_max_len)
 
 
 
 # 3.2.2 处理聚类后的数据
 
 #在每个类中选取等比例个词 
-# 某一类取词数 = maxlen * 该类词数/总词数 （最多不超过该类词数）
+# 某一类取词数 = model_max_len * 该类词数/总词数 （最多不超过该类词数）
 # 比如maxlen = 10 总共有100个词 10个类 每个类都是10个词 那么每个类中取1个词 //优化：离中心点近的权重越大，被选择概率越大
 # 返回下标
-
-def get_mean_shift_result(mean_shift_result, maxlen=300):
-    original_points =  mean_shift_result.original_points
+def get_mean_shift_result(mean_shift_result):
     cluster_assignments = mean_shift_result.cluster_ids
     sum_point = len(cluster_assignments) # 总词数
     # 词数小于最大长度 直接返回
-    if sum_point <= maxlen:
-        return []
-
-    # 将各类词的下标存入字典中
+    if sum_point <= model_max_len:
+        raise Exception("get_mean_shift_result len error")
+    # 将各类词的下标存入字典中 cluster_dic{类别：[下标]} 
     cluster_dic = {}
-    for i, cluster in enumerate(cluster_assignments):
+    for index, cluster in enumerate(cluster_assignments):
         if cluster  in cluster_dic:
-            cluster_dic[cluster].append(i)
+            cluster_dic[cluster].append(index)
         else:
-            cluster_dic[cluster]=[i]
-
+            cluster_dic[cluster]=[index]
     result_point = []
-    # 将每一类词取出放入list中
+    # 将每一类词下标取出放入list中
     for key in cluster_dic:
         cluster_count = len(cluster_dic[key]) # 该类词数
-        choose_count = maxlen * cluster_count / sum_point
+        choose_count = model_max_len * cluster_count / sum_point
         cluster_choose_result = random.sample(cluster_dic[key], int(choose_count))
         result_point = result_point + cluster_choose_result
-
-    # if len(result_point) < maxlen:
-    #     result_point = result_point + random.sample(list(original_points), maxlen- len(result_point))
+    # 不足maxlen 随机添加未被选中的下标
+    len_result_point = len(result_point)
+    while len_result_point < model_max_len:
+        random_number = random.randint(0,sum_point-1)
+        if random_number not in result_point:
+            result_point.append(random_number)
+            len_result_point = len_result_point + 1
     return result_point
 
 
-x_train_cluster = []
 mean_shifter = ms.MeanShift(kernel='multivariate_gaussian')
-kernel_bandwidth = [10]*200     # 带宽参数
-for data_index in x_train:
-    data = []
-    for index in data_index:
-        data.append(embedding_matrix[index])
-    mean_shift_result = mean_shifter.cluster(data, kernel_bandwidth = kernel_bandwidth)
-    index_result = get_mean_shift_result(mean_shift_result)
+kernel_bandwidth = [10]*EMBEDDING_DIM     # 带宽参数
 
-    data = []
-    for index in index_result:
-        data.append(data_index[index])
-    x_train_cluster.append(data)
+# 返回聚类结果
+def get_cluster_result(cluster_data, kernel_bandwidth):
+    result = []
+    for data_index in cluster_data:
+        data = []
+        if len(data_index) > model_max_len:
+            # 将下标转为数据点坐标值，然后聚类
+            for index in data_index:
+                data.append(embedding_matrix[index])
+            mean_shift_result = mean_shifter.cluster(data, kernel_bandwidth = kernel_bandwidth)
+            index_result = get_mean_shift_result(mean_shift_result)
+            data = []
+            # 将聚类后的结果转为对应下标
+            for index in index_result:
+                data.append(data_index[index])
+            result.append(data)
+        else:   #词数不够 model_max_len 直接返回
+            result.append(data_index)
+    return result
 
-
-
-x_test_cluster = []
-for data_index in x_test:
-    data = []
-    for index in data_index:
-        data.append(embedding_matrix[index])
-    mean_shift_result = mean_shifter.cluster(data, kernel_bandwidth = kernel_bandwidth)
-    index_result = get_mean_shift_result(mean_shift_result)
-
-    data = []
-    for index in index_result:
-        data.append(data_index[index])
-    x_test_cluster.append(data)
-
-
-# original_points =  mean_shift_result.original_points
-# shifted_points = mean_shift_result.shifted_points
-# cluster_assignments = mean_shift_result.cluster_ids
+#训练集聚类 x_train_cluster
+x_train_cluster = get_cluster_result(x_train, kernel_bandwidth)
+#测试集聚类 x_test_cluster
+x_test_cluster = get_cluster_result(x_test, kernel_bandwidth)
 
 
 
-# x = original_points[:,0]
-# y = original_points[:,1]
-# Cluster = cluster_assignments
-# centers = shifted_points
 
 
 
@@ -388,9 +391,10 @@ for data_index in x_test:
 def model_fit(model, x, y):
     return model.fit(x, y, batch_size=10, epochs=5, validation_split=0.1)
 model_train = model_fit(model, x_train_raw, y_train)
+cluster_model_train = model_fit(model, x_train_raw, y_train)
 
 
 # 3.4 测试
 print(model.evaluate(x_test_raw, y_test))
+print(model.evaluate(x_test_raw, y_test))
 
-'''
