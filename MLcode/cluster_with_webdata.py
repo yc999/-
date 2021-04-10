@@ -110,7 +110,7 @@ def initclass(filepath):
             parts = line.split(",")
             if  not line:
                 break
-            classtype[parts[0]]=parts[2].strip('\n')
+            classtype[parts[0]]=parts[2].strip("\n")
 
 
 # filepath = "D:/dnswork/sharevm/top.chinaz.txt"
@@ -205,10 +205,10 @@ def get_lstm_model():
     model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['acc'])
     return model
 
+
+
+
 model = get_lstm_model()
-model_cluster = get_lstm_model()
-
-
 
 
 # 3.2 划分数据集
@@ -223,6 +223,32 @@ x_train, x_test, y_train, y_test = train_test_split(X_train, Y, test_size=0.2)
 x_train_raw = pad_sequences(x_train, maxlen=model_max_len)
 x_test_raw = pad_sequences(x_test, maxlen=model_max_len)
 
+
+
+
+
+# 3.3 训练
+def model_fit(model, x, y):
+    return model.fit(x, y, batch_size=10, epochs=5, validation_split=0.1)
+
+
+model_train = model_fit(model, x_train_raw, y_train)
+
+
+# 3.4 测试
+print(model.evaluate(x_test_raw, y_test))
+
+
+
+
+
+
+
+
+
+
+# 聚类
+model_cluster = get_lstm_model()
 
 
 # 3.2.2 处理聚类后的数据
@@ -267,7 +293,10 @@ kernel_bandwidth = [10]*EMBEDDING_DIM     # 带宽参数
 # 返回聚类结果
 def get_cluster_result(cluster_data, kernel_bandwidth):
     result = []
+    i=0
     for data_index in cluster_data:
+        print(i)
+        i=i+1
         data = []
         if len(data_index) > model_max_len:
             # 将下标转为数据点坐标值，然后聚类
@@ -285,6 +314,7 @@ def get_cluster_result(cluster_data, kernel_bandwidth):
             result.append(data_index)
     return result
 
+
 #训练集聚类 x_train_cluster
 x_train_cluster = get_cluster_result(x_train, kernel_bandwidth)
 #测试集聚类 x_test_cluster
@@ -295,15 +325,5 @@ x_test_cluster = pad_sequences(x_test_cluster, maxlen=model_max_len)
 
 
 
-
-# 3.3 训练
-def model_fit(model, x, y):
-    return model.fit(x, y, batch_size=10, epochs=5, validation_split=0.1)
-model_train = model_fit(model, x_train_raw, y_train)
 cluster_model_train = model_fit(model_cluster, x_train_cluster, y_train)
-
-
-# 3.4 测试
-print(model.evaluate(x_test_raw, y_test))
 print(model_cluster.evaluate(x_test_cluster, y_test))
-
