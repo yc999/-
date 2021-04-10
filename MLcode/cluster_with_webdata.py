@@ -288,7 +288,7 @@ def get_mean_shift_result(mean_shift_result):
 
 
 mean_shifter = ms.MeanShift(kernel='multivariate_gaussian')
-kernel_bandwidth = [10]*EMBEDDING_DIM     # 带宽参数
+kernel_bandwidth = [30]*EMBEDDING_DIM     # 带宽参数
 
 # 返回聚类结果
 def get_cluster_result(cluster_data, kernel_bandwidth):
