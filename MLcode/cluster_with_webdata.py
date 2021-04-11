@@ -40,9 +40,6 @@ import mytool
 
 
 
-
-
-
 # data = np.genfromtxt('D:\GitHubcode\-\MLcode\data.csv', delimiter=',')
 
 
