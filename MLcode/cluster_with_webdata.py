@@ -44,6 +44,11 @@ os.environ['OPENBLAS_NUM_THREADS'] = '1'
 # data = np.genfromtxt('D:\GitHubcode\-\MLcode\data.csv', delimiter=',')
 
 
+# mean_shifter = ms.MeanShift()
+# mean_shift_result = mean_shifter.cluster(data, kernel_bandwidth = 1)
+
+
+
 
 
 
@@ -144,6 +149,7 @@ for subpath in fs:
                     X_train_text.append(mytool.get_all_webdata(webdata))
                     Y_train.append(webdata_class_index)
 
+
 print("已爬取网页数：")
 print(i)
 print("有效网页数：")
@@ -166,6 +172,7 @@ def words2index(words):
         if word in embeddings_index.keys():  # 单词是否在词向量中
             index_list.append(embeddings_index[word])
     return index_list
+
 
 for sentence in X_train_text:
     tmp_words = mytool.seg_sentence(sentence,stopwordslist)
@@ -205,7 +212,7 @@ def get_lstm_model():
 
 
 
-model = get_lstm_model()
+
 
 
 # 3.2 划分数据集
@@ -228,7 +235,7 @@ x_test_raw = pad_sequences(x_test, maxlen=model_max_len)
 def model_fit(model, x, y):
     return model.fit(x, y, batch_size=10, epochs=5, validation_split=0.1)
 
-
+model = get_lstm_model()
 model_train = model_fit(model, x_train_raw, y_train)
 
 
@@ -284,8 +291,8 @@ def get_mean_shift_result(mean_shift_result):
     return result_point
 
 
-mean_shifter = ms.MeanShift(kernel='multivariate_gaussian')
-kernel_bandwidth = [30]*EMBEDDING_DIM     # 带宽参数
+mean_shifter = ms.MeanShift()
+kernel_bandwidth = 30    # 带宽参数
 
 # 返回聚类结果
 def get_cluster_result(cluster_data, kernel_bandwidth):
@@ -355,3 +362,5 @@ x_test_cluster = pad_sequences(x_test_cluster_results, maxlen=model_max_len)
 
 cluster_model_train = model_fit(model_cluster, x_train_cluster, y_train)
 print(model_cluster.evaluate(x_test_cluster, y_test))
+
+
