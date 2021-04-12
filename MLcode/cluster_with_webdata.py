@@ -33,15 +33,15 @@ sys.path.append(os.path.realpath('../spider'))
 import random
 import meanShift as ms
 import mytool
-
+import multiprocessing as mp
 # import mean_shift as ms
 # import matplotlib.pyplot as plt
+os.environ['OPENBLAS_NUM_THREADS'] = '1'
 
 
 
 
 # data = np.genfromtxt('D:\GitHubcode\-\MLcode\data.csv', delimiter=',')
-
 
 
 
@@ -292,7 +292,8 @@ def get_cluster_result(cluster_data, kernel_bandwidth):
     result = []
     i=0
     for data_index in cluster_data:
-        print(i)
+        if i%10 ==0:
+            print(i)
         i=i+1
         data = []
         if len(data_index) > model_max_len:
@@ -312,13 +313,43 @@ def get_cluster_result(cluster_data, kernel_bandwidth):
     return result
 
 
-#训练集聚类 x_train_cluster
-x_train_cluster = get_cluster_result(x_train, kernel_bandwidth)
-#测试集聚类 x_test_cluster
-x_test_cluster = get_cluster_result(x_test, kernel_bandwidth)
+# 并行聚类
+# x_train_cluster = get_cluster_result(x_train, kernel_bandwidth)
+num_cores = int(mp.cpu_count()/2)
+pool = mp.Pool(num_cores)
+len_per_core = int(len(x_train)/num_cores)
 
-x_train_cluster = pad_sequences(x_train_cluster, maxlen=model_max_len)
-x_test_cluster = pad_sequences(x_test_cluster, maxlen=model_max_len)
+#训练集聚类 x_train_cluster
+x_train_cluster_results = []
+for i in range(0, num_cores):
+    if i != num_cores-1:
+        x_train_cluster_results.append(pool.apply_async(
+            get_cluster_result, args=(x_train[i*len_per_core : i*len_per_core+len_per_core], kernel_bandwidth)))
+    else:
+        x_train_cluster_results.append(pool.apply_async(
+            get_cluster_result, args=(x_train[i*len_per_core : len(x_train)-1], kernel_bandwidth)))
+# results = [pool.apply_async(get_cluster_result, args=(name, param)) for name, param in param_dict.items()]
+
+x_train_cluster_results = [p.get() for p in x_train_cluster_results]
+
+x_train_cluster = pad_sequences(x_train_cluster_results, maxlen=model_max_len)
+
+
+
+
+#测试集聚类 x_test_cluster
+x_test_cluster_results = []
+for i in range(0, num_cores):
+    if i != num_cores-1:
+        x_test_cluster_results.append(pool.apply_async(
+            get_cluster_result, args=(x_test[i*len_per_core : i*len_per_core+len_per_core], kernel_bandwidth)))
+    else:
+        x_test_cluster_results.append(pool.apply_async(
+            get_cluster_result, args=(x_train[i*len_per_core : len(x_train)-1], kernel_bandwidth)))
+
+# x_test_cluster = get_cluster_result(x_test, kernel_bandwidth)
+
+x_test_cluster = pad_sequences(x_test_cluster_results, maxlen=model_max_len)
 
 
 
