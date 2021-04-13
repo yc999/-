@@ -432,11 +432,14 @@ url = "bigpian.cn"
 
 urlList = ["360tuan.com","www.stheadline1.com", "www.miaobolive.com","yfmac.com" ,"ntfan.com","shyouhuan.com","jf.cn","www.w555555.com","www.youka.la"]
 # urlList = ["360tuan.com"]
+urlList = ["huisou.com/"]
 for url in urlList:
     try:
         print("http1")
         httpsurl =  'http://' + url
         resultdata = requesturl(httpsurl)
+        print(resultdata)
+
         #网页是否无法访问
         for badtitle in badtitles:
             if badtitle in resultdata['title']:
@@ -451,6 +454,7 @@ for url in urlList:
             else:
                 httpsurl = 'http://' + url.replace('www.','',1)
             resultdata = requesturl(httpsurl)
+            print(resultdata)
             #网页是否无法访问
             for badtitle in badtitles:
                 if badtitle in resultdata['title']:
