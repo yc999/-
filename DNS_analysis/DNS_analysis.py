@@ -15,6 +15,14 @@ def prasednsdata(data):
     dnsdata['data'] = parts[5].split(":")[1]
     return dnsdata
 
+#返回正向域名
+def getrkey_domainname(rkey):
+    names = rkey.split(".")
+    len_names = len(names)
+    result_name = names[len_names-1]
+    for i in range(len_names-2, -1, -1):
+        result_name = result_name + "." + name[i]
+    # result_name = result_name + name  
 
 
 dnstpye_value = {1 : "A", 2:"NS",3:"MD",5:"CNAME",6:"SOA",12:"PTR",28:"AAAA"}
@@ -24,7 +32,8 @@ dnsdata_file = open(dnsdata_path, 'r', encoding='utf-8')
 while True:
     line = dnsdata_file.readline()
     if  line:
-        parts = prasednsdata(line)
+        dnsdata = prasednsdata(line)
+        domainname = getrkey_domainname(dnsdata['rkey'])
         print(line)
     else:
         break
