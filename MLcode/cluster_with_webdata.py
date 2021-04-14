@@ -88,7 +88,7 @@ del tc_wv_model
 
 stopwordslist = []  # 停用词列表
 stopwords_path = "/home/jiangy2/dnswork/stopwords/cn_stopwords.txt"
-stopwordslist =mytool.read_stopwords(stopwords_path)
+stopwordslist = mytool.read_stopwords(stopwords_path)
 
 
 #2.2 设置分类类别
