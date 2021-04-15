@@ -3,7 +3,7 @@ import  requests
 from bs4 import  BeautifulSoup
 
 # response=requests.get('http://www.bigpian.cn')
-response=requests.get('http://www.vslai.com/')
+response=requests.get('http://czleijin.com/')
 # http://www.vslai.com/
 re_text=response.text
 re_content=response.content
