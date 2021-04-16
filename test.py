@@ -3,7 +3,7 @@ import  requests
 from bs4 import  BeautifulSoup
 
 # response=requests.get('http://www.bigpian.cn')
-response=requests.get('http://quota.fe.apple-dns.net/')
+response=requests.get('http://476050.yipaifood.com/')
 # http://www.vslai.com/
 re_text=response.text
 re_content=response.content

@@ -38,6 +38,7 @@ badtitles=['404 Not Found', '找不到',  'null', 'Not Found','阻断页','Bad R
 
 time_limit = 40  #set timeout time 3s
 
+
 # 判断标题是否正常 
 # mytitle 需要判断的title 
 # 正常返回 False 不正常返回 True
@@ -370,10 +371,6 @@ def requesturl(url):
 
 
 
-
-
-
-
 def prasednsdata(data):
     dnsdata = {}
     parts = data.split("\t")
@@ -383,7 +380,6 @@ def prasednsdata(data):
     dnsdata['count'] = parts[3].split(":")[1]
     tmp = parts[4].split(":")[1]
     tmp1 = tmp.split("+")
-
     dnsdata['rkey'] = tmp1[0]
     dnsdata['Dnstype'] = tmp1[1]
     dnsdata['data'] = parts[5].split(":")[1]
@@ -462,7 +458,6 @@ tldlist_path = "/home/jiangy2/dnswork/stopwords/cn_stopwords.txt"
 tldlist = mytool.read_stopwords(tldlist_path)
 
 
-
 #2.2 设置分类类别
 # classtype 保存了所有的分类信息  子类名 ： 父类目
 # class_index 保存了父类名对应的下标
@@ -538,13 +533,20 @@ def filter_cdn(url):
     for cdn_name in cdnlist:
         if cdn_name in url:
             return True
-    if len(url.split("."))>=5:
+
+    names = url.split(".")
+    count_names = len(names)
+    if count_names >= 6:
         return True
-    
+
+    for name in names[0:count_names-2]:
+        if name in cdnlist:
+            return True
+
     return False
 
 
-dnstpye_value = {1 : "A", 2:"NS",3:"MD",5:"CNAME",6:"SOA",12:"PTR",28:"AAAA"}
+dnstpye_value = {'1' : "A", '5':"CNAME", '28':"AAAA"}
 # 读取dns数据
 dnsdata_path = "E:/wechatfile/WeChat Files/wxid_luhve56t0o4a11/FileStorage/File/2020-11/pdns_data"
 dnsdata_file = open(dnsdata_path, 'r', encoding='utf-8')
@@ -555,7 +557,9 @@ while True:
             dnsdata = prasednsdata(line)
         except:
             continue
-        print(dnsdata)
+        if dnsdata['Dnstype'] not in dnstpye_value: # 只取 A AAAA CNAME记录
+            continue
+        # print(dnsdata)
         url = getrkey_domainname(dnsdata['rkey'])
         # 过滤url
         print(url)
@@ -576,6 +580,8 @@ while True:
                 #网页是否无法访问
                 if ifbadtitle(resultdata['title']):
                     raise Exception("title error")
+                predict_result = predict_webclass(resultdata)
+                
             except Exception as e:
                 print(e)
     else:
