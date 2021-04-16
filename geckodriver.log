@@ -2561,3 +2561,19 @@ console.log: WebExtensions: reset-default-search: No addons in our list are inst
 
 ###!!! [Child][MessageChannel::SendAndWait] Error: Channel error: cannot send/recv
 
+1618555660829	geckodriver	INFO	Listening on 127.0.0.1:65231
+1618555663848	mozrunner::runner	INFO	Running command: "C:\\Program Files\\Mozilla Firefox\\firefox.exe" "--marionette" "--no-sandbox" "log-level=3" "--disable-gpu" "-foreground" "-no-remote" "-profile" "C:\\Users\\shinelon\\AppData\\Local\\Temp\\rust_mozprofileBdvQyb"
+Can't find symbol 'eglSwapBuffersWithDamageEXT'.
+Can't find symbol 'eglSetDamageRegionKHR'.
+JavaScript error: resource://gre/modules/XULStore.jsm, line 66: Error: Can't find profile directory.
+console.warn: SearchSettings: "get: No settings file exists, new profile?" (new Error("", "(unknown module)"))
+1618555667145	Marionette	INFO	Listening on port 65244
+1618555667494	Marionette	WARN	TLS certificate errors will be ignored for this session
+console.log: WebExtensions: reset-default-search: No addons in our list are installed.
+1618559267860	Marionette	INFO	Stopped listening on port 65244
+
+###!!! [Child][RunMessage] Error: Channel closing: too late to send/recv, messages will be lost
+
+
+###!!! [Child][MessageChannel::SendAndWait] Error: Channel error: cannot send/recv
+

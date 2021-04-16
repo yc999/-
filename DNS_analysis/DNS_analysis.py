@@ -4,6 +4,8 @@ import re
 import time
 # import eventlet
 import os
+import sys
+import io
 import json
 from selenium.webdriver.firefox.options import Options
 from selenium import webdriver
@@ -15,8 +17,15 @@ from selenium.common.exceptions import UnexpectedAlertPresentException
 from keras.models import load_model
 from gensim.models import KeyedVectors
 import numpy as np
-
-
+sys.path.append(os.path.realpath('./Clustering'))
+sys.path.append(os.path.realpath('../Clustering'))
+sys.path.append(os.path.realpath('./spider'))
+sys.path.append(os.path.realpath('../spider'))
+import random
+import meanShift as ms
+import mytool
+from tensorflow.keras.preprocessing.sequence import pad_sequences
+from keras.utils.np_utils import *
 
 badtitles=['404 Not Found', '找不到',  'null', 'Not Found','阻断页','Bad Request','Time-out','No configuration',
 'TestPage','IIS7','Default','已暂停' ,'Server Error','403 Forbidden','禁止访问','载入出错','没有找到',
@@ -37,8 +46,6 @@ def ifbadtitle(mytitle):
         if badtitle in mytitle:
             return True
     return False
-
-
 
 
 
@@ -364,7 +371,7 @@ def requesturl(url):
 
 
 
-cdnlist = ["kunlun","","alikunlun"]
+
 
 
 def prasednsdata(data):
@@ -382,6 +389,7 @@ def prasednsdata(data):
     dnsdata['data'] = parts[5].split(":")[1]
     return dnsdata
 
+
 #返回正向域名
 def getrkey_domainname(rkey):
     names = rkey.split(".")
@@ -395,7 +403,10 @@ def getrkey_domainname(rkey):
 
 
 
-# 步骤1 加载词向量  
+# 步骤1 初始化
+# 
+# 
+# 1.1 加载词向量  
 # embeddings_index 为字典  单词 ：下标
 # embedding_matrix 词向量数组 
 
@@ -422,14 +433,115 @@ for counter, key in enumerate(tc_wv_model.vocab.keys()):
 del tc_wv_model
 
 
-# 步骤2 加载模型
+# 1.2 加载模型
 modelsave_path = "/home/jiangy2/dnswork/modeldir/LSTMmodel"
 LSTM_model = load_model(modelsave_path)
 
 
 
 
+# 1.3 加载停用词
+# stopwordslist 保存所有停用词
 
+stopwordslist = []  # 停用词列表
+stopwords_path = "/home/jiangy2/dnswork/stopwords/cn_stopwords.txt"
+stopwordslist = mytool.read_stopwords(stopwords_path)
+
+
+
+
+#  1.4 加载cdnlist
+cdnlist = []
+cdnlist_path = "/home/jiangy2/dnswork/stopwords/cn_stopwords.txt"
+cdnlist = mytool.read_stopwords(cdnlist_path)
+
+
+# 1.5 加载 tldlist
+tldlist = []
+tldlist_path = "/home/jiangy2/dnswork/stopwords/cn_stopwords.txt"
+tldlist = mytool.read_stopwords(tldlist_path)
+
+
+
+#2.2 设置分类类别
+# classtype 保存了所有的分类信息  子类名 ： 父类目
+# class_index 保存了父类名对应的下标
+
+class_index = { '休闲娱乐':0, '生活服务':1, '购物网站':2, '政府组织':3, '综合其他':4, '教育文化':5, '行业企业':6,'网络科技':7,
+ '体育健身': 8, '医疗健康':9, '交通旅游':10, '新闻媒体':11}
+
+
+classtype = { '购物':'购物网站','游戏':'休闲娱乐','旅游':'生活服务','军事':'教育文化','招聘':'生活服务','时尚':'休闲娱乐',
+'新闻':'新闻媒体资讯','音乐':'休闲娱乐','健康':'医疗健康','艺术':'教育文化',
+'社区':'综合其他','学习':'教育文化','政府':'政府组织','搞笑':'休闲娱乐','银行':'生活服务',
+'酷站':'综合其他','视频':'休闲娱乐','电影':'休闲娱乐','文学':'休闲娱乐','体育':'体育健身','科技':'网络科技',
+'财经':'生活服务','汽车':'生活服务','房产':'生活服务','摄影':'休闲娱乐','设计':'网络科技','营销':'行业企业',
+'电商':'购物网站','外贸':'行业企业','服务':'行业企业','商界':'行业企业','生活':'生活服务'}
+
+
+def initclass(filepath):
+    with open(filepath, 'r', encoding='utf-8') as file_to_read:
+        while True:
+            line = file_to_read.readline()
+            parts = line.split(",")
+            if  not line:
+                break
+            classtype[parts[0]]=parts[2].strip("\n")
+
+
+# filepath = "D:/dnswork/sharevm/top.chinaz.txt"
+initfilepath = "/home/jiangy2/dnswork/top.chinaz.txt"
+initclass(initfilepath)
+
+
+# 将单词转为词向量的下标,下标从1开始 返回下标的list
+def words2index(words):
+    index_list = []
+    for word in words:
+        if word in embeddings_index.keys():  # 单词是否在词向量中
+            index_list.append(embeddings_index[word])
+    return index_list
+
+
+def predict_webclass(webdata):
+    X_train_text = []
+    X_train_text.append(mytool.get_all_webdata(webdata))
+
+    # if webdata['title'] != "" and webdata['description'] != "" and webdata['keywords'] != "":
+    #     if len(webdata['webtext'])>=15:
+    #         X_train_text.append(mytool.get_all_webdata(webdata))
+    
+
+
+    #  将文本转为张量
+    # X_train 训练数据
+    X_train = []
+    for sentence in X_train_text:
+        tmp_words = mytool.seg_sentence(sentence,stopwordslist)
+        X_train.append(words2index(tmp_words))
+
+
+    # 3 机器学习训练
+    model_max_len = 300
+    x_train_raw = pad_sequences(X_train, maxlen=model_max_len)
+    predicted = LSTM_model.predict(x_train_raw)
+    return predicted
+
+
+# 判断是否为cdn 
+# 规则: 在cdnlist中
+# 间隔出现多次顶级域名
+# 域名长度大于5
+# 如果是cdn返回True
+# 返回False
+def filter_cdn(url):
+    for cdn_name in cdnlist:
+        if cdn_name in url:
+            return True
+    if len(url.split("."))>=5:
+        return True
+    
+    return False
 
 
 dnstpye_value = {1 : "A", 2:"NS",3:"MD",5:"CNAME",6:"SOA",12:"PTR",28:"AAAA"}
@@ -452,10 +564,8 @@ while True:
             resultdata = requesturl(httpsurl)
             if ifbadtitle(resultdata['title']):
                 raise Exception("title error")
-            writedata(savefilepath,resultdata)
-
             # 输入模型 进行判断
-
+            predict_result = predict_webclass(resultdata)
         except:
             try:
                 if url.split(".")[0]!="www":
@@ -467,10 +577,6 @@ while True:
                 if ifbadtitle(resultdata['title']):
                     raise Exception("title error")
             except Exception as e:
-                if "Reached error page" not in str(e) and "title error" not in str(e):
-                    print (e)
-                pass
+                print(e)
     else:
         break
-# line = dnsdata_file.readline()
-print(line)
