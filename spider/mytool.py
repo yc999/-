@@ -93,9 +93,37 @@ def meanshift_webdata(webdata):
 
 
 
+from selenium.webdriver.firefox.options import Options
+from selenium import webdriver
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.wait import WebDriverWait
+from selenium.common.exceptions import TimeoutException
+from selenium.common.exceptions import UnexpectedAlertPresentException
+from bs4 import  BeautifulSoup, Comment
+import time
+
+badtitles=['404 Not Found', '找不到',  'null', 'Not Found','阻断页','Bad Request','Time-out','No configuration',
+'TestPage','IIS7','Default','已暂停' ,'Server Error','403 Forbidden','禁止访问','载入出错','没有找到',
+'无法显示','无法访问','Bad Gateway','正在维护','配置未生效','访问报错','Welcome to nginx','Suspended Domain',
+'IIS Windows','Invalid URL','服务器错误','400 Unknown Virtual Host','无法找到','资源不存在',
+'Temporarily Unavailable','Database Error','temporarily unavailable','Bad gateway','不再可用','error Page',
+'Internal Server Error','升级维护中','Service Unavailable','站点不存在','405','Access forbidden','System Error',
+'详细错误','页面载入出错','Error','错误','Connection timed out','域名停靠','网站访问报错','错误提示','临时域名',
+'未被授权查看','Test Page','发生错误','非法阻断','链接超时','403 Frobidden','建设中','访问出错','出错啦']
 
 
-def requesturl(url, browser):
+# 判断标题是否正常 
+# mytitle 需要判断的title 
+# 正常返回 False 不正常返回 True
+def ifbadtitle(mytitle):
+    for badtitle in badtitles:
+        if badtitle in mytitle:
+            return True
+    return False
+
+
+def requesturl(url, browser, time_limit):
     print(url)
     webinfo={}  #最后保存的数据
     webtext = []    #首页内容文本

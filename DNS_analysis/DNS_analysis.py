@@ -8,13 +8,7 @@ import os
 import sys
 import io
 import json
-from selenium.webdriver.firefox.options import Options
-from selenium import webdriver
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.wait import WebDriverWait
-from selenium.common.exceptions import TimeoutException
-from selenium.common.exceptions import UnexpectedAlertPresentException
+
 from keras.models import load_model
 from gensim.models import KeyedVectors
 import numpy as np
@@ -274,7 +268,7 @@ while True:
             continue
         try:
             httpsurl =  'http://' + url
-            resultdata = mytool.requesturl(httpsurl,browser)
+            resultdata = mytool.requesturl(httpsurl,browser, time_limit)
             if ifbadtitle(resultdata['title']):
                 raise Exception("title error")
             # 输入模型 进行判断
@@ -286,7 +280,7 @@ while True:
                     httpsurl = 'http://www.' + url
                 else:
                     httpsurl = 'http://' + url.replace('www.','',1)
-                resultdata = mytool.requesturl(httpsurl, browser)
+                resultdata = mytool.requesturl(httpsurl, browser, time_limit)
                 #网页是否无法访问
                 if ifbadtitle(resultdata['title']):
                     raise Exception("title error")
