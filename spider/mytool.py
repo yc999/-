@@ -70,7 +70,7 @@ def read_cdnlist(filepath):
 def read_tldlist(filepath):
     tldlist = []
     if os.path.exists(filepath):
-        tldlist = [line.split(",").strip() for line in open(filepath, 'r', encoding='utf-8').readlines()]
+        tldlist = [line.split(",")[0].strip() for line in open(filepath, 'r', encoding='utf-8').readlines()]
     return tldlist
 
 
