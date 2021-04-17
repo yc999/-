@@ -1,3 +1,4 @@
+#-- coding: utf-8 --
 import  requests
 from bs4 import  BeautifulSoup, Comment
 import re
@@ -445,17 +446,17 @@ stopwordslist = mytool.read_stopwords(stopwords_path)
 
 
 
-
 #  1.4 加载cdnlist
 cdnlist = []
 cdnlist_path = "/home/jiangy2/dnswork/stopwords/cn_stopwords.txt"
-cdnlist = mytool.read_stopwords(cdnlist_path)
+cdnlist = mytool.read_cdnlist(cdnlist_path)
+
 
 
 # 1.5 加载 tldlist
 tldlist = []
 tldlist_path = "/home/jiangy2/dnswork/stopwords/cn_stopwords.txt"
-tldlist = mytool.read_stopwords(tldlist_path)
+tldlist = mytool.read_tldlist(tldlist_path)
 
 
 #2.2 设置分类类别
@@ -500,14 +501,19 @@ def words2index(words):
 
 def predict_webclass(webdata):
     X_train_text = []
-    X_train_text.append(mytool.get_all_webdata(webdata))
-
     # if webdata['title'] != "" and webdata['description'] != "" and webdata['keywords'] != "":
-    #     if len(webdata['webtext'])>=15:
-    #         X_train_text.append(mytool.get_all_webdata(webdata))
-    
-
-
+    tmp_data = ""
+    for data in webdata['webtext']:
+        tmp_data=tmp_data + tmp
+    len_webtext = len(tmp_data)
+    rule = re.compile(u"[^\u4E00-\u9FA5]")
+    len_chinese = len(rule.sub('',tmp_data)
+    if len_chinese/len_webtext < 0.5:
+        return '外语网站'
+    if len(webdata['webtext'])>=15:
+        X_train_text.append(mytool.get_all_webdata(webdata))
+    else:
+        return '数据过少'
     #  将文本转为张量
     # X_train 训练数据
     X_train = []
@@ -515,11 +521,11 @@ def predict_webclass(webdata):
         tmp_words = mytool.seg_sentence(sentence,stopwordslist)
         X_train.append(words2index(tmp_words))
 
-
     # 3 机器学习训练
     model_max_len = 300
     x_train_raw = pad_sequences(X_train, maxlen=model_max_len)
     predicted = LSTM_model.predict(x_train_raw)
+
     return predicted
 
 
@@ -533,16 +539,13 @@ def filter_cdn(url):
     for cdn_name in cdnlist:
         if cdn_name in url:
             return True
-
     names = url.split(".")
     count_names = len(names)
     if count_names >= 6:
         return True
-
     for name in names[0:count_names-2]:
         if name in cdnlist:
             return True
-
     return False
 
 
@@ -562,7 +565,10 @@ while True:
         # print(dnsdata)
         url = getrkey_domainname(dnsdata['rkey'])
         # 过滤url
-        print(url)
+        
+        if filter_cdn(url):
+            print(url, " cdn")
+            continue
         try:
             httpsurl =  'http://' + url
             resultdata = requesturl(httpsurl)
@@ -570,6 +576,7 @@ while True:
                 raise Exception("title error")
             # 输入模型 进行判断
             predict_result = predict_webclass(resultdata)
+            print(predict_result)
         except:
             try:
                 if url.split(".")[0]!="www":
@@ -581,7 +588,7 @@ while True:
                 if ifbadtitle(resultdata['title']):
                     raise Exception("title error")
                 predict_result = predict_webclass(resultdata)
-                
+                print(predict_result)
             except Exception as e:
                 print(e)
     else:

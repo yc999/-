@@ -58,6 +58,21 @@ def read_stopwords(filepath):
         stopwords = [line.strip() for line in open(filepath, 'r', encoding='utf-8').readlines()]
     return stopwords
 
+# 读取cdn列表
+def read_cdnlist(filepath):
+    cdnlist = []
+    if os.path.exists(filepath):
+        cdnlist = [line.strip() for line in open(filepath, 'r', encoding='utf-8').readlines()]
+    return cdnlist
+
+
+# 读取tld列表
+def read_tldlist(filepath):
+    tldlist = []
+    if os.path.exists(filepath):
+        tldlist = [line.split(",").strip() for line in open(filepath, 'r', encoding='utf-8').readlines()]
+    return tldlist
+
 
 # print(os.path.realpath('./MLcode/'))
 sys.path.append(os.path.realpath('./Clustering'))
