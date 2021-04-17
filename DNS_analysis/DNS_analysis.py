@@ -1,14 +1,12 @@
 #-- coding: utf-8 --
 import  requests
-from bs4 import  BeautifulSoup, Comment
 import re
-import time
 # import eventlet
 import os
 import sys
 import io
 import json
-
+from selenium.webdriver.firefox.options import Options
 from keras.models import load_model
 from gensim.models import KeyedVectors
 import numpy as np
@@ -22,26 +20,12 @@ import mytool
 from tensorflow.keras.preprocessing.sequence import pad_sequences
 from keras.utils.np_utils import *
 
-badtitles=['404 Not Found', '找不到',  'null', 'Not Found','阻断页','Bad Request','Time-out','No configuration',
-'TestPage','IIS7','Default','已暂停' ,'Server Error','403 Forbidden','禁止访问','载入出错','没有找到',
-'无法显示','无法访问','Bad Gateway','正在维护','配置未生效','访问报错','Welcome to nginx','Suspended Domain',
-'IIS Windows','Invalid URL','服务器错误','400 Unknown Virtual Host','无法找到','资源不存在',
-'Temporarily Unavailable','Database Error','temporarily unavailable','Bad gateway','不再可用','error Page',
-'Internal Server Error','升级维护中','Service Unavailable','站点不存在','405','Access forbidden','System Error',
-'详细错误','页面载入出错','Error','错误','Connection timed out','域名停靠','网站访问报错','错误提示','临时域名',
-'未被授权查看','Test Page','发生错误','非法阻断','链接超时','403 Frobidden','建设中','访问出错','出错啦']
+from selenium import webdriver
+
 
 time_limit = 40  #set timeout time 3s
 
 
-# 判断标题是否正常 
-# mytitle 需要判断的title 
-# 正常返回 False 不正常返回 True
-def ifbadtitle(mytitle):
-    for badtitle in badtitles:
-        if badtitle in mytitle:
-            return True
-    return False
 
 
 
@@ -195,34 +179,34 @@ def words2index(words):
             index_list.append(embeddings_index[word])
     return index_list
 
+class_list = [ '休闲娱乐', '生活服务', '购物网站', '政府组织', '综合其他', '教育文化', '行业企业','网络科技',
+ '体育健身', '医疗健康', '交通旅游', '新闻媒体']
 
 def predict_webclass(webdata):
     X_train_text = []
-    # if webdata['title'] != "" and webdata['description'] != "" and webdata['keywords'] != "":
     tmp_data = ""
     for data in webdata['webtext']:
-        tmp_data=tmp_data + tmp
+        tmp_data=tmp_data + data
     len_webtext = len(tmp_data)
     rule = re.compile(u"[^\u4E00-\u9FA5]")
-    len_chinese = len(rule.sub('',tmp_data)
+    len_chinese = len(rule.sub('',tmp_data))
     if len_chinese/len_webtext < 0.5:
-        return '外语网站'
+        return "外语网站"
     if len(webdata['webtext'])>=15:
         X_train_text.append(mytool.get_all_webdata(webdata))
     else:
-        return '数据过少'
+        return "数据过少"
     #  将文本转为张量
     # X_train 训练数据
     X_train = []
     for sentence in X_train_text:
         tmp_words = mytool.seg_sentence(sentence,stopwordslist)
         X_train.append(words2index(tmp_words))
-
     # 3 机器学习训练
     model_max_len = 300
     x_train_raw = pad_sequences(X_train, maxlen=model_max_len)
     predicted = LSTM_model.predict(x_train_raw)
-
+    predicted = class_list[np.argmax(predicted)]
     return predicted
 
 
@@ -241,52 +225,58 @@ def filter_cdn(url):
     if count_names >= 6:
         return True
     for name in names[0:count_names-2]:
-        if name in cdnlist:
-            return True
+        for cdn in cdnlist:
+            if '.'+name == cdn:
+                return True
     return False
 
 
 dnstpye_value = {'1' : "A", '5':"CNAME", '28':"AAAA"}
+
 # 读取dns数据
-dnsdata_path = "E:/wechatfile/WeChat Files/wxid_luhve56t0o4a11/FileStorage/File/2020-11/pdns_data"
+# dnsdata_path = "E:/wechatfile/WeChat Files/wxid_luhve56t0o4a11/FileStorage/File/2020-11/pdns_data"
+dnsdata_path = "/home/jiangy2/dnswork/cdnlist/pdns_data"
+
 dnsdata_file = open(dnsdata_path, 'r', encoding='utf-8')
 while True:
     line = dnsdata_file.readline()
-    if  line:
-        try:
-            dnsdata = prasednsdata(line)
-        except:
-            continue
-        if dnsdata['Dnstype'] not in dnstpye_value: # 只取 A AAAA CNAME记录
-            continue
-        # print(dnsdata)
-        url = getrkey_domainname(dnsdata['rkey'])
-        # 过滤url
-        
-        if filter_cdn(url):
-            print(url, " cdn")
-            continue
-        try:
-            httpsurl =  'http://' + url
-            resultdata = mytool.requesturl(httpsurl,browser, time_limit)
-            if ifbadtitle(resultdata['title']):
-                raise Exception("title error")
-            # 输入模型 进行判断
-            predict_result = predict_webclass(resultdata)
-            print(predict_result)
-        except:
+    try:
+        if  line:
             try:
-                if url.split(".")[0]!="www":
-                    httpsurl = 'http://www.' + url
-                else:
-                    httpsurl = 'http://' + url.replace('www.','',1)
-                resultdata = mytool.requesturl(httpsurl, browser, time_limit)
-                #网页是否无法访问
-                if ifbadtitle(resultdata['title']):
+                dnsdata = prasednsdata(line)
+            except:
+                continue
+            if dnsdata['Dnstype'] not in dnstpye_value: # 只取 A AAAA CNAME记录
+                continue
+            # print(dnsdata)
+            url = getrkey_domainname(dnsdata['rkey'])
+            # 过滤url
+            if filter_cdn(url):
+                print(url, " cdn")
+                continue
+            try:
+                httpsurl =  'http://' + url
+                resultdata = mytool.requesturl(httpsurl,browser, time_limit)
+                if mytool.ifbadtitle(resultdata['title']):
                     raise Exception("title error")
+                # 输入模型 进行判断
                 predict_result = predict_webclass(resultdata)
                 print(predict_result)
-            except Exception as e:
-                print(e)
-    else:
-        break
+            except:
+                try:
+                    if url.split(".")[0]!="www":
+                        httpsurl = 'http://www.' + url
+                    else:
+                        httpsurl = 'http://' + url.replace('www.','',1)
+                    resultdata = mytool.requesturl(httpsurl, browser, time_limit)
+                    #网页是否无法访问
+                    if mytool.ifbadtitle(resultdata['title']):
+                        raise Exception("title error")
+                    predict_result = predict_webclass(resultdata)
+                    print(predict_result)
+                except Exception as e:
+                    print(e)
+        else:
+            break
+    except:
+        pass
