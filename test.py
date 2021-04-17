@@ -3,7 +3,7 @@ import  requests
 from bs4 import  BeautifulSoup
 
 # response=requests.get('http://www.bigpian.cn')
-response=requests.get('http://www.routerpool12.rlb.teamviewer.com')
+response=requests.get('http://routerpool12.rlb.teamviewer.com')
 # http://www.vslai.com/
 re_text=response.text
 re_content=response.content
