@@ -335,11 +335,15 @@ for i in range(0, num_cores):
     else:
         x_train_cluster_results.append(pool.apply_async(
             get_cluster_result, args=(x_train[i*len_per_core : len(x_train)-1], kernel_bandwidth)))
-# results = [pool.apply_async(get_cluster_result, args=(name, param)) for name, param in param_dict.items()]
 
 x_train_cluster_results = [p.get() for p in x_train_cluster_results]
+x_train_cluster_results_list = []
+for clusters in x_train_cluster_results:
+    for cluster in clusters:
+        x_train_cluster_results_list.append(cluster)
+    
 
-x_train_cluster = pad_sequences(x_train_cluster_results, maxlen=model_max_len)
+x_train_cluster = pad_sequences(x_train_cluster_results_list, maxlen=model_max_len)
 
 
 
@@ -352,15 +356,24 @@ for i in range(0, num_cores):
             get_cluster_result, args=(x_test[i*len_per_core : i*len_per_core+len_per_core], kernel_bandwidth)))
     else:
         x_test_cluster_results.append(pool.apply_async(
-            get_cluster_result, args=(x_train[i*len_per_core : len(x_train)-1], kernel_bandwidth)))
+            get_cluster_result, args=(x_test[i*len_per_core : len(x_test)-1], kernel_bandwidth)))
+
 
 # x_test_cluster = get_cluster_result(x_test, kernel_bandwidth)
+x_test_cluster_results = [p.get() for p in x_test_cluster_results]
 
-x_test_cluster = pad_sequences(x_test_cluster_results, maxlen=model_max_len)
+x_test_cluster_results_list = []
+for clusters in x_test_cluster_results:
+    for cluster in clusters:
+        x_test_cluster_results_list.append(cluster)
 
+x_text_cluster = pad_sequences(x_test_cluster_results_list, maxlen=model_max_len)
+
+# x_test_cluster = pad_sequences(x_test_cluster_results, maxlen=model_max_len)
 
 
 cluster_model_train = model_fit(model_cluster, x_train_cluster, y_train)
-print(model_cluster.evaluate(x_test_cluster, y_test))
+
+print(model_cluster.evaluate(x_text_cluster, y_test))
 
 
