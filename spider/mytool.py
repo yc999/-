@@ -338,16 +338,16 @@ def requesturl(url, browser, time_limit):
                 searchObj = re.search("关于.{0,4}", tag.string, flags=0)
                 if searchObj:
                     return True
-                searchObj = re.search(".{0,3}简介", tag.string, flags=0)
+                searchObj = re.search(".{0,4}简介", tag.string, flags=0)
                 if searchObj:
                     return True
-                searchObj = re.search(".{0,3}概况", tag.string, flags=0)
+                searchObj = re.search(".{0,4}概况", tag.string, flags=0)
                 if searchObj:
                     return True
-                searchObj = re.search(".{0,3}介绍", tag.string, flags=0)
+                searchObj = re.search(".{0,4}介绍", tag.string, flags=0)
                 if searchObj:
                     return True
-                searchObj = re.search("了解[\u4e00-\u9fa5]{1,3}", tag.string, flags=0)
+                searchObj = re.search("了解[\u4e00-\u9fa5]{1,4}", tag.string, flags=0)
                 if searchObj:
                     return True
     soup = BeautifulSoup(browser.page_source, 'html.parser')

@@ -350,6 +350,8 @@ x_train_cluster = pad_sequences(x_train_cluster_results_list, maxlen=model_max_l
 
 #测试集聚类 x_test_cluster
 x_test_cluster_results = []
+
+len_per_core = int(len(x_test)/num_cores)
 for i in range(0, num_cores):
     if i != num_cores-1:
         x_test_cluster_results.append(pool.apply_async(

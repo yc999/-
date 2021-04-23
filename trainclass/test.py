@@ -224,7 +224,7 @@ def requesturl(url):
         get_info()
     
     skip_text = ['点击','跳转','进入']
-    href_text = ['index', 'main','default','info']
+    href_text = ['index', 'main','default','info','home']
 
     #数据太少  找到所有的a标签 选择合适的访问
     if len(webinfo['webtext'])<15:
@@ -273,6 +273,20 @@ def requesturl(url):
                     for keyword in href_text:
                         if tag.has_attr('href'):
                             if tmpurl in tag['href'] and keyword in tag['href']:
+                                try:
+                                    browser.execute_script(js2,tag['href'].strip())
+                                    time.sleep(8)
+                                    browser.switch_to.alert.accept()
+                                    time.sleep(3)
+                                except Exception as e:
+                                    print("链接error")
+                                    print(e)
+                                    pass
+                                soup = BeautifulSoup(browser.page_source, 'html.parser')
+                                get_info()
+                                break
+                            # 如果是内部网页路径
+                            elif tag['href'].strip()[0]=='/' and keyword in tag['href']: 
                                 try:
                                     browser.execute_script(js2,tag['href'].strip())
                                     time.sleep(8)
@@ -432,7 +446,7 @@ url = "bigpian.cn"
 
 urlList = ["360tuan.com","www.stheadline1.com", "www.miaobolive.com","yfmac.com" ,"ntfan.com","shyouhuan.com","jf.cn","www.w555555.com","www.youka.la"]
 # urlList = ["360tuan.com"]
-urlList = ["476050.yipaifood.com/"]
+urlList = ["syshospital.com"]
 for url in urlList:
     try:
         print("http1")
