@@ -446,7 +446,8 @@ url = "bigpian.cn"
 
 urlList = ["360tuan.com","www.stheadline1.com", "www.miaobolive.com","yfmac.com" ,"ntfan.com","shyouhuan.com","jf.cn","www.w555555.com","www.youka.la"]
 # urlList = ["360tuan.com"]
-urlList = ["syshospital.com"]
+urlList = ["syshospital.com"]#zssy.com.cn
+urlList = ["www.bhlgh.com"]#zssy.com.cn
 for url in urlList:
     try:
         print("http1")
