@@ -7,11 +7,14 @@ EMBEDDING_DIM = 200  #词向量长度
 EMBEDDING_length = 8824330
 MAX_SEQUENCE_LENGTH = 10
 
+
 filepath = 'Tencent_AILab_ChineseEmbedding.txt'
 f = open(filepath)
 
+
 embeddings_index = {}
 embedding_matrix = np.zeros((EMBEDDING_length + 1, EMBEDDING_DIM))
+
 
 i = 1
 for line in f:

@@ -176,6 +176,7 @@ def requesturl(url):
         soup = BeautifulSoup(browser.page_source, 'html.parser')
         get_info()
     
+    
     skip_text = ['点击','跳转','进入']
     href_text = ['index', 'main','default','info','home']
     #数据太少  找到所有的a标签 选择合适的访问
