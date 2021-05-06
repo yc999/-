@@ -2707,3 +2707,68 @@ console.warn: SearchSettings: "get: No settings file exists, new profile?" (new 
 1619159036064	Marionette	INFO	Listening on port 65384
 1619159036176	Marionette	WARN	TLS certificate errors will be ignored for this session
 console.log: WebExtensions: reset-default-search: No addons in our list are installed.
+1619171061398	Marionette	INFO	Stopped listening on port 65384
+
+###!!! [Child][RunMessage] Error: Channel closing: too late to send/recv, messages will be lost
+
+
+###!!! [Child][MessageChannel::SendAndWait] Error: Channel error: cannot send/recv
+
+1619327432490	geckodriver	INFO	Listening on 127.0.0.1:64667
+1619327435622	mozrunner::runner	INFO	Running command: "C:\\Program Files\\Mozilla Firefox\\firefox.exe" "--marionette" "--no-sandbox" "log-level=3" "--disable-gpu" "-foreground" "-no-remote" "-profile" "C:\\Users\\shinelon\\AppData\\Local\\Temp\\rust_mozprofileoSyUzo"
+Can't find symbol 'eglSwapBuffersWithDamageEXT'.
+Can't find symbol 'eglSetDamageRegionKHR'.
+JavaScript error: resource://gre/modules/XULStore.jsm, line 66: Error: Can't find profile directory.
+console.warn: SearchSettings: "get: No settings file exists, new profile?" (new Error("", "(unknown module)"))
+1619327439615	Marionette	INFO	Listening on port 64682
+1619327439761	Marionette	WARN	TLS certificate errors will be ignored for this session
+1619327977012	Marionette	INFO	Stopped listening on port 64682
+
+###!!! [Child][RunMessage] Error: Channel closing: too late to send/recv, messages will be lost
+
+
+###!!! [Child][MessageChannel::SendAndWait] Error: Channel error: cannot send/recv
+
+1619328111676	geckodriver	INFO	Listening on 127.0.0.1:50900
+1619328114713	mozrunner::runner	INFO	Running command: "C:\\Program Files\\Mozilla Firefox\\firefox.exe" "--marionette" "--no-sandbox" "log-level=3" "--disable-gpu" "-foreground" "-no-remote" "-profile" "C:\\Users\\shinelon\\AppData\\Local\\Temp\\rust_mozprofilepNn6zJ"
+Can't find symbol 'eglSwapBuffersWithDamageEXT'.
+Can't find symbol 'eglSetDamageRegionKHR'.
+JavaScript error: resource://gre/modules/XULStore.jsm, line 66: Error: Can't find profile directory.
+console.warn: SearchSettings: "get: No settings file exists, new profile?" (new Error("", "(unknown module)"))
+1619328116681	Marionette	INFO	Listening on port 50911
+1619328116739	Marionette	WARN	TLS certificate errors will be ignored for this session
+JavaScript error: http://www.bhlgh.com/, line 501: ReferenceError: AC_FL_RunContent is not defined
+console.log: WebExtensions: reset-default-search: No addons in our list are installed.
+JavaScript error: http://www.201yyfk.com/static/SpryAssets/SpryTabbedPanels.js, line 1: SyntaxError: expected expression, got '<'
+JavaScript error: http://www.201yyfk.com/static/js/jquery.pack.js, line 1: SyntaxError: expected expression, got '<'
+JavaScript error: http://www.201yyfk.com/static/js/jQuery.blockUI.js, line 1: SyntaxError: expected expression, got '<'
+JavaScript error: http://www.201yyfk.com/static/js/jquery.SuperSlide.js, line 1: SyntaxError: expected expression, got '<'
+JavaScript error: http://www.201yyfk.com/, line 262: ReferenceError: jQuery is not defined
+JavaScript error: http://www.imis3.com/swt/swt.js, line 1: SyntaxError: expected expression, got '<'
+JavaScript error: http://www.201yyfk.com/static/js/jquery-1.7.1.min.js, line 1: SyntaxError: expected expression, got '<'
+JavaScript error: http://www.201yyfk.com/static/js/slide.js, line 1: SyntaxError: expected expression, got '<'
+JavaScript error: http://www.201yyfk.com/, line 590: ReferenceError: $ is not defined
+JavaScript error: http://www.201yyfk.com/, line 593: ReferenceError: Spry is not defined
+JavaScript error: http://www.201yyfk.com/static/SpryAssets/SpryTabbedPanels.js, line 1: SyntaxError: expected expression, got '<'
+JavaScript error: http://www.201yyfk.com/static/js/jQuery.blockUI.js, line 1: SyntaxError: expected expression, got '<'
+JavaScript error: http://www.201yyfk.com/static/js/jquery.SuperSlide.js, line 1: SyntaxError: expected expression, got '<'
+JavaScript error: http://www.201yyfk.com/, line 262: TypeError: jQuery(...).slide is not a function
+JavaScript error: http://www.imis3.com/swt/swt.js, line 1: SyntaxError: expected expression, got '<'
+JavaScript error: http://www.201yyfk.com/static/js/slide.js, line 1: SyntaxError: expected expression, got '<'
+JavaScript error: http://www.201yyfk.com/, line 590: TypeError: $(...).nav is not a function
+JavaScript error: http://www.201yyfk.com/, line 593: ReferenceError: Spry is not defined
+JavaScript error: http://www.201yyfk.com/static/js/jQuery.blockUI.js, line 1: SyntaxError: expected expression, got '<'
+JavaScript error: http://www.201yyfk.com/static/js/jquery.SuperSlide.js, line 1: SyntaxError: expected expression, got '<'
+JavaScript error: http://www.201yyfk.com/, line 262: TypeError: jQuery(...).slide is not a function
+JavaScript error: http://www.imis3.com/swt/left.js, line 1: SyntaxError: expected expression, got '<'
+JavaScript error: http://www.imis3.com/swt/bottom.js, line 1: SyntaxError: expected expression, got '<'
+JavaScript error: http://www.201yyfk.com/static/js/slide.js, line 1: SyntaxError: expected expression, got '<'
+JavaScript error: http://www.201yyfk.com/, line 590: TypeError: $(...).nav is not a function
+JavaScript error: http://www.201yyfk.com/static/SpryAssets/SpryTabbedPanels.js, line 384: TypeError: panels[tpIndex] is undefined
+1619335316502	Marionette	INFO	Stopped listening on port 50911
+
+###!!! [Child][RunMessage] Error: Channel closing: too late to send/recv, messages will be lost
+
+
+###!!! [Child][MessageChannel::SendAndWait] Error: Channel error: cannot send/recv
+

@@ -5,6 +5,7 @@ from bs4 import  BeautifulSoup
 headers={'User-Agent':'Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/63.0.3239.132 Safari/537.36'}
 
 # response=requests.get('http://www.bigpian.cn')
+
 response=requests.get('http://easyicon.net',headers= headers)
 if response.status_code == 200:
     print("true")
@@ -12,6 +13,9 @@ if response.status_code == 200:
 
 print(response.status_code)
 
+
+# response=requests.get('https://nuxechina.com',verify=False)
+response=requests.get('http://doc.qmail.com',verify=False)
 
 #https://stapharma.com.cn/cn/about-us/facilities/
 #https://stapharma.com/about-us/facilities/
