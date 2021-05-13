@@ -36,7 +36,7 @@ def getPage(pageNum):
     selector = html.fromstring(str)
     urls = []
     for i in selector.xpath('//ul[@id="pins"]/li/a/@href'):
-    urls.append(i)
+        urls.append(i)
     return urls
 
 
@@ -59,9 +59,9 @@ def getPiclink(url):
         try:
             link = '{}/{}'.format(url, i+1)
             if i!=0:
-            s = html.fromstring(connetion(link))
+                s = html.fromstring(connetion(link))
             else:
-            s = html.fromstring(connetion(url))
+                s = html.fromstring(connetion(url))
             # 图片地址在src标签中
             jpgLink = s.xpath('//div[@class="main-image"]/p/a/img/@src')[0]
             # print(jpgLink)
@@ -69,8 +69,8 @@ def getPiclink(url):
             filename = 'C:\\Users\\lijy1427\\Documents\\Tencent Files\\1185805992\\FileRecv\\mzhitu\\/%s\\/%s.jpg' % (dirName, n)
             print(u'开始下载图片:%s 第%s张' % (dirName, n))
             with open(filename, "wb+") as jpg:
-            jpg.write(requests.get(jpgLink, headers=header(jpgLink)).content)
-            n += 1
+                jpg.write(requests.get(jpgLink, headers=header(jpgLink)).content)
+                n += 1
         except:
             print('except1')
 
