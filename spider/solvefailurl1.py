@@ -388,7 +388,7 @@ fs1 =  os.listdir(readpath1)
 
 for filename in fs1:
     if filename not in fs:
-        filepath = readpath + filename
+        filepath = readpath1 + filename
         print(filepath)
         f = open(filepath,"r",encoding="utf-8")
         urlList = f.readlines()                 #   所有待爬取的url
