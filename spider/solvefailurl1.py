@@ -386,8 +386,8 @@ fs = os.listdir(readpath)   #读取url目录
 readpath1 = "../../topchinaz1/"
 fs1 =  os.listdir(readpath1)
 
-for filename1 in fs1:
-    if filename1 not in fs:
+for filename in fs1:
+    if filename not in fs:
         filepath = readpath + filename
         print(filepath)
         f = open(filepath,"r",encoding="utf-8")
