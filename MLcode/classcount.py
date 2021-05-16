@@ -98,8 +98,8 @@ readclasspath = "/home/jiangy2/dnswork/topchinaz-confirm/"
 # readpath = "E:/webdata/"
 fs = os.listdir(readclasspath)   #读取url目录
 class_index={}
-weburllist = []
-classlist = []
+weburllist = [] #保存要训练的网站
+classlist = []  #保存要训练网站对应的标签
 for i,filename in enumerate(fs):
     filepath = readclasspath + filename
     with open(filepath, 'r', encoding='utf-8') as file_to_read:
@@ -108,9 +108,8 @@ for i,filename in enumerate(fs):
             parts = line.split(",")
             if  not line:
                 break
-            weburllist.append(parts)
-
-
+            weburllist.append(parts[1])
+            classlist.append(parts[0])
     tmp = filename.split(".")[0]
     class_index[tmp] = i
 
@@ -122,26 +121,7 @@ print(class_index)
 
 
 
-classtype = {'购物':'购物网站','游戏':'休闲娱乐','旅游':'生活服务','军事':'教育文化','招聘':'生活服务','时尚':'休闲娱乐',
-'新闻':'新闻媒体资讯','音乐':'休闲娱乐','健康':'医疗健康','艺术':'教育文化',
-'社区':'综合其他','学习':'教育文化','政府':'政府组织','搞笑':'休闲娱乐','银行':'生活服务',
-'酷站':'综合其他','视频':'休闲娱乐','电影':'休闲娱乐','文学':'休闲娱乐','体育':'体育健身','科技':'网络科技',
-'财经':'生活服务','汽车':'生活服务','房产':'生活服务','摄影':'休闲娱乐','设计':'网络科技','营销':'行业企业',
-'电商':'购物网站','外贸':'行业企业','服务':'行业企业','商界':'行业企业','生活':'生活服务'}
 
-def initclass(filepath):
-    with open(filepath, 'r', encoding='utf-8') as file_to_read:
-        while True:
-            line = file_to_read.readline()
-            parts = line.split(",")
-            if  not line:
-                break
-            classtype[parts[0]]=parts[2].strip("\n")
-
-
-# filepath = "D:/dnswork/sharevm/top.chinaz.txt"
-initfilepath = "/home/jiangy2/dnswork/top.chinaz.txt"
-initclass(initfilepath)
 
 
 
