@@ -84,8 +84,7 @@ del tc_wv_model
 
 #  85 
 # 107 110 112 114  125
-'电子元器件': 85,'球类运动': 107,'法律法规': 110,'母婴网站': 112,'网址导航': 114,
-'娱乐时尚': 125, 
+
 
 class_index = {'商务服务': 0, '教育资讯': 1, '动漫网站': 2, '返利比价': 3, '票务预订': 4, '出国留学': 5,
    '家电数码': 6, '音乐网站': 7, '健康资讯': 8, '门户网站': 9, '生活百科': 10, '虚拟现实': 11, 
@@ -141,7 +140,7 @@ for i,filename in enumerate(fs):
             if  not line:
                 break
             if len(parts)>1:
-                weburllist.append(parts[1])
+                weburllist.append(parts[1].strip())
                 classlist.append(parts[0])
     tmp = filename.split(".")[0]
     class_index[tmp] = i
@@ -246,9 +245,8 @@ for sentence in X_train_text:
 
 
 
-
 # 3 机器学习训练
-model_max_len = 300
+model_max_len = 350
 
 
 # 3.1 定义模型
@@ -293,7 +291,8 @@ x_train_raw = pad_sequences(X_train, maxlen=model_max_len)
 
 # 3.3 训练
 def model_fit(model, x, y):
-    return model.fit(x, y, batch_size=10, epochs=5, validation_split=0.1)
+    return model.fit(x, y, batch_size=10, epochs=25, validation_split=0.1)
+
 
 model = get_lstm_model()
 model_train = model_fit(model, x_train_raw, Y)
@@ -308,9 +307,184 @@ model.save(modelsave_path)
 
 
 
+#开始预测
+class_list = list(class_index.keys())
+
+
+def predict_webclass(webdata,LSTM_model):
+    X_train_text = []
+    tmp_data = ""
+    for data in webdata['webtext']:
+        tmp_data=tmp_data + data
+    len_webtext = len(tmp_data)
+    rule = re.compile(u"[^\u4E00-\u9FA5]")
+    len_chinese = len(rule.sub('',tmp_data))
+    if len_chinese/len_webtext < 0.2:
+        return ""
+    X_train_text.append(mytool.get_all_webdata(webdata))
+    #  将文本转为张量
+    # X_train 训练数据
+    X_train = []
+    for sentence in X_train_text:
+        tmp_words = mytool.seg_sentence(sentence,stopwordslist)
+        X_train.append(words2index(tmp_words))
+    # 3 机器学习训练
+    x_train_raw = pad_sequences(X_train, maxlen=model_max_len)
+    predicted = LSTM_model.predict(x_train_raw)
+    predicted = class_list[np.argmax(predicted)]
+    return predicted
+
+
+#读取文件
+result_dic={}  #保存结果
+
+
+newpath = "/home/jiangy2/dnswork/newwebdata/"
+newfs = os.listdir(newpath)
+for subpath in newfs:
+    filepath = os.path.join(newpath, subpath)
+    if (os.path.isdir(filepath)):
+        print(filepath)
+        webdata_path = os.listdir(filepath)
+        for filename in webdata_path:
+            fileurl = filename.replace(".txt","")
+            fileurl = fileurl.replace("www.","")
+            webdata = mytool.read_webdata(os.path.join(filepath, filename))
+            if fileurl not in result_dic.keys():
+                if webdata['title'] != "" and webdata['description'] != "" and webdata['keywords'] != "":
+                    if len(webdata['webtext'])>=15:
+                        result = predict_webclass(webdata,model)
+                        if result != "":
+                            print(result)
+                            result_dic[fileurl] = result
+
+   
+newpath = "/home/jiangy2/webdata/" 
+newfs = os.listdir(newpath)
+
+for subpath in newfs:
+    filepath = os.path.join(newpath, subpath)
+    if (os.path.isdir(filepath)):
+        print(filepath)
+        webdata_path = os.listdir(filepath)
+        for filename in webdata_path:
+            fileurl = filename.replace(".txt","")
+            fileurl = fileurl.replace("www.","")
+            webdata = mytool.read_webdata(os.path.join(filepath, filename))
+            if fileurl not in result_dic.keys():
+                if webdata['title'] != "" and webdata['description'] != "" and webdata['keywords'] != "":
+                    if len(webdata['webtext'])>=15:
+                        result = predict_webclass(webdata,model)
+                        if result != "":
+                            print(result)
+                            result_dic[fileurl] = result
+
+           
+#统计结果数量                 
+resultcount_dic={}
+
+for key in result_dic.keys():
+    print(key)
+    if result_dic[key]  in resultcount_dic:
+        resultcount_dic[result_dic[key]] = resultcount_dic[result_dic[key]] + 1
+    else:
+        resultcount_dic[result_dic[key]] = 1
+
+sum = 0
+for key in resultcount_dic:
+    sum = sum + resultcount_dic[key]
+
+for key in class_list:
+    if key not in resultcount_dic:
+        print(key)
 
 
 
+
+
+
+
+
+
+result_dic['alipay.com']
+result_dic['shfft.com']
+
+
+result_dic['58wuji.com']
+result_dic['onlinedown.net']
+result_dic['downcc.com']
+
+
+result_dic['mine999.cn']
+result_dic['sinopec.com']
+result_dic['cnpc.com.cn']
+result_dic['pvc123.com']
+
+
+result_dic['dict.cn']
+result_dic['iciba.com']
+result_dic['dict.youdao.com']
+result_dic['chazidian.com']
+
+
+result_dic['xiachufang.com']
+result_dic['meishij.net']
+result_dic['cy8.com.cn']
+result_dic['shipuxiu.com']
+result_dic['haocai777.com']
+result_dic['ttmeishi.com']
+
+
+result_dic['12371.cn']
+result_dic['sac.net.cn']
+result_dic['ccopyright.com.cn']
+result_dic['rmzxb.com.cn']
+result_dic['gwyoo.com']
+
+
+
+result_dic['8684.cn']
+result_dic['mapbar.com']
+result_dic['amap.com']
+result_dic['city8.com']
+result_dic['keyunzhan.com']
+
+
+
+result_dic['hebyyjzcgw.cn']
+result_dic['box-z.com']
+result_dic['jianbaishi.com']
+result_dic['cjkq.ne']
+result_dic['tech-marts.com']
+
+
+
+result_dic['cqxfyy.com']
+result_dic['bjhms.com']
+result_dic['bjebhw.com']
+result_dic['kedayy120.com']
+result_dic['dx66.cn']
+result_dic['dx021.com']
+result_dic['dlyfj.com']
+result_dic['fuke120.com']
+result_dic['syjqzyy.com']
+result_dic['keyunzhan.com']
+
+
+result_dic['biquge.info']
+result_dic['jjwxc.net']
+result_dic['qidian.com']
+result_dic['faloo.com']
+result_dic['zongheng.com']
+result_dic['xxsy.net']
+
+
+result_dic['jd.com']
+result_dic['1688.com']
+result_dic['taobao.com']
+result_dic['kaola.com']
+result_dic['dangdang.com']
+result_dic['suning.com']
 
 
 

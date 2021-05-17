@@ -1,5 +1,5 @@
 #-- coding: utf-8 --
-#将爬取失败的网站重新爬取
+#将爬取失败的网站重新爬取 使用httprequest
 import  requests
 from bs4 import  BeautifulSoup, Comment
 import re
@@ -41,8 +41,8 @@ def ifbadtitle(mytitle):
 # savepath = "E:/webdata/"
 # logpath = "E:/webdata/relog.txt"
 savepath = "../../newwebdata/"
-logpath = "../../newwebdata/relog1.txt"
-messageless_log_path =  "../../newwebdata/messagelog1.txt"
+logpath = "../../newwebdata/relog.txt"
+messageless_log_path =  "../../newwebdata/messagelog.txt"
 if not os.path.isdir(savepath):
     os.mkdir(savepath)
 
@@ -382,55 +382,50 @@ readpath = "../../topchinaz/"
 # readpath = "D:/dnswork/sharevm/topchinaz/"
 # readpath = "E:/webdata/"
 fs = os.listdir(readpath)   #读取url目录
+for filename in fs:
+    filepath = readpath + filename
+    print(filepath)
+    f = open(filepath,"r",encoding="utf-8")
+    urlList = f.readlines()                 #   所有待爬取的url
+    f.close()
+    dirname = filename.split(".")[0]
+    dirpath = savepath + dirname        # 爬取的数据保存的文件夹路径
+    isExists=os.path.exists(dirpath)    #根据url文件创建文件夹
+    if not isExists:
+        os.makedirs(dirpath)
+    savedfileslist = os.listdir(dirpath)    #所有成功爬取的url文件名,需要对文件名处理。
 
-readpath1 = "../../topchinaz2/"
-fs1 =  os.listdir(readpath1)
-
-for filename in fs1:
-    
-        filepath = readpath1 + filename
-        print(filepath)
-        f = open(filepath,"r",encoding="utf-8")
-        urlList = f.readlines()                 #   所有待爬取的url
-        f.close()
-        dirname = filename.split(".")[0]
-        dirpath = savepath + dirname        # 爬取的数据保存的文件夹路径
-        isExists=os.path.exists(dirpath)    #根据url文件创建文件夹
-        if not isExists:
-            os.makedirs(dirpath)
-        savedfileslist = os.listdir(dirpath)    #所有成功爬取的url文件名,需要对文件名处理。
-
-        for url in urlList:
-            time.sleep(1)
-            try:
-                url = "".join(url.split())
-                url = url.split(",")[1]
-                savefilepath = dirpath +"/" + url + ".txt"
-                if url + ".txt" not in savedfileslist and "www." + url + ".txt" not in savedfileslist:
+    for url in urlList:
+        time.sleep(1)
+        try:
+            url = "".join(url.split())
+            url = url.split(",")[1]
+            savefilepath = dirpath +"/" + url + ".txt"
+            if url + ".txt" not in savedfileslist and "www." + url + ".txt" not in savedfileslist:
+                try:
+                    httpsurl =  'http://' + url
+                    resultdata = requesturl(httpsurl)
+                    if ifbadtitle(resultdata['title']):
+                        raise Exception("title error")
+                    writedata(savefilepath,resultdata)
+                except:
                     try:
-                        httpsurl =  'http://' + url
+                        if url.split(".")[0]!="www":
+                            httpsurl = 'http://www.' + url
+                            savefilepath = dirpath +"/www." + url + ".txt"
+                        else:
+                            httpsurl = 'http://' + url.replace('www.','',1)
+                            savefilepath = dirpath +"/" + url.replace('www.','',1) + ".txt"
                         resultdata = requesturl(httpsurl)
+                        #网页是否无法访问
                         if ifbadtitle(resultdata['title']):
                             raise Exception("title error")
-                        writedata(savefilepath,resultdata)
-                    except:
-                        try:
-                            if url.split(".")[0]!="www":
-                                httpsurl = 'http://www.' + url
-                                savefilepath = dirpath +"/www." + url + ".txt"
-                            else:
-                                httpsurl = 'http://' + url.replace('www.','',1)
-                                savefilepath = dirpath +"/" + url.replace('www.','',1) + ".txt"
-                            resultdata = requesturl(httpsurl)
-                            #网页是否无法访问
-                            if ifbadtitle(resultdata['title']):
-                                raise Exception("title error")
-                            writedata(savefilepath, resultdata)
-                        except Exception as e:
-                            print (e)
-                            if "Reached error page" not in str(e) and "title error" not in str(e):
-                                makelog(e + url)
-            except:
-                pass
+                        writedata(savefilepath, resultdata)
+                    except Exception as e:
+                        print (e)
+                        if "Reached error page" not in str(e) and "title error" not in str(e):
+                            makelog(e + url)
+        except:
+            pass
 
 browser.quit()

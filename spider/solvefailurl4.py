@@ -385,7 +385,7 @@ fs = os.listdir(readpath)   #读取url目录
 
 readpath1 = "../../topchinaz2/"
 fs1 =  os.listdir(readpath1)
-
+fs1 = fs1[::-1]
 for filename in fs1:
     
         filepath = readpath1 + filename
