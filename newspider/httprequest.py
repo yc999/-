@@ -7,13 +7,9 @@ import time
 # import eventlet
 import os
 import json
-from selenium.webdriver.firefox.options import Options
-from selenium import webdriver
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.wait import WebDriverWait
-from selenium.common.exceptions import TimeoutException
-from selenium.common.exceptions import UnexpectedAlertPresentException
+
+
+
 
 badtitles=['404 Not Found', '找不到',  'null', 'Not Found','阻断页','Bad Request','Time-out','No configuration',
 'TestPage','IIS7','Default','已暂停' ,'Server Error','403 Forbidden','禁止访问','载入出错','没有找到',
@@ -54,28 +50,20 @@ messagelogfile = open(messageless_log_path,'a+')
 def messagelesslog(logmessage):
     messagelogfile.write(logmessage + '\n')
 
-# option = webdriver.ChromeOptions()
-
-option = Options()
-option.add_argument('--no-sandbox')
-option.add_argument('--disable-dev-shm-usage')
-option.add_argument('--headless') #静默运行
-option.add_argument('log-level=3')
-option.add_argument('--disable-gpu')  # 禁用GPU加速,GPU加速可能会导致Chrome出现黑屏，且CPU占用率高达80%以上
-browser = webdriver.Firefox(options=option)
-# browser = webdriver.Chrome(options=option)
-browser.implicitly_wait(time_limit)
-browser.set_page_load_timeout(time_limit)
 
 # 查询网址，爬取内容
 # def requesturl(url, savefilepath):
 def requesturl(url):
     print(url)
-    webinfo={}  #最后保存的数据
-    webtext = []    #首页内容文本
-    abouttext = []  #关于页面内容文本
+    webinfo={}  # 最后保存的数据
+    webtext = []    # 首页内容文本
+    abouttext = []  # 关于页面内容文本
     aboutlist = []  # 关于页面的连接
-    stopjs = """window.stop ? window.stop() : document.execCommand("Stop");"""
+
+    response=requests.get(url,verify=False,allow_redirects=True,headers = headers)
+    response.encoding = response.apparent_encoding
+    # re_text=response.text
+    # re_content=response.content
 
     def initwebinfo():
         webinfo['title'] = ""
@@ -83,36 +71,8 @@ def requesturl(url):
         webinfo['keywords'] = ""
         webinfo['webtext'] = []
 
-    try:
-        js = 'void(window.open(""));'
-        browser.execute_script(js)
-        time.sleep(3)
-    except:
-        print ("window.open("")  error")
-        pass
-
-    handles = browser.window_handles
-    while len(handles)>1:
-        browser.close()
-        browser.switch_to.window(handles[1])
-        handles = browser.window_handles
-        time.sleep(2)
-    try:
-        browser.get(url)
-        WebDriverWait(browser, time_limit, 1).until_not(EC.title_is(""))
-    except   TimeoutException:
-        print("TimeoutException")
-        browser.execute_script(stopjs) #   超时停止js脚步
-    except UnexpectedAlertPresentException:
-        print("UnexpectedAlertPresentException")
-        time.sleep(5)
-        element = browser.switch_to.active_element
-        element.click()
-    # r.encoding = r.apparent_encoding
-
-    time.sleep(3)
     initwebinfo()
-    soup = BeautifulSoup(browser.page_source, 'html.parser')
+    soup = BeautifulSoup(response.text, 'html.parser')
 
     # 获取网页head中元素 title keywords description 存入webinfo中
     def get_headtext():
@@ -163,7 +123,6 @@ def requesturl(url):
 
 # 第一阶段
     #开始获取信息
-
     get_info()
     # 如果是无效网站提前返回
     if ifbadtitle(webinfo['title']):
