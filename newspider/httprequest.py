@@ -51,6 +51,42 @@ def messagelesslog(logmessage):
     messagelogfile.write(logmessage + '\n')
 
 
+def writeurlfile(url,data):
+    urllfile = open(savepath + url,'w')
+    urllfile.write(data + '\n')
+
+
+def solvehref(href):
+    tmps = href.split('"')
+    tmp = tmps[1]
+    tmp = tmp.replace('http://','')
+    tmp = tmp.replace('https://','')
+    tmps = tmp.split('/')
+    tmp = tmps[0]
+    return tmp
+
+
+def return_all_url(url):
+    allatags = []
+    try:
+        r = requests.get(url)
+        r.encoding = r.apparent_encoding
+        # r.encoding = "utf-8"
+        soup = BeautifulSoup(r.text, 'html.parser')
+        pattern = re.compile("href\s{0,3}=\s{0,3}\"[^\"]+\"")
+        hrefs=re.findall(pattern,soup.prettify())
+        for href in hrefs:
+            tmpurl = solvehref(href)
+            if tmpurl not in allatags:
+                allatags.append(tmpurl)
+    except Exception as e:
+        print(e)
+        pass
+    return allatags
+
+
+# urls = return_all_url("http://sina.com")
+# print(urls)
 # 查询网址，爬取内容
 # def requesturl(url, savefilepath):
 def requesturl(url):
@@ -60,10 +96,15 @@ def requesturl(url):
     abouttext = []  # 关于页面内容文本
     aboutlist = []  # 关于页面的连接
 
+    
     response=requests.get(url,verify=False,allow_redirects=True,headers = headers)
     response.encoding = response.apparent_encoding
+
+
     # re_text=response.text
     # re_content=response.content
+    url_now = response.headers['Url-Hash'] # 当前的url
+    url_now = response.url          # 当前的url
 
     def initwebinfo():
         webinfo['title'] = ""
@@ -121,6 +162,7 @@ def requesturl(url):
         [s.extract() for s in soup('head')]
         get_bodytext()
 
+    writeurlfile(url, response.text)
 # 第一阶段
     #开始获取信息
     get_info()
@@ -129,11 +171,11 @@ def requesturl(url):
         return webinfo
 
     #信息太少可能有跳转等待 重新获取
-    if len(webinfo['webtext'])<15:
-        time.sleep(65)
-        initwebinfo()
-        soup = BeautifulSoup(browser.page_source, 'html.parser')
-        get_info()
+    # if len(webinfo['webtext'])<15:
+    #     time.sleep(65)
+    #     initwebinfo()
+    #     soup = BeautifulSoup(response.text, 'html.parser')
+    #     get_info()
     
     
     skip_text = ['点击','跳转','进入']
