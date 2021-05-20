@@ -7,7 +7,7 @@ import time
 # import eventlet
 import os
 import json
-
+from urllib.parse import urljoin
 
 
 
@@ -55,6 +55,22 @@ def writeurlfile(url,data):
     urllfile = open(savepath + url,'w')
     urllfile.write(data + '\n')
 
+#判断两个url是否是同一个网站
+# sourceurl 原url
+# targeturl 要判断的url
+def samewebsite(sourceurl, targeturl):
+    tmp_sourceurl = sourceurl.replace('http://','')
+    tmp_sourceurl = tmp_sourceurl.replace('https://','')
+    tmp_sourceurl = tmp_sourceurl.split('/')[0].strip()
+    tmp_targeturl = targeturl.replace('http://','')
+    tmp_targeturl = tmp_targeturl.replace('https://','')
+    tmp_targeturl = tmp_targeturl.split('/')[0].strip()
+    if tmp_targeturl == tmp_sourceurl:
+        return True
+    return False
+
+
+
 
 def solvehref(href):
     tmps = href.split('"')
@@ -85,6 +101,18 @@ def return_all_url(url):
     return allatags
 
 
+#请求url并且写入文件
+def get_and_write(url):
+    try:
+        response = requests.get(url,verify=False,allow_redirects=True,headers = headers)
+    except Exception as e:
+        print(e)
+        return False
+    response.encoding = response.apparent_encoding
+    writeurlfile(url, response.text)
+    return response
+
+
 # urls = return_all_url("http://sina.com")
 # print(urls)
 # 查询网址，爬取内容
@@ -92,15 +120,12 @@ def return_all_url(url):
 def requesturl(url):
     print(url)
     webinfo={}  # 最后保存的数据
-    webtext = []    # 首页内容文本
-    abouttext = []  # 关于页面内容文本
     aboutlist = []  # 关于页面的连接
 
+    response = get_and_write(url)
+    if response == False:
+        return
     
-    response=requests.get(url,verify=False,allow_redirects=True,headers = headers)
-    response.encoding = response.apparent_encoding
-
-
     # re_text=response.text
     # re_content=response.content
     url_now = response.headers['Url-Hash'] # 当前的url
@@ -162,7 +187,7 @@ def requesturl(url):
         [s.extract() for s in soup('head')]
         get_bodytext()
 
-    writeurlfile(url, response.text)
+    
 # 第一阶段
     #开始获取信息
     get_info()
@@ -170,201 +195,88 @@ def requesturl(url):
     if ifbadtitle(webinfo['title']):
         return webinfo
 
-    #信息太少可能有跳转等待 重新获取
-    # if len(webinfo['webtext'])<15:
-    #     time.sleep(65)
-    #     initwebinfo()
-    #     soup = BeautifulSoup(response.text, 'html.parser')
-    #     get_info()
     
-    
+# 欢迎页
     skip_text = ['点击','跳转','进入']
     href_text = ['index', 'main','default','info','home']
     #数据太少  找到所有的a标签 选择合适的访问
     if len(webinfo['webtext'])<15:
-        soup = BeautifulSoup(browser.page_source, 'html.parser')
+        soup = BeautifulSoup(response.text, 'html.parser')
         atag = soup.find_all('a')
-        js1 = """var ipt = document.getElementsByTagName("a");
-                for (i = 0; i<ipt.length; i ++){
-                    if (ipt[i].innerText.trim() == arguments[0]){
-                        ipt[i].target = "_self";
-                        ipt[i].click();
-                        return ;
-                    }
-                }"""
         # 点击href符合的链接
-        js2 = """var ipt = document.getElementsByTagName("a");
-                for (i = 0; i<ipt.length; i ++){
-                    if (ipt[i].getAttribute('href').trim() == arguments[0]){
-                        ipt[i].target = "_self";
-                        ipt[i].click();
-                        return ;
-                    }
-                }"""
         for tag in atag:
-            if len(webinfo['webtext'])<15:
-                tmpbool = True
-                if tag.get_text():
-                    for keyword in skip_text:   #访问可能的跳转页面
-                        if keyword in tag.get_text():
+            tmpbool = True
+            if tag.get_text():
+                for keyword in skip_text:   #访问可能的跳转页面
+                    if keyword in tag.get_text():
+                        next_url = urljoin(url, tag['href'])
+                        if samewebsite(url_now, next_url): # 需要和当前url一致
+                            next_response = get_and_write(url)
+                            if next_response == False:
+                                break
                             tmpbool = False
-                            try:
-                                browser.execute_script(js1,tag.get_text().strip())
-                                time.sleep(10)
-                                browser.switch_to.alert.accept()
-                                time.sleep(3)
-                                break
-                            except Exception as e:
-                                print(e)
-                                pass
-                            soup = BeautifulSoup(browser.page_source, 'html.parser')
-                            get_info()
-                if tmpbool:
-                    tmpurl = url.replace("http://","",1)
-                    tmpurl = tmpurl.replace("www.","",1)
-                    for keyword in href_text:
-                        if tag.has_attr('href'):
-                            if tmpurl in tag['href'] and keyword in tag['href']:
-                                try:
-                                    browser.execute_script(js2,tag['href'].strip())
-                                    time.sleep(8)
-                                    browser.switch_to.alert.accept()
-                                    time.sleep(3)
-                                except Exception as e:
-                                    print(e)
-                                    pass
-                                soup = BeautifulSoup(browser.page_source, 'html.parser')
-                                get_info()
-                                break
-    #找input 
-    if len(webinfo['webtext'])<15:
-        print("find input")
-        soup = BeautifulSoup(browser.page_source, 'html.parser')
-        inputag = soup.find_all('input')
-        print(inputag)
-        js1 = """var ipt = document.getElementsByTagName("input");
-                for (i = 0; i<ipt.length; i ++){
-                    if (ipt[i].name == arguments[0]){
-                        ipt[i].target = "_self";
-                        ipt[i].click();
-                        return ;
-                    }
-                }"""
-        for tag in inputag:
-            # print( str(tag))
-            print(tag['name'])
-            tmpbool=True
+                            url_now = response.headers['Url-Hash'] # 当前的url
+                            url_now = response.url          # 当前的url
+                            soup = BeautifulSoup(next_response.text, 'html.parser')
             if tmpbool:
-                if tag.has_attr('name') :
-                    for keyword in href_text:   #访问可能的跳转页面
-                        if keyword in str(tag):
+                tmpurl = url.replace("http://","",1)
+                tmpurl = tmpurl.replace("www.","",1)
+                for keyword in href_text:
+                    if tag.has_attr('href'):
+                        next_url = urljoin(url, tag['href'])
+                        if tmpurl in next_url and keyword in next_url:
                             try:
-                                print(tag)
-                                browser.execute_script(js1,tag['name'].strip())
-                                time.sleep(10)
+                                next_response = requests.get(next_url,verify=False,allow_redirects=True,headers = headers)
+                                soup = BeautifulSoup(next_response.text, 'html.parser')
                             except Exception as e:
                                 print(e)
-                                pass
-                            soup = BeautifulSoup(browser.page_source, 'html.parser')
-                            get_info()
-                            tmpbool=False
-                            break
-            else:
-                break
-    #  可能有frame 寻找全部frame
-    while True:
-        try:
-            i = 0
-            while  True:
-            # while  len(webinfo['webtext'])<15:
-                browser.switch_to.frame(i)
-                i=i+1
-                soup = BeautifulSoup(browser.page_source, 'html.parser')
-                get_info()
-                browser.switch_to.default_content()
-        except:
-            print("frame error")
-            browser.switch_to.default_content()
-            break
+                                break
+                            
 
 # 第二阶段
     #寻找是否存在介绍该网站的链接 如 关于我们 公司简介 等
     def havekey(tag):
         if  tag.has_attr('href') or  tag.has_attr('data-href'):
             if tag.string != None and len(tag.string.strip()) < 8:
-                searchObj = re.search("关于.{0,4}", tag.string, flags=0)
+                searchObj = re.search("关于.{0,8}", tag.string, flags=0)
                 if searchObj:
                     return True
-                searchObj = re.search(".{0,3}简介", tag.string, flags=0)
+                searchObj = re.search(".{0,4}简介", tag.string, flags=0)
                 if searchObj:
                     return True
-                searchObj = re.search(".{0,3}概况", tag.string, flags=0)
+                searchObj = re.search(".{0,4}概况", tag.string, flags=0)
                 if searchObj:
                     return True
-                searchObj = re.search(".{0,3}介绍", tag.string, flags=0)
+                searchObj = re.search(".{0,4}介绍", tag.string, flags=0)
                 if searchObj:
                     return True
-                searchObj = re.search("了解[\u4e00-\u9fa5]{1,3}", tag.string, flags=0)
+                searchObj = re.search("了解.{0,8}", tag.string, flags=0)
                 if searchObj:
                     return True
-    soup = BeautifulSoup(browser.page_source, 'html.parser')
+                searchObj = re.search("走近.{0,8}", tag.string, flags=0)
+                if searchObj:
+                    return True
+    # soup = BeautifulSoup(browser.page_source, 'html.parser')
     about = soup.find_all(havekey)
     # 寻找关于页面的链接
+    aboutlist = []
     for href in about:
-        if href.string !=None:
-            aboutlist.append(href.string.strip())
-        elif href.has_attr('title'):
-            aboutlist.append(href['title'].strip())
-    aboutlist = list(set(aboutlist))    #去重
+        if tag.has_attr('href'):
+            tmpurl = urljoin(url, tag['href'])
+        elif tag.has_attr('data-href'):
+            tmpurl = urljoin(url, tag['data-href'])
+        try:
+            next_response = requests.get(tmpurl,verify=False,allow_redirects=True,headers = headers)
+        except:
+            continue
+        aboutlist.append(tmpurl)
 
-    if len(aboutlist)>0:
-        aboutcount = min(len(aboutlist),3)
-        js = """var ipt = document.getElementsByTagName("a");
-            for (i = 0; i<ipt.length; i ++){
-                if (ipt[i].innerText.trim() == arguments[0]){
-                    ipt[i].target = "_self";
-                    ipt[i].click();
-                    return ;
-                }
-                if ( ipt[i].hasAttribute('title') ){
-                    if (ipt[i].getAttribute('title').trim() == arguments[0] ){
-                    ipt[i].target = "_self";
-                    ipt[i].click();
-                    return ;
-                }
-               }
-            }
-            var ipt1 = document.getElementsByTagName("li");
-            for (i = 0; i<ipt1.length; i ++){
-                if (ipt1[i].innerText.trim() == arguments[0]){
-                    ipt1[i].target = "_self";
-                    ipt1[i].click();
-                    return;
-                }
-            } 
-            """
-        for i in range(0, aboutcount):
-            browser.execute_script(js,aboutlist[i])
-            time.sleep(5)
-            soup = BeautifulSoup(browser.page_source, 'html.parser')
-            script = [s.extract() for s in soup('script')]
-            style = [s.extract() for s in soup('style')]
-            for element in soup(text = lambda text: isinstance(text, Comment)):
-                element.extract()
-            # if webinfo['title'] == "" or webinfo['title'] == None:
-            get_headtext()
-            [s.extract() for s in soup('head')]
-            for textstring in soup.stripped_strings:
-                if len(repr(textstring))>8:
-                    abouttext.append(repr(textstring))
-            try:
-                browser.back()
-            except   TimeoutException:
-                print("step2 TimeoutException")
-                browser.execute_script(stopjs)
-        webinfo['abouttext'] = abouttext
-    else:
-        webinfo['abouttext'] = []
+        if len(aboutlist)>2:
+            break
+        
+
+
+            
 
 ## 结束 
     return webinfo
