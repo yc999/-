@@ -62,7 +62,8 @@ sessions=requests.session()
 # [s.extract() for s in soup('script')]
 # [s.extract() for s in soup('style')]
 
-
+sessions=requests.session()
+sessions.mount('http://tech.ifeng.com', HTTP20Adapter())
 headers={   
 'User-Agent':'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/34.0.1847.137 Safari/537.36 LBBROWSER'
         } 

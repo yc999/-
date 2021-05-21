@@ -8,7 +8,7 @@ import time
 import os
 import json
 from urllib.parse import urljoin
-
+from hyper.contrib import HTTP20Adapter
 
 
 badtitles=['404 Not Found', '找不到',  'null', 'Not Found','阻断页','Bad Request','Time-out','No configuration',
@@ -134,7 +134,7 @@ def return_all_url(url):
 
 
 #请求url并且写入文件
-def get_and_write(url):
+def get_and_write(url,filename):
     requests.packages.urllib3.disable_warnings()
     try:
         response = requests.get(url,verify=False,allow_redirects=True,headers = headers)
