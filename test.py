@@ -28,36 +28,44 @@ headers = {
 }
 
 sessions=requests.session()
-sessions.mount('http://allegro.pl', HTTP20Adapter())
+# sessions.mount('http://allegro.pl', HTTP20Adapter())
 # response=requests.get('http://www.bigpian.cn')
 # response=requests.get('https://nuxechina.com',verify=False)
-response=sessions.get('http://allegro.pl',headers = headers)
+# response=sessions.get('http://tech.ifeng.com',headers = headers)
+# response=sessions.get('http://tech.ifeng.com')
+
+
 #https://stapharma.com.cn/cn/about-us/facilities/
 #https://stapharma.com/about-us/facilities/
 # http://www.vslai.com/
-re_text=response.text
-re_content=response.content
-print(re_text)
-print(type(re_text))
-print(re_content)
-print(type(re_content))
-response.encoding='utf-8'
-re_text=response.text
-print(re_text)
+# re_text=response.text
+# print(re_text)
+# print(type(re_text))
+
+# response.encoding='utf-8'
+# re_text=response.text
+# print(re_text)
+
+# print(re_content)
+# print(type(re_content))
+
+
+# headers={
+#     "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
+# "Upgrade-Insecure-Requests": "1",
+# "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.114 Safari/537.36"
+# }
+# response=requests.get('http://89ws.com',headers = headers,allow_redirects=False)
 
 
 
-
-headers={
-    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
-"Upgrade-Insecure-Requests": "1",
-"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.114 Safari/537.36"
-}
-response=requests.get('http://89ws.com',headers = headers,allow_redirects=False)
+# [s.extract() for s in soup('script')]
+# [s.extract() for s in soup('style')]
 
 
-
-[s.extract() for s in soup('script')]
-[s.extract() for s in soup('style')]
-
-
+headers={   
+'User-Agent':'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/34.0.1847.137 Safari/537.36 LBBROWSER'
+        } 
+response = requests.get('http://tech.ifeng.com',verify=False,allow_redirects=True,headers = headers)
+response.encoding = requests.utils.get_encodings_from_content(response.text)
+print(response.text)

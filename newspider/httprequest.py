@@ -20,7 +20,10 @@ badtitles=['404 Not Found', '找不到',  'null', 'Not Found','阻断页','Bad R
 '详细错误','页面载入出错','Error','错误','Connection timed out','域名停靠','网站访问报错','错误提示','临时域名',
 '未被授权查看','Test Page','发生错误','非法阻断','链接超时','403 Frobidden','建设中','访问出错','出错啦','ACCESS DENIED','系统发生错误','Problem loading page']
 
-time_limit = 40  #set timeout time 3s
+
+headers={   
+'User-Agent':'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/34.0.1847.137 Safari/537.36 LBBROWSER'
+        } 
 
 # 判断标题是否正常 
 # mytitle 需要判断的title 
@@ -34,25 +37,31 @@ def ifbadtitle(mytitle):
                             
 
 # 保存从chinaz所有网站的内容
-# savepath = "E:/webdata/"
-# logpath = "E:/webdata/relog.txt"
-savepath = "../../newwebdata/"
-logpath = "../../newwebdata/relog.txt"
+savepath = "E:/webdata/"
+savedir = "" # 类别文件夹
+subdir = ""  # 网站文件夹
+logpath = "E:/webdata/relog.txt"
+# savepath = "../../newwebdata/"
+# logpath = "../../newwebdata/relog.txt"
 messageless_log_path =  "../../newwebdata/messagelog.txt"
 if not os.path.isdir(savepath):
     os.mkdir(savepath)
 
-logfile = open(logpath,'a+')
-def makelog(logmessage):
-    logfile.write(logmessage + '\n')
-
-messagelogfile = open(messageless_log_path,'a+')
-def messagelesslog(logmessage):
-    messagelogfile.write(logmessage + '\n')
 
 
+
+
+# 写入文件
 def writeurlfile(url,data):
-    urllfile = open(savepath + url,'w')
+    path  = savepath + savedir +"/" + subdir +"/"
+    # if not os.path.isdir(path):
+    #     os.mkdir(path)
+    tmpurl = url.replace('http://','',1)
+    tmpurl = tmpurl.replace('https://','',1)
+
+    if not os.path.isdir(path + tmpurl):
+        os.makedirs(path + tmpurl)
+    urllfile = open(path + tmpurl +".txt",'w',encoding='utf-8')
     urllfile.write(data + '\n')
 
 #判断两个url是否是同一个网站
@@ -70,6 +79,29 @@ def samewebsite(sourceurl, targeturl):
     return False
 
 
+
+#寻找是否存在介绍该网站的链接 如 关于我们 公司简介 等
+def havekey(tag):
+    if  tag.has_attr('href') or  tag.has_attr('data-href'):
+        if tag.string != None and len(tag.string.strip()) < 8:
+            searchObj = re.search("关于.{0,8}", tag.string, flags=0)
+            if searchObj:
+                return True
+            searchObj = re.search(".{0,4}简介", tag.string, flags=0)
+            if searchObj:
+                return True
+            searchObj = re.search(".{0,4}概况", tag.string, flags=0)
+            if searchObj:
+                return True
+            searchObj = re.search(".{0,4}介绍", tag.string, flags=0)
+            if searchObj:
+                return True
+            searchObj = re.search("了解.{0,8}", tag.string, flags=0)
+            if searchObj:
+                return True
+            searchObj = re.search("走近.{0,8}", tag.string, flags=0)
+            if searchObj:
+                return True
 
 
 def solvehref(href):
@@ -103,12 +135,15 @@ def return_all_url(url):
 
 #请求url并且写入文件
 def get_and_write(url):
+    requests.packages.urllib3.disable_warnings()
     try:
         response = requests.get(url,verify=False,allow_redirects=True,headers = headers)
     except Exception as e:
         print(e)
         return False
-    response.encoding = response.apparent_encoding
+    response.encoding = requests.utils.get_encodings_from_content(response.text)
+    if response.status_code != 200:
+        return False
     writeurlfile(url, response.text)
     return response
 
@@ -117,20 +152,39 @@ def get_and_write(url):
 # print(urls)
 # 查询网址，爬取内容
 # def requesturl(url, savefilepath):
+
 def requesturl(url):
     print(url)
     webinfo={}  # 最后保存的数据
     aboutlist = []  # 关于页面的连接
-
+    havegetlist = [] # 已经访问过的网页
+    #找到当前的相关介绍页面
+    def findaboutwebpage(url_now, soup):
+        about = soup.find_all(havekey)
+        # 寻找关于页面的链接
+        aboutlist = []
+        for tag in about:
+            if tag.has_attr('href'):
+                tmpurl = urljoin(url_now, tag['href'])
+            elif tag.has_attr('data-href'):
+                tmpurl = urljoin(url_now, tag['data-href'])
+            if tmpurl not in havegetlist and samewebsite(url_now, tmpurl):
+                next_response = get_and_write(tmpurl)
+                if next_response != False:
+                    url_now = next_response.url          # 当前的url
+                    # 加入已爬队列
+                    havegetlist.append(url_now)
+                    if tmpurl != url_now:
+                        havegetlist.append(tmpurl)
+                    aboutlist.append(tmpurl)
+                    if len(aboutlist)>2:
+                        break
+    
+    
     response = get_and_write(url)
     if response == False:
-        return
+        return False
     
-    # re_text=response.text
-    # re_content=response.content
-    url_now = response.headers['Url-Hash'] # 当前的url
-    url_now = response.url          # 当前的url
-
     def initwebinfo():
         webinfo['title'] = ""
         webinfo['description'] = ""
@@ -138,8 +192,9 @@ def requesturl(url):
         webinfo['webtext'] = []
 
     initwebinfo()
+    url_now = response.url          # 当前的url
     soup = BeautifulSoup(response.text, 'html.parser')
-
+    findaboutwebpage(url_now,soup)
     # 获取网页head中元素 title keywords description 存入webinfo中
     def get_headtext():
         # soup = BeautifulSoup(r.text, 'html.parser')  soup = BeautifulSoup(browser.page_source, 'lxml')
@@ -188,15 +243,10 @@ def requesturl(url):
         get_bodytext()
 
     
-# 第一阶段
+    # 第一阶段
     #开始获取信息
     get_info()
-    # 如果是无效网站提前返回
-    if ifbadtitle(webinfo['title']):
-        return webinfo
-
-    
-# 欢迎页
+    # 可能是欢迎页
     skip_text = ['点击','跳转','进入']
     href_text = ['index', 'main','default','info','home']
     #数据太少  找到所有的a标签 选择合适的访问
@@ -205,94 +255,44 @@ def requesturl(url):
         atag = soup.find_all('a')
         # 点击href符合的链接
         for tag in atag:
-            tmpbool = True
             if tag.get_text():
                 for keyword in skip_text:   #访问可能的跳转页面
                     if keyword in tag.get_text():
-                        next_url = urljoin(url, tag['href'])
-                        if samewebsite(url_now, next_url): # 需要和当前url一致
-                            next_response = get_and_write(url)
+                        next_url = urljoin(url_now, tag['href'])
+                        if samewebsite(url_now, next_url) and next_url not in havegetlist: # 需要和当前url一致
+                            next_response = get_and_write(next_url)
                             if next_response == False:
-                                break
-                            tmpbool = False
-                            url_now = response.headers['Url-Hash'] # 当前的url
-                            url_now = response.url          # 当前的url
-                            soup = BeautifulSoup(next_response.text, 'html.parser')
-            if tmpbool:
-                tmpurl = url.replace("http://","",1)
-                tmpurl = tmpurl.replace("www.","",1)
-                for keyword in href_text:
-                    if tag.has_attr('href'):
-                        next_url = urljoin(url, tag['href'])
-                        if tmpurl in next_url and keyword in next_url:
-                            try:
-                                next_response = requests.get(next_url,verify=False,allow_redirects=True,headers = headers)
-                                soup = BeautifulSoup(next_response.text, 'html.parser')
-                            except Exception as e:
-                                print(e)
-                                break
-                            
-
-# 第二阶段
-    #寻找是否存在介绍该网站的链接 如 关于我们 公司简介 等
-    def havekey(tag):
-        if  tag.has_attr('href') or  tag.has_attr('data-href'):
-            if tag.string != None and len(tag.string.strip()) < 8:
-                searchObj = re.search("关于.{0,8}", tag.string, flags=0)
-                if searchObj:
-                    return True
-                searchObj = re.search(".{0,4}简介", tag.string, flags=0)
-                if searchObj:
-                    return True
-                searchObj = re.search(".{0,4}概况", tag.string, flags=0)
-                if searchObj:
-                    return True
-                searchObj = re.search(".{0,4}介绍", tag.string, flags=0)
-                if searchObj:
-                    return True
-                searchObj = re.search("了解.{0,8}", tag.string, flags=0)
-                if searchObj:
-                    return True
-                searchObj = re.search("走近.{0,8}", tag.string, flags=0)
-                if searchObj:
-                    return True
-    # soup = BeautifulSoup(browser.page_source, 'html.parser')
-    about = soup.find_all(havekey)
-    # 寻找关于页面的链接
-    aboutlist = []
-    for href in about:
-        if tag.has_attr('href'):
-            tmpurl = urljoin(url, tag['href'])
-        elif tag.has_attr('data-href'):
-            tmpurl = urljoin(url, tag['data-href'])
-        try:
-            next_response = requests.get(tmpurl,verify=False,allow_redirects=True,headers = headers)
-        except:
-            continue
-        aboutlist.append(tmpurl)
-
-        if len(aboutlist)>2:
-            break
-        
+                                continue
+                            abouturl = next_response.url          # 当前的url
+                            havegetlist.append(abouturl)
+                            if next_url != abouturl:
+                                havegetlist.append(next_url)
+                            tmpsoup = BeautifulSoup(next_response.text, 'html.parser')
+                            findaboutwebpage(abouturl, tmpsoup)
+            tmpurl = url_now.replace("http://","",1)
+            tmpurl = tmpurl.replace("https://","",1)
+            tmpurl = tmpurl.replace("www.","",1)
+            for keyword in href_text:
+                if tag.has_attr('href'):
+                    next_url = urljoin(url_now, tag['href']) #寻找可能的相关链接
+                    if tmpurl in next_url and keyword in next_url and next_url not in havegetlist and samewebsite(url_now, next_url):
+                        next_response = get_and_write(next_url)
+                        if next_response == False:
+                            continue
+                        abouturl = next_response.url          # 当前的url
+                        havegetlist.append(abouturl)
+                        if next_url != abouturl:
+                            havegetlist.append(next_url)
+                        soup = BeautifulSoup(next_response.text, 'html.parser')
+                        findaboutwebpage(abouturl, soup)   
+    return True
 
 
-            
 
-## 结束 
-    return webinfo
-
-#将数据写入文件
-def writedata(savefilepath,webinfo):
-    if len(webinfo['webtext'])<15:
-        messagelesslog(url + " too less message")
-    f = open(savefilepath, "w",encoding="utf-8")
-    f.write(json.dumps(webinfo, ensure_ascii=False))
-    f.close()#关闭文件
-
-
+saveurl = []
 # 读取网页url
-readpath = "../../topchinaz/"
-# readpath = "D:/dnswork/sharevm/topchinaz/"
+# readpath = "../../topchinaz/"
+readpath = "D:/dnswork/sharevm/topchinaz/"
 # readpath = "E:/webdata/"
 fs = os.listdir(readpath)   #读取url目录
 for filename in fs:
@@ -301,44 +301,35 @@ for filename in fs:
     f = open(filepath,"r",encoding="utf-8")
     urlList = f.readlines()                 #   所有待爬取的url
     f.close()
-    dirname = filename.split(".")[0]
-    dirpath = savepath + dirname        # 爬取的数据保存的文件夹路径
+    savedir = filename.split(".")[0]
+    dirpath = savepath + savedir        # 爬取的数据保存的文件夹路径
     isExists=os.path.exists(dirpath)    #根据url文件创建文件夹
     if not isExists:
         os.makedirs(dirpath)
     savedfileslist = os.listdir(dirpath)    #所有成功爬取的url文件名,需要对文件名处理。
 
     for url in urlList:
-        time.sleep(1)
-        try:
-            url = "".join(url.split())
-            url = url.split(",")[1]
-            savefilepath = dirpath +"/" + url + ".txt"
+        time.sleep(5)
+        url = "".join(url.split())
+        url = url.split(",")[1]
+        tmpurl = url.replace('www.','',1)
+        if tmpurl not in saveurl:
             if url + ".txt" not in savedfileslist and "www." + url + ".txt" not in savedfileslist:
-                try:
-                    httpsurl =  'http://' + url
-                    resultdata = requesturl(httpsurl)
-                    if ifbadtitle(resultdata['title']):
-                        raise Exception("title error")
-                    writedata(savefilepath,resultdata)
-                except:
-                    try:
-                        if url.split(".")[0]!="www":
-                            httpsurl = 'http://www.' + url
-                            savefilepath = dirpath +"/www." + url + ".txt"
-                        else:
-                            httpsurl = 'http://' + url.replace('www.','',1)
-                            savefilepath = dirpath +"/" + url.replace('www.','',1) + ".txt"
-                        resultdata = requesturl(httpsurl)
-                        #网页是否无法访问
-                        if ifbadtitle(resultdata['title']):
-                            raise Exception("title error")
-                        writedata(savefilepath, resultdata)
-                    except Exception as e:
-                        print (e)
-                        if "Reached error page" not in str(e) and "title error" not in str(e):
-                            makelog(e + url)
-        except:
-            pass
+                httpurl =  'http://' + url
+                subdir = url
+                resultdata = requesturl(httpurl)
+                if resultdata == False:
+                    if url.split(".")[0]!="www":
+                        httpurl = 'http://www.' + url
+                        subdir = "www." + url
+                    else:
+                        httpurl = 'http://' + url.replace('www.','',1)
+                        subdir = url.replace('www.','',1)
+                    resultdata = requesturl(httpurl)
+                    if resultdata == True:
+                        saveurl.append(tmpurl)
+                else:
+                    saveurl.append(tmpurl)
+                
+                    
 
-browser.quit()
