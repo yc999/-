@@ -48,21 +48,16 @@ if not os.path.isdir(savepath):
     os.mkdir(savepath)
 
 
-
-
-
 # 写入文件
-def writeurlfile(url,data):
-    path  = savepath + savedir +"/" + subdir +"/"
-    # if not os.path.isdir(path):
-    #     os.mkdir(path)
+def writeurlfile(url, data):
+    path  = savepath + savedir +"/" 
+    if not os.path.isdir(path):
+        os.mkdir(path)
     tmpurl = url.replace('http://','',1)
     tmpurl = tmpurl.replace('https://','',1)
 
-    if not os.path.isdir(path + tmpurl):
-        os.makedirs(path + tmpurl)
     urllfile = open(path + tmpurl +".txt",'w',encoding='utf-8')
-    urllfile.write(data + '\n')
+    urllfile.write(data)
 
 #判断两个url是否是同一个网站
 # sourceurl 原url
@@ -133,8 +128,8 @@ def return_all_url(url):
     return allatags
 
 
-#请求url并且写入文件
-def get_and_write(url,filename):
+#请求url并且加入字典
+def get_and_add(url,webdata):
     requests.packages.urllib3.disable_warnings()
     try:
         response = requests.get(url,verify=False,allow_redirects=True,headers = headers)
@@ -144,20 +139,18 @@ def get_and_write(url,filename):
     response.encoding = requests.utils.get_encodings_from_content(response.text)
     if response.status_code != 200:
         return False
-    writeurlfile(url, response.text)
+    webdata[url] = response.text
+    # writeurlfile(url, response.text)
     return response
 
 
-# urls = return_all_url("http://sina.com")
-# print(urls)
-# 查询网址，爬取内容
-# def requesturl(url, savefilepath):
 
 def requesturl(url):
     print(url)
     webinfo={}  # 最后保存的数据
     aboutlist = []  # 关于页面的连接
     havegetlist = [] # 已经访问过的网页
+    webdata = {} # 保存网页数据
     #找到当前的相关介绍页面
     def findaboutwebpage(url_now, soup):
         about = soup.find_all(havekey)
@@ -169,7 +162,7 @@ def requesturl(url):
             elif tag.has_attr('data-href'):
                 tmpurl = urljoin(url_now, tag['data-href'])
             if tmpurl not in havegetlist and samewebsite(url_now, tmpurl):
-                next_response = get_and_write(tmpurl)
+                next_response = get_and_add(tmpurl, webdata)
                 if next_response != False:
                     url_now = next_response.url          # 当前的url
                     # 加入已爬队列
@@ -180,8 +173,7 @@ def requesturl(url):
                     if len(aboutlist)>2:
                         break
     
-    
-    response = get_and_write(url)
+    response = get_and_add(url, webdata)
     if response == False:
         return False
     
@@ -260,7 +252,7 @@ def requesturl(url):
                     if keyword in tag.get_text():
                         next_url = urljoin(url_now, tag['href'])
                         if samewebsite(url_now, next_url) and next_url not in havegetlist: # 需要和当前url一致
-                            next_response = get_and_write(next_url)
+                            next_response = get_and_add(next_url, webdata)
                             if next_response == False:
                                 continue
                             abouturl = next_response.url          # 当前的url
@@ -276,7 +268,7 @@ def requesturl(url):
                 if tag.has_attr('href'):
                     next_url = urljoin(url_now, tag['href']) #寻找可能的相关链接
                     if tmpurl in next_url and keyword in next_url and next_url not in havegetlist and samewebsite(url_now, next_url):
-                        next_response = get_and_write(next_url)
+                        next_response = get_and_add(next_url, webdata)
                         if next_response == False:
                             continue
                         abouturl = next_response.url          # 当前的url
@@ -284,7 +276,8 @@ def requesturl(url):
                         if next_url != abouturl:
                             havegetlist.append(next_url)
                         soup = BeautifulSoup(next_response.text, 'html.parser')
-                        findaboutwebpage(abouturl, soup)   
+                        findaboutwebpage(abouturl, soup)
+    writeurlfile(url, webdata)
     return True
 
 
