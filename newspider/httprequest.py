@@ -313,8 +313,11 @@ for filename in fs:
 
     for url in urlList:
         time.sleep(5)
-        url = "".join(url.split())
-        url = url.split(",")[1]
+        try:
+            url = "".join(url.split())
+            url = url.split(",")[1]
+        except:
+            continue
         tmpurl = url.replace('www.','',1)
         if tmpurl not in saveurl:
             if url + ".txt" not in savedfileslist and "www." + url + ".txt" not in savedfileslist:
