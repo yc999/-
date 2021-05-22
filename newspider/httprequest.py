@@ -150,7 +150,7 @@ def get_and_add(url,webdata):
     if response.status_code != 200:
         sessions.close()
         return False
-    sessions.close()
+    # sessions.close()
     webdata[url] = response.text
     # writeurlfile(url, response.text)
     return response
