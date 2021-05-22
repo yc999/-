@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+# 估计每一类大概多少个网站
 # 把部分已确定的网站进行训练，对未确定的网站进行分类
 import sys
 from gensim.models import Word2Vec

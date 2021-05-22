@@ -36,13 +36,13 @@ def ifbadtitle(mytitle):
     
 
 # 读取网页url
-readpath = "../../topchinaz/"
-# readpath = "D:/dnswork/sharevm/topchinaz/"
+# readpath = "../../topchinaz/"
+readpath = "D:/dnswork/sharevm/topchinaz/"
 # readpath = "E:/webdata/"           
 
 # 保存从chinaz所有网站的内容
-savepath = "../../httpwebdata/"
-# savepath = "E:/webdata/"
+# savepath = "../../httpwebdata/"
+savepath = "E:/webdata/"
 savedir = "" # 类别文件夹
 logpath = "E:/webdata/relog.txt"
 
@@ -155,7 +155,6 @@ def get_and_add(url,webdata):
     webdata[url] = response.text
     # writeurlfile(url, response.text)
     return response
-
 
 
 
@@ -294,6 +293,7 @@ def requesturl(url):
                         findaboutwebpage(abouturl, soup)
     writeurlfile(url, webdata)
     return True
+
 
 
 saveurl = []
