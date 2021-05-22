@@ -63,10 +63,11 @@ sessions=requests.session()
 # [s.extract() for s in soup('style')]
 
 sessions=requests.session()
-sessions.mount('http://tech.ifeng.com', HTTP20Adapter())
+sessions.mount('https://www.wankuwl.com', HTTP20Adapter())
 headers={   
 'User-Agent':'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/34.0.1847.137 Safari/537.36 LBBROWSER'
         } 
-response = requests.get('http://tech.ifeng.com',verify=False,allow_redirects=True,headers = headers)
+response = requests.get('https://www.wankuwl.com',verify=False,allow_redirects=True,headers = headers)
 response.encoding = requests.utils.get_encodings_from_content(response.text)
 print(response.text)
+sessions.close()

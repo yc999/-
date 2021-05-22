@@ -34,14 +34,18 @@ def ifbadtitle(mytitle):
             return True
     return False
     
-                            
+
+# 读取网页url
+readpath = "../../topchinaz/"
+# readpath = "D:/dnswork/sharevm/topchinaz/"
+# readpath = "E:/webdata/"           
 
 # 保存从chinaz所有网站的内容
-savepath = "E:/webdata/"
+savepath = "../../httpwebdata/"
+# savepath = "E:/webdata/"
 savedir = "" # 类别文件夹
-subdir = ""  # 网站文件夹
 logpath = "E:/webdata/relog.txt"
-# savepath = "../../newwebdata/"
+
 # logpath = "../../newwebdata/relog.txt"
 messageless_log_path =  "../../newwebdata/messagelog.txt"
 if not os.path.isdir(savepath):
@@ -57,7 +61,7 @@ def writeurlfile(url, data):
     tmpurl = tmpurl.replace('https://','',1)
 
     urllfile = open(path + tmpurl +".txt",'w',encoding='utf-8')
-    urllfile.write(data)
+    urllfile.write(json.dumps(data, ensure_ascii=False))
 
 #判断两个url是否是同一个网站
 # sourceurl 原url
@@ -65,11 +69,14 @@ def writeurlfile(url, data):
 def samewebsite(sourceurl, targeturl):
     tmp_sourceurl = sourceurl.replace('http://','')
     tmp_sourceurl = tmp_sourceurl.replace('https://','')
+    tmp_sourceurl = tmp_sourceurl.replace('www.','')
     tmp_sourceurl = tmp_sourceurl.split('/')[0].strip()
+
     tmp_targeturl = targeturl.replace('http://','')
     tmp_targeturl = tmp_targeturl.replace('https://','')
     tmp_targeturl = tmp_targeturl.split('/')[0].strip()
-    if tmp_targeturl == tmp_sourceurl:
+    if tmp_sourceurl in tmp_targeturl:
+        print(tmp_sourceurl, tmp_targeturl)
         return True
     return False
 
@@ -131,14 +138,19 @@ def return_all_url(url):
 #请求url并且加入字典
 def get_and_add(url,webdata):
     requests.packages.urllib3.disable_warnings()
+    sessions=requests.session()
+    sessions.mount(url, HTTP20Adapter())
     try:
         response = requests.get(url,verify=False,allow_redirects=True,headers = headers)
     except Exception as e:
         print(e)
+        sessions.close()
         return False
     response.encoding = requests.utils.get_encodings_from_content(response.text)
     if response.status_code != 200:
+        sessions.close()
         return False
+    sessions.close()
     webdata[url] = response.text
     # writeurlfile(url, response.text)
     return response
@@ -186,6 +198,7 @@ def requesturl(url):
     initwebinfo()
     url_now = response.url          # 当前的url
     soup = BeautifulSoup(response.text, 'html.parser')
+    havegetlist.append(url_now)
     findaboutwebpage(url_now,soup)
     # 获取网页head中元素 title keywords description 存入webinfo中
     def get_headtext():
@@ -283,10 +296,7 @@ def requesturl(url):
 
 
 saveurl = []
-# 读取网页url
-# readpath = "../../topchinaz/"
-readpath = "D:/dnswork/sharevm/topchinaz/"
-# readpath = "E:/webdata/"
+
 fs = os.listdir(readpath)   #读取url目录
 for filename in fs:
     filepath = readpath + filename
@@ -309,15 +319,12 @@ for filename in fs:
         if tmpurl not in saveurl:
             if url + ".txt" not in savedfileslist and "www." + url + ".txt" not in savedfileslist:
                 httpurl =  'http://' + url
-                subdir = url
                 resultdata = requesturl(httpurl)
                 if resultdata == False:
                     if url.split(".")[0]!="www":
                         httpurl = 'http://www.' + url
-                        subdir = "www." + url
                     else:
                         httpurl = 'http://' + url.replace('www.','',1)
-                        subdir = url.replace('www.','',1)
                     resultdata = requesturl(httpurl)
                     if resultdata == True:
                         saveurl.append(tmpurl)
