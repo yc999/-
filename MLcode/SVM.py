@@ -16,6 +16,12 @@ from sklearn.pipeline import Pipeline
 from sklearn import metrics
 
 
+# 1.读取文件，预处理
+# 2.分词
+# 3.过滤低频词，停用词
+# 4.生成tfidf
+# 5.训练
+
 content_train_src=[]      #训练集文本列表
 opinion_train_stc=[]      #训练集类别列表
 file_name_src=[]          #训练集文本文件名列表
@@ -25,9 +31,15 @@ webdatapath = ""
 
 webdata = read_webdata("E:/webdata/旅游网站/sh.tuniu.com.txt")
 
+
+
 # 读取训练文件
 def readtrain(train_src_list):
-    read_webdata()
+    filepath = ""
+    webdatadic = read_webdata(filepath)
+    for webdata in webdatadic:
+
+
 
 
 def Word_pseg(self,word_str):  # 名词提取函数
@@ -40,6 +52,7 @@ def Word_pseg(self,word_str):  # 名词提取函数
                             and re.match(r'^nr', wds.flag) == None:
                 word_list.append(wds.word)
         return word_list
+
 
 def Word_cut_list(self,word_str):
         #利用正则表达式去掉一些一些标点符号之类的符号。
