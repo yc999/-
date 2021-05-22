@@ -144,11 +144,11 @@ def get_and_add(url,webdata):
         response = requests.get(url,verify=False,allow_redirects=True,headers = headers)
     except Exception as e:
         print(e)
-        sessions.close()
+        # sessions.close()
         return False
     response.encoding = requests.utils.get_encodings_from_content(response.text)
     if response.status_code != 200:
-        sessions.close()
+        # sessions.close()
         return False
     # sessions.close()
     webdata[url] = response.text
