@@ -14,6 +14,7 @@ from sklearn.naive_bayes import MultinomialNB
 from sklearn.svm import SVC
 from sklearn.pipeline import Pipeline
 from sklearn import metrics
+from bs4 import  BeautifulSoup, Comment
 
 
 # 1.读取文件，预处理
@@ -31,6 +32,49 @@ webdatapath = ""
 
 webdata = read_webdata("E:/webdata/旅游网站/sh.tuniu.com.txt")
 
+def get_head():
+# soup = BeautifulSoup(r.text, 'html.parser')  soup = BeautifulSoup(browser.page_source, 'lxml')
+    [s.extract() for s in soup('script')]
+    [s.extract() for s in soup('style')]
+    for element in soup(text = lambda text: isinstance(text, Comment)):
+        element.extract()
+    head = soup.head
+    if webinfo['title'] == "" or webinfo['title'] == None:
+        try:
+            webinfo['title'] += head.title.string.strip()
+        except:
+            pass
+    try:
+        webinfo['description'] += head.find('meta',attrs={'name':'description'})['content']
+    except:
+        pass
+    try:
+        webinfo['description'] += head.find('meta',attrs={'name':'Description'})['content']
+    except:
+        pass
+    try:
+        webinfo['description'] += head.find('meta',attrs={'name':'DESCRIPTION'})['content']
+    except:
+        pass
+    try:
+        webinfo['keywords'] += head.find('meta',attrs={'name':'keywords'})['content']
+    except:
+        pass
+    try:
+        webinfo['keywords'] += head.find('meta',attrs={'name':'Keywords'})['content']
+    except:
+        pass
+    try:
+        webinfo['keywords'] += head.find('meta',attrs={'name':'KEYWORDS'})['content']
+    except:
+        pass
+# 返回html中所有的文本 list
+def filtertext(htmldata):
+    webtext = []
+    soup = BeautifulSoup(webdata,'html.parser')
+    [s.extract() for s in soup('script')]
+    [s.extract() for s in soup('style')]
+
 
 
 # 读取训练文件
@@ -38,6 +82,7 @@ def readtrain(train_src_list):
     filepath = ""
     webdatadic = read_webdata(filepath)
     for webdata in webdatadic:
+        htmltext = filtertext(webdata)
 
 
 
