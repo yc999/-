@@ -142,7 +142,7 @@ def get_and_add(url,webdata):
     sessions.keep_alive = False
     sessions.mount(url, HTTP20Adapter())
     try:
-        response = requests.get(url,verify=False,allow_redirects=True,headers = headers)
+        response = requests.get(url,verify=False,allow_redirects=True,headers = headers, timeout=10)
     except Exception as e:
         print(e)
         # sessions.close()
@@ -313,7 +313,7 @@ for filename in fs:
     savedfileslist = os.listdir(dirpath)    #所有成功爬取的url文件名,需要对文件名处理。
 
     for url in urlList:
-        time.sleep(10)
+        time.sleep(15)
         try:
             url = "".join(url.split())
             url = url.split(",")[1]
