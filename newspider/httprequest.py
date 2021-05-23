@@ -163,7 +163,6 @@ def get_and_add(url,webdata):
 def requesturl(url):
     print(url)
     webinfo={}  # 最后保存的数据
-    aboutlist = []  # 关于页面的连接
     havegetlist = [] # 已经访问过的网页
     webdata = {} # 保存网页数据
     #找到当前的相关介绍页面
