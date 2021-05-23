@@ -32,13 +32,9 @@ webdatapath = ""
 
 webdata = read_webdata("E:/webdata/旅游网站/sh.tuniu.com.txt")
 
-def get_head():
-# soup = BeautifulSoup(r.text, 'html.parser')  soup = BeautifulSoup(browser.page_source, 'lxml')
-    [s.extract() for s in soup('script')]
-    [s.extract() for s in soup('style')]
-    for element in soup(text = lambda text: isinstance(text, Comment)):
-        element.extract()
-    head = soup.head
+def get_head(soup):
+    head = soup
+    webinfo = {}
     if webinfo['title'] == "" or webinfo['title'] == None:
         try:
             webinfo['title'] += head.title.string.strip()
@@ -68,12 +64,22 @@ def get_head():
         webinfo['keywords'] += head.find('meta',attrs={'name':'KEYWORDS'})['content']
     except:
         pass
+    result_text = ""
+    for text in webinfo:
+        result_text += text
+    return result_text
+
 # 返回html中所有的文本 list
+# 输入 html文档
 def filtertext(htmldata):
     webtext = []
-    soup = BeautifulSoup(webdata,'html.parser')
+    soup = BeautifulSoup(htmldata,'html.parser')
+    head_text = get_head(soup)
     [s.extract() for s in soup('script')]
     [s.extract() for s in soup('style')]
+    for element in soup(text = lambda text: isinstance(text, Comment)):
+                element.extract()
+
 
 
 

@@ -1,6 +1,6 @@
 #-- coding: utf-8 --
 import  requests
-from bs4 import  BeautifulSoup
+from bs4 import  BeautifulSoup, Comment
 from hyper.contrib import HTTP20Adapter
 
 headers = {
@@ -62,12 +62,24 @@ sessions=requests.session()
 # [s.extract() for s in soup('script')]
 # [s.extract() for s in soup('style')]
 
+url ="http://" + "gtgqw.com"
 sessions=requests.session()
-sessions.mount('https://www.wankuwl.com', HTTP20Adapter())
+sessions.mount(url, HTTP20Adapter())
 headers={   
 'User-Agent':'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/34.0.1847.137 Safari/537.36 LBBROWSER'
         } 
-response = requests.get('https://www.wankuwl.com',verify=False,allow_redirects=True,headers = headers)
+response = requests.get(url,verify=False,allow_redirects=True,headers = headers)
 response.encoding = requests.utils.get_encodings_from_content(response.text)
-print(response.text)
-sessions.close()
+if response.encoding == ['gb2312']:
+    response.encoding = 'GBK'
+print(response.encoding)
+# print(response.text)
+# sessions.close()
+soup = BeautifulSoup(response.text,'html.parser')
+
+[s.extract() for s in soup('script')]
+[s.extract() for s in soup('style')]
+for element in soup(text = lambda text: isinstance(text, Comment)):
+            element.extract()
+print(type(soup.get_text()))
+print(soup.get_text())
