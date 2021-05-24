@@ -16,6 +16,11 @@ from sklearn.pipeline import Pipeline
 from sklearn import metrics
 from bs4 import  BeautifulSoup, Comment
 
+sys.path.append(os.path.realpath('./Clustering'))
+sys.path.append(os.path.realpath('../Clustering'))
+sys.path.append(os.path.realpath('./spider'))
+sys.path.append(os.path.realpath('../spider'))
+import mytool
 
 # 1.读取文件，预处理
 # 2.分词
@@ -30,7 +35,8 @@ file_name_src=[]          #训练集文本文件名列表
 webdatapath = ""
 
 
-webdata = read_webdata("E:/webdata/旅游网站/sh.tuniu.com.txt")
+# webdata = read_webdata("E:/webdata/旅游网站/sh.tuniu.com.txt")
+
 
 def get_head(soup):
     head = soup
@@ -69,16 +75,22 @@ def get_head(soup):
         result_text += text
     return result_text
 
-# 返回html中所有的文本 list
+
+stopwordslist = []  # 停用词列表
+stopwords_path = "/home/jiangy2/dnswork/stopwords/cn_stopwords.txt"
+stopwordslist = mytool.read_stopwords(stopwords_path)
+
 # 输入 html文档
+# 返回html中所有的文本 string
 def filtertext(htmldata):
-    webtext = []
     soup = BeautifulSoup(htmldata,'html.parser')
     head_text = get_head(soup)
     [s.extract() for s in soup('script')]
     [s.extract() for s in soup('style')]
     for element in soup(text = lambda text: isinstance(text, Comment)):
-                element.extract()
+        element.extract()
+    body = soup.get_text()
+    return head_text + body
 
 
 
@@ -87,8 +99,9 @@ def filtertext(htmldata):
 def readtrain(train_src_list):
     filepath = ""
     webdatadic = read_webdata(filepath)
-    for webdata in webdatadic:
-        htmltext = filtertext(webdata)
+    for htmldata in webdatadic:
+        htmltext = filtertext(htmldata)
+        cut_text = Word_cut_list(htmltext)
 
 
 
@@ -111,13 +124,13 @@ def Word_cut_list(self,word_str):
         word_str = re.sub(r'\n+', ' ', word_str)  # trans 换行 to空格
         word_str = re.sub(r'\t+', ' ', word_str)  # trans Tab to空格
         word_str = re.sub("[\s+\.\!\/_,$%^*(+\"\']+|[+——；！，”。《》，。：“？、~@#￥%……&*（）1234567①②③④)]+".\
-                          decode("utf8"), "".decode("utf8"), word_str)
+                          decode("utf8"), " ".decode("utf8"), word_str)
   
         wordlist = list(jieba.cut(word_str))#jieba.cut  把字符串切割成词并添加至一个列表
         wordlist_N = []
-        chinese_stopwords=self.Chinese_Stopwords()
+        # chinese_stopwords=self.Chinese_Stopwords()
         for word in wordlist:
-            if word not in chinese_stopwords:#词语的清洗：去停用词
+            if word not in stopwordslist:#词语的清洗：去停用词
                 if word != '\r\n'  and word!=' ' and word != '\u3000'.decode('unicode_escape') \
                         and word!='\xa0'.decode('unicode_escape'):#词语的清洗：去全角空格
                     wordlist_N.append(word)

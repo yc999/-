@@ -160,7 +160,7 @@ def get_and_add(url,webdata):
     return response
 
 
-
+havegetcount = 0
 
 def requesturl(url):
     print(url)
