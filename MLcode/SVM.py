@@ -1,7 +1,5 @@
 
 # -*- coding: utf-8 -*-
-from newspider.httprequest import ifbadtitle
-from MLcode.MLtest import read_webdata
 import jieba
 import numpy as np
 import os
@@ -17,6 +15,7 @@ from sklearn.pipeline import Pipeline
 from sklearn import metrics
 from bs4 import  BeautifulSoup, Comment
 
+import sys
 sys.path.append(os.path.realpath('./Clustering'))
 sys.path.append(os.path.realpath('../Clustering'))
 sys.path.append(os.path.realpath('./spider'))
@@ -33,6 +32,11 @@ badtitles = ['404 Not Found', '找不到',  'null', 'Not Found','阻断页','Bad
 '详细错误','页面载入出错','Error','错误','Connection timed out','域名停靠','网站访问报错','错误提示','临时域名',
 '未被授权查看','Test Page','发生错误','非法阻断','链接超时','403 Frobidden','建设中','访问出错','出错啦','ACCESS DENIED','系统发生错误','Problem loading page']
 
+def ifbadtitle(mytitle):
+    for badtitle in badtitles:
+        if badtitle in mytitle:
+            return True
+    return False
 
 # 1.读取文件，预处理
 # 2.分词
@@ -53,6 +57,9 @@ webdatapath = ""
 def get_head(soup):
     head = soup
     webinfo = {}
+    webinfo['title'] = ""
+    webinfo['description'] = ""
+    webinfo['keywords'] = ""
     if webinfo['title'] == "" or webinfo['title'] == None:
         try:
             webinfo['title'] += head.title.string.strip()
@@ -82,8 +89,8 @@ def get_head(soup):
         webinfo['keywords'] += head.find('meta',attrs={'name':'KEYWORDS'})['content']
     except:
         pass
-    if "title" in webinfo:
-        if ifbadtitle(webinfo["title"]):
+    
+    if ifbadtitle(webinfo["title"]):
             return False
     result_text = ""
     for text in webinfo:
@@ -116,7 +123,7 @@ def filtertext(htmldata):
 # 读取训练文件
 def readtrain(train_src_list):
     filepath = ""
-    webdatadic = read_webdata(filepath)
+    webdatadic = mytool.read_webdata(filepath)
     for htmldata in webdatadic:
         htmltext = filtertext(htmldata)
         if htmltext == False:
@@ -168,8 +175,16 @@ def segmentWord(cont):
     return listseg
 
 
-webdata = read_webdata("E:/webdata/中小学校/haiquan.com.cn.txt")
-train=readtrain(train_src_all)
-content=segmentWord(train[0])
-filenamel=train[2]
-opinion=train[1]
+webdata = mytool.read_webdata("E:/webdata/中小学校/haiquan.com.cn.txt")
+for htmldata in webdata:
+    htmltext = filtertext(htmldata)
+    if htmltext == False:
+            continue
+    cut_text = Word_cut_list(htmltext)
+    print(cut_text)
+
+
+# train=readtrain(train_src_all)
+# content=segmentWord(train[0])
+# filenamel=train[2]
+# opinion=train[1]
