@@ -143,7 +143,7 @@ def get_and_add(url,webdata):
     sessions.keep_alive = False
     sessions.mount(url, HTTP20Adapter())
     try:
-        response = requests.get(url,verify=False,allow_redirects=True,headers = headers, timeout=10)
+        response = requests.get(url,verify=False,allow_redirects=True,headers = headers, timeout=20)
     except Exception as e:
         print(e)
         # sessions.close()
