@@ -94,7 +94,7 @@ def get_head(soup):
             return False
     result_text = ""
     for text in webinfo:
-        result_text += text
+        result_text += webinfo[text]
     return result_text
 
 
@@ -125,11 +125,10 @@ def readtrain(train_src_list):
     filepath = ""
     webdatadic = mytool.read_webdata(filepath)
     for htmldata in webdatadic:
-        htmltext = filtertext(htmldata)
+        htmltext = filtertext(htmldata) #过滤出中文
         if htmltext == False:
             continue
-        cut_text = Word_cut_list(htmltext)
-
+        cut_text = Word_cut_list(htmltext) #生成词列表
 
 
 
@@ -151,16 +150,17 @@ def Word_cut_list(word_str):
         word_str = re.sub(r'\n+', ' ', word_str)  # trans 换行 to空格
         word_str = re.sub(r'\t+', ' ', word_str)  # trans Tab to空格
         word_str = re.sub("[\s+\.\!\/_,$%^*(+\"\']+|[+——；！，”。《》，。：“？、~@#￥%……&*（）1234567①②③④)]+".encode('utf-8').decode("utf8"), " ".encode('utf-8').decode("utf8"), word_str)
+        word_str = re.sub(u"[^\u4E00-\u9FA5]"," ", word_str)
   
         wordlist = list(jieba.cut(word_str))#jieba.cut  把字符串切割成词并添加至一个列表
-        # wordlist_N = []
-        # # chinese_stopwords=self.Chinese_Stopwords()
-        # for word in wordlist:
-        #     if word not in stopwordslist:#词语的清洗：去停用词
-        #         if word != '\r\n'  and word!=' ' and word != '\u3000'.encode('utf-8').decode('unicode_escape') \
-        #                 and word!='\xa0'.encode('utf-8').decode('unicode_escape'):#词语的清洗：去全角空格
-        #             wordlist_N.append(word)
-        return wordlist
+        wordlist_N = []
+        # chinese_stopwords=self.Chinese_Stopwords()
+        for word in wordlist:
+            if word not in stopwordslist:#词语的清洗：去停用词
+                if word != '\r\n'  and word!=' ' and word != '\u3000'.encode('utf-8').decode('unicode_escape') \
+                        and word!='\xa0'.encode('utf-8').decode('unicode_escape'):#词语的清洗：去全角空格
+                    wordlist_N.append(word)
+        return wordlist_N
 
 
 def segmentWord(cont):
@@ -175,17 +175,25 @@ def segmentWord(cont):
 
 
 webdata = mytool.read_webdata("E:/webdata/中小学校/haiquan.com.cn.txt")
-for htmldata in webdata:
-    print(htmldata)
 
-    htmltext = filtertext(htmldata)
-    print(htmltext)
+for htmldata in webdata:
+    # print(htmldata)
+    
+    htmltext = filtertext(webdata[htmldata])
+    # print(htmltext)
     if htmltext == False:
             continue
     cut_text = Word_cut_list(htmltext)
     print(cut_text)
 
-
+print(len(cut_text))
+vectorizer=CountVectorizer()
+tfidftransformer=TfidfTransformer()
+tfidf = tfidftransformer.fit_transform(vectorizer.fit_transform(cut_text))  # 先转换成词频矩阵，再计算TFIDF值
+print (tfidf.shape)
+print(tfidf)
+docs = ["原任第一集团军副军长", "在9·3抗战胜利日阅兵中担任“雁门关伏击战英雄连”英模方队领队记者林韵诗继黄铭少将后"]
+new_tfidf = tfidftransformer.transform(vectorizer.transform(docs))
 # train=readtrain(train_src_all)
 # content=segmentWord(train[0])
 # filenamel=train[2]
