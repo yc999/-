@@ -162,7 +162,7 @@ def get_and_add(url,webdata):
     return response
 
 
-havegetcount = 0
+
 
 def requesturl(url):
     print(url)
@@ -171,7 +171,7 @@ def requesturl(url):
     webdata = {} # 保存网页数据
     havegetcount = 0
     #找到当前的相关介绍页面
-    def findaboutwebpage(abouturl, soup):
+    def findaboutwebpage(self, abouturl, soup):
         if havegetcount < maxwebpage:
             about = soup.find_all(havekey)
             # 寻找关于页面的链接

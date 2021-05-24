@@ -62,7 +62,7 @@ sessions=requests.session()
 # [s.extract() for s in soup('script')]
 # [s.extract() for s in soup('style')]
 
-url ="http://" + "www.ailab.cn"
+url ="http://" + "iqshw.com"
 sessions=requests.session()
 sessions.mount(url, HTTP20Adapter())
 headers={   

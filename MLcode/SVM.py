@@ -167,6 +167,8 @@ def segmentWord(cont):
         listseg.append(file_string)
     return listseg
 
+
+webdata = read_webdata("E:/webdata/中小学校/haiquan.com.cn.txt")
 train=readtrain(train_src_all)
 content=segmentWord(train[0])
 filenamel=train[2]
