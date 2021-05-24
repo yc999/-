@@ -1,5 +1,6 @@
 
 # -*- coding: utf-8 -*-
+from newspider.httprequest import ifbadtitle
 from MLcode.MLtest import read_webdata
 import jieba
 import numpy as np
@@ -22,14 +23,25 @@ sys.path.append(os.path.realpath('./spider'))
 sys.path.append(os.path.realpath('../spider'))
 import mytool
 
+
+badtitles = ['404 Not Found', '找不到',  'null', 'Not Found','阻断页','Bad Request','Time-out','No configuration',
+'TestPage','IIS7','Default','已暂停' ,'Server Error','403 Forbidden','禁止访问','载入出错','没有找到',
+'无法显示','无法访问','Bad Gateway','正在维护','配置未生效','访问报错','Welcome to nginx','Suspended Domain',
+'IIS Windows','Invalid URL','服务器错误','400 Unknown Virtual Host','无法找到','资源不存在',
+'Temporarily Unavailable','Database Error','temporarily unavailable','Bad gateway','不再可用','error Page',
+'Internal Server Error','升级维护中','Service Unavailable','站点不存在','405','Access forbidden','System Error',
+'详细错误','页面载入出错','Error','错误','Connection timed out','域名停靠','网站访问报错','错误提示','临时域名',
+'未被授权查看','Test Page','发生错误','非法阻断','链接超时','403 Frobidden','建设中','访问出错','出错啦','ACCESS DENIED','系统发生错误','Problem loading page']
+
+
 # 1.读取文件，预处理
 # 2.分词
 # 3.过滤低频词，停用词
 # 4.生成tfidf
 # 5.训练
 
-content_train_src=[]      #训练集文本列表
-opinion_train_stc=[]      #训练集类别列表
+content_train_src = []      #训练集文本列表
+opinion_train_stc = []      #训练集类别列表
 file_name_src=[]          #训练集文本文件名列表
 
 webdatapath = ""
@@ -70,6 +82,9 @@ def get_head(soup):
         webinfo['keywords'] += head.find('meta',attrs={'name':'KEYWORDS'})['content']
     except:
         pass
+    if "title" in webinfo:
+        if ifbadtitle(webinfo["title"]):
+            return False
     result_text = ""
     for text in webinfo:
         result_text += text
@@ -82,9 +97,12 @@ stopwordslist = mytool.read_stopwords(stopwords_path)
 
 # 输入 html文档
 # 返回html中所有的文本 string
+# 如果标题有问题 返回False
 def filtertext(htmldata):
     soup = BeautifulSoup(htmldata,'html.parser')
     head_text = get_head(soup)
+    if head_text == False:
+        return False
     [s.extract() for s in soup('script')]
     [s.extract() for s in soup('style')]
     for element in soup(text = lambda text: isinstance(text, Comment)):
@@ -101,6 +119,8 @@ def readtrain(train_src_list):
     webdatadic = read_webdata(filepath)
     for htmldata in webdatadic:
         htmltext = filtertext(htmldata)
+        if htmltext == False:
+            continue
         cut_text = Word_cut_list(htmltext)
 
 

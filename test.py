@@ -62,7 +62,7 @@ sessions=requests.session()
 # [s.extract() for s in soup('script')]
 # [s.extract() for s in soup('style')]
 
-url ="http://" + "gtgqw.com"
+url ="http://" + "www.ailab.cn"
 sessions=requests.session()
 sessions.mount(url, HTTP20Adapter())
 headers={   
@@ -70,7 +70,11 @@ headers={
         } 
 response = requests.get(url,verify=False,allow_redirects=True,headers = headers)
 response.encoding = requests.utils.get_encodings_from_content(response.text)
+print(response.encoding)
+
 if response.encoding == ['gb2312']:
+    response.encoding = 'GBK'
+if response.encoding == ['gbk']:
     response.encoding = 'GBK'
 print(response.encoding)
 # print(response.text)

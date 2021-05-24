@@ -34,7 +34,8 @@ def ifbadtitle(mytitle):
             return True
     return False
     
-
+# 最多爬取的页面数量
+maxwebpage = 4
 # 读取网页url
 # readpath = "../../topchinaz/"
 readpath = "D:/dnswork/sharevm/topchinaz/"

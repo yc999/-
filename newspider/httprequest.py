@@ -151,6 +151,8 @@ def get_and_add(url,webdata):
     response.encoding = requests.utils.get_encodings_from_content(response.text)
     if response.encoding == ['gb2312']:
         response.encoding = 'GBK'
+    if response.encoding == ['gbk']:
+        response.encoding = 'GBK'
     if response.status_code != 200:
         # sessions.close()
         return False
