@@ -194,7 +194,7 @@ def requesturl(url):
                     if len(aboutlist)>2:
                         break
         return count
-    response = get_and_add(url, webdata)
+    response = get_and_add(url, webdata, havegetcount)
     if response == False:
         return False
     
