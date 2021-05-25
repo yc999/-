@@ -137,7 +137,7 @@ def return_all_url(url):
 
 
 #请求url并且加入字典
-def get_and_add(url,webdata):
+def get_and_add(url,webdata, webcount):
     requests.packages.urllib3.disable_warnings()
     sessions=requests.session()
     sessions.keep_alive = False
@@ -159,6 +159,7 @@ def get_and_add(url,webdata):
     # sessions.close()
     webdata[url] = response.text
     # writeurlfile(url, response.text)
+    print(webcount)
     return response
 
 
@@ -181,7 +182,7 @@ def requesturl(url):
             elif tag.has_attr('data-href'):
                 tmpurl = urljoin(abouturl, tag['data-href'])
             if tmpurl not in havegetlist and samewebsite(abouturl, tmpurl) and count < maxwebpage:
-                next_response = get_and_add(tmpurl, webdata)
+                next_response = get_and_add(tmpurl, webdata, count)
                 if next_response != False:
                     url_now_tmp = next_response.url          # 当前的url
                     # 加入已爬队列
@@ -274,7 +275,7 @@ def requesturl(url):
                     if keyword in tag.get_text():
                         next_url = urljoin(url_now, tag['href'])
                         if samewebsite(url_now, next_url) and next_url not in havegetlist and havegetcount < maxwebpage: # 需要和当前url一致
-                            next_response = get_and_add(next_url, webdata)
+                            next_response = get_and_add(next_url, webdata, havegetcount)
                             if next_response == False:
                                 continue
                             abouturl = next_response.url          # 当前的url
@@ -291,7 +292,7 @@ def requesturl(url):
                 for keyword in href_text:
                         next_url = urljoin(url_now, tag['href']) #寻找可能的相关链接
                         if tmpurl in next_url and keyword in next_url and next_url not in havegetlist and samewebsite(url_now, next_url) and havegetcount < maxwebpage:
-                            next_response = get_and_add(next_url, webdata)
+                            next_response = get_and_add(next_url, webdata, havegetcount)
                             if next_response == False:
                                 continue
                             abouturl = next_response.url          # 当前的url
@@ -301,6 +302,7 @@ def requesturl(url):
                                 havegetlist.append(next_url)
                             soup = BeautifulSoup(next_response.text, 'html.parser')
                             havegetcount = findaboutwebpage(abouturl, soup, havegetcount)
+    print(havegetcount)
     writeurlfile(url, webdata)
     return True
 
