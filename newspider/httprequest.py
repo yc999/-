@@ -18,7 +18,7 @@ badtitles=['404 Not Found', '找不到',  'null', 'Not Found','阻断页','Bad R
 'Temporarily Unavailable','Database Error','temporarily unavailable','Bad gateway','不再可用','error Page',
 'Internal Server Error','升级维护中','Service Unavailable','站点不存在','405','Access forbidden','System Error',
 '详细错误','页面载入出错','Error','错误','Connection timed out','域名停靠','网站访问报错','错误提示','临时域名',
-'未被授权查看','Test Page','发生错误','非法阻断','链接超时','403 Frobidden','建设中','访问出错','出错啦','ACCESS DENIED','系统发生错误','Problem loading page']
+'未被授权查看','Test Page','发生错误','非法阻断','链接超时','403 Frobidden','建设中','访问出错','出错啦','ACCESS DENIED','系统发生错误','Problem loading page','网站欠费提醒']
 
 
 headers={   

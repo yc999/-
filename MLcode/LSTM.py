@@ -201,9 +201,9 @@ def get_lstm_model():
                             # input_length=200,
                             mask_zero = True,
                             trainable=False))
-    model.add(LSTM(128, dropout=0.2, recurrent_dropout=0.2))
+    model.add(LSTM(200, dropout=0.5, recurrent_dropout=0.5))
     model.add(Dense(128, activation='relu'))
-    model.add(Dropout(0.3))
+    model.add(Dropout(0.5))
     model.add(Dense(len(class_index), activation='softmax'))
     model.summary()
     model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['acc'])

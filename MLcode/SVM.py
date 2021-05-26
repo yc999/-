@@ -119,19 +119,6 @@ def filtertext(htmldata):
 
 
 
-
-# 读取训练文件
-def readtrain(train_src_list):
-    filepath = ""
-    webdatadic = mytool.read_webdata(filepath)
-    for htmldata in webdatadic:
-        htmltext = filtertext(htmldata) #过滤出中文
-        if htmltext == False:
-            continue
-        cut_text = Word_cut_list(htmltext) #生成词列表
-
-
-
 def Word_pseg(self,word_str):  # 名词提取函数
         words = pseg.cut(word_str)
         word_list = []
@@ -174,11 +161,34 @@ def segmentWord(cont):
     return listseg
 
 
-webdata = mytool.read_webdata("E:/webdata/中小学校/haiquan.com.cn.txt")
+# 读取训练文件
+def readtrain(filepath):
+    webdatadic = mytool.read_webdata(filepath)
+    result_list = []
+    for htmldata in webdatadic:
+        htmltext = filtertext(htmldata) #过滤出中文
+        if htmltext == False:
+            continue
+        cut_text = Word_cut_list(htmltext) #生成词列表
+        result_list += cut_text
+    return result_list
 
+
+def read_all_data_label(datapath):
+    result_data = []
+    for path in datapath:
+        data = readtrain(path)
+        if data == []:
+            continue
+        result_data.append(data)
+    return result_data
+
+
+
+
+
+webdata = mytool.read_webdata("E:/webdata/中小学校/haiquan.com.cn.txt")
 for htmldata in webdata:
-    # print(htmldata)
-    
     htmltext = filtertext(webdata[htmldata])
     # print(htmltext)
     if htmltext == False:
@@ -187,13 +197,48 @@ for htmldata in webdata:
     print(cut_text)
 
 print(len(cut_text))
-vectorizer=CountVectorizer()
-tfidftransformer=TfidfTransformer()
-tfidf = tfidftransformer.fit_transform(vectorizer.fit_transform(cut_text))  # 先转换成词频矩阵，再计算TFIDF值
-print (tfidf.shape)
-print(tfidf)
-docs = ["原任第一集团军副军长", "在9·3抗战胜利日阅兵中担任“雁门关伏击战英雄连”英模方队领队记者林韵诗继黄铭少将后"]
-new_tfidf = tfidftransformer.transform(vectorizer.transform(docs))
+cut_text = ' '.join(cut_text)
+
+print(cut_text)
+
+
+
+
+textlist=[cut_text]
+vectorizer=CountVectorizer(token_pattern=r"(?u)\b\w+\b")
+
+X = vectorizer.fit_transform(textlist)
+print(vectorizer.get_feature_names())
+print(X.toarray())
+
+transform = TfidfTransformer()
+Y = transform.fit_transform(X)    # 这里的输入是上面文档的计数矩阵
+print(Y.toarray())                # 输出转换为tf-idf后的 Y 矩阵
+
+
+
+
+#训练 用fit_transform
+count_train=vectorizer.fit_transform(content_train)
+tfidf = transform.fit_transform(count_train)
+
+#测试
+count_test=vectorizer.transform(content_test)
+test_tfidf = transform.transform(count_test)
+
+clf = SVC()
+clf.fit(X,y)
+
+Z = clf.predict(XY)
+
+
+
+# tfidftransformer=TfidfTransformer()
+# tfidf = tfidftransformer.fit_transform(vectorizer.fit_transform(cut_text))  # 先转换成词频矩阵，再计算TFIDF值
+# print (tfidf.shape)
+# print(tfidf)
+# docs = ["原任第一集团军副军长", "在9·3抗战胜利日阅兵中担任“雁门关伏击战英雄连”英模方队领队记者林韵诗继黄铭少将后"]
+# new_tfidf = tfidftransformer.transform(vectorizer.transform(docs))
 # train=readtrain(train_src_all)
 # content=segmentWord(train[0])
 # filenamel=train[2]
