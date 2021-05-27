@@ -7,6 +7,8 @@ import time
 import codecs
 import re
 import jieba.posseg as pseg
+from numpy.core.fromnumeric import shape
+from paddle.fluid.layers.control_flow import max_sequence_len
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.feature_extraction.text import TfidfTransformer
 from sklearn.naive_bayes import MultinomialNB
@@ -14,7 +16,7 @@ from sklearn.svm import SVC
 from sklearn.pipeline import Pipeline
 from sklearn import metrics
 from bs4 import  BeautifulSoup, Comment
-
+from sklearn.metrics import classification_report
 import sys
 sys.path.append(os.path.realpath('./Clustering'))
 sys.path.append(os.path.realpath('../Clustering'))
@@ -44,14 +46,12 @@ def ifbadtitle(mytitle):
 # 4.生成tfidf
 # 5.训练
 
+
+# 变量定义
 content_train_src = []      #训练集文本列表
 opinion_train_stc = []      #训练集类别列表
 file_name_src=[]          #训练集文本文件名列表
 
-webdatapath = ""
-
-
-# webdata = read_webdata("E:/webdata/旅游网站/sh.tuniu.com.txt")
 
 
 def get_head(soup):
@@ -98,14 +98,20 @@ def get_head(soup):
     return result_text
 
 
+# 2.1 读取停用词
+# stopwordslist 保存所有停用词
 stopwordslist = []  # 停用词列表
-stopwords_path = "/home/jiangy2/dnswork/stopwords/cn_stopwords.txt"
+stopwords_path = "C:/Users/shinelon/Desktop/linuxfirefox/stopwords-master/stopwords-master/cn_stopwords.txt"
+# stopwords_path = "/home/jiangy2/dnswork/stopwords/cn_stopwords.txt"
 stopwordslist = mytool.read_stopwords(stopwords_path)
 
-# 输入 html文档
-# 返回html中所有的文本 string
-# 如果标题有问题 返回False
+
 def filtertext(htmldata):
+    """
+    # 输入 html文档
+    # 返回html中所有的文本 string
+    # 如果网页标题包含不正常文本 返回False
+    """
     soup = BeautifulSoup(htmldata,'html.parser')
     head_text = get_head(soup)
     if head_text == False:
@@ -132,22 +138,21 @@ def Word_pseg(self,word_str):  # 名词提取函数
 
 
 def Word_cut_list(word_str):
-        #利用正则表达式去掉一些一些标点符号之类的符号。
-        word_str = re.sub(r'\s+', ' ', word_str)  # trans 多空格 to空格
-        word_str = re.sub(r'\n+', ' ', word_str)  # trans 换行 to空格
-        word_str = re.sub(r'\t+', ' ', word_str)  # trans Tab to空格
-        word_str = re.sub("[\s+\.\!\/_,$%^*(+\"\']+|[+——；！，”。《》，。：“？、~@#￥%……&*（）1234567①②③④)]+".encode('utf-8').decode("utf8"), " ".encode('utf-8').decode("utf8"), word_str)
-        word_str = re.sub(u"[^\u4E00-\u9FA5]"," ", word_str)
-  
-        wordlist = list(jieba.cut(word_str))#jieba.cut  把字符串切割成词并添加至一个列表
-        wordlist_N = []
-        # chinese_stopwords=self.Chinese_Stopwords()
-        for word in wordlist:
-            if word not in stopwordslist:#词语的清洗：去停用词
-                if word != '\r\n'  and word!=' ' and word != '\u3000'.encode('utf-8').decode('unicode_escape') \
-                        and word!='\xa0'.encode('utf-8').decode('unicode_escape'):#词语的清洗：去全角空格
-                    wordlist_N.append(word)
-        return wordlist_N
+    #利用正则表达式去掉一些一些标点符号之类的符号。
+    word_str = re.sub(r'\s+', ' ', word_str)  # trans 多空格 to空格
+    word_str = re.sub(r'\n+', ' ', word_str)  # trans 换行 to空格
+    word_str = re.sub(r'\t+', ' ', word_str)  # trans Tab to空格
+    word_str = re.sub("[\s+\.\!\/_,$%^*(+\"\']+|[+——；！，”。《》，。：“？、~@#￥%……&*（）1234567①②③④)]+".encode('utf-8').decode("utf8"), " ".encode('utf-8').decode("utf8"), word_str)
+    word_str = re.sub(u"[^\u4E00-\u9FA5]"," ", word_str)
+    wordlist = list(jieba.cut(word_str))#jieba.cut  把字符串切割成词并添加至一个列表
+    wordlist_N = []
+    # chinese_stopwords=self.Chinese_Stopwords()
+    for word in wordlist:
+        if word not in stopwordslist: #词语的清洗：去停用词
+            if word != '\r\n'  and word!=' ' and word != '\u3000'.encode('utf-8').decode('unicode_escape') \
+                    and word!='\xa0'.encode('utf-8').decode('unicode_escape'):#词语的清洗：去全角空格
+                wordlist_N.append(word)
+    return wordlist_N
 
 
 def segmentWord(cont):
@@ -161,76 +166,150 @@ def segmentWord(cont):
     return listseg
 
 
-# 读取训练文件
+MAX_SEQUENCE_LENGTH = 0
+# max_sequence_lenth = 0
+
+# 读取html文件,并处理成词语
 def readtrain(filepath):
+    global MAX_SEQUENCE_LENGTH 
     webdatadic = mytool.read_webdata(filepath)
     result_list = []
     for htmldata in webdatadic:
-        htmltext = filtertext(htmldata) #过滤出中文
+        htmltext = filtertext(webdatadic[htmldata]) # 读取网页中的纯文本
         if htmltext == False:
             continue
-        cut_text = Word_cut_list(htmltext) #生成词列表
+        cut_text = Word_cut_list(htmltext) # 生成词列表
         result_list += cut_text
+    if len(result_list)> MAX_SEQUENCE_LENGTH:
+       MAX_SEQUENCE_LENGTH = len(result_list)
     return result_list
 
 
-def read_all_data_label(datapath):
-    result_data = []
-    for path in datapath:
-        data = readtrain(path)
-        if data == []:
-            continue
-        result_data.append(data)
-    return result_data
+def read_all_data(datapath):
+    data = readtrain(datapath)
+    if data == []:
+        return ""
+    cut_text = ' '.join(data)
+    # result_data.append(cut_text)
+    return cut_text
 
 
+class_index = { '休闲娱乐':0, '生活服务':1, '购物网站':2, '政府组织':3, '综合其他':4, '教育文化':5, '行业企业':6,'网络科技':7,
+ '体育健身': 8, '医疗健康':9, '交通旅游':10, '新闻媒体':11}
+classtype = {'购物':'购物网站','游戏':'休闲娱乐','旅游':'生活服务','军事':'教育文化','招聘':'生活服务','时尚':'休闲娱乐',
+'新闻':'新闻媒体资讯','音乐':'休闲娱乐','健康':'医疗健康','艺术':'教育文化',
+'社区':'综合其他','学习':'教育文化','政府':'政府组织','搞笑':'休闲娱乐','银行':'生活服务',
+'酷站':'综合其他','视频':'休闲娱乐','电影':'休闲娱乐','文学':'休闲娱乐','体育':'体育健身','科技':'网络科技',
+'财经':'生活服务','汽车':'生活服务','房产':'生活服务','摄影':'休闲娱乐','设计':'网络科技','营销':'行业企业',
+'电商':'购物网站','外贸':'行业企业','服务':'行业企业','商界':'行业企业','生活':'生活服务'}
+
+def initclass(filepath):
+    with open(filepath, 'r', encoding='utf-8') as file_to_read:
+        while True:
+            line = file_to_read.readline()
+            parts = line.split(",")
+            if  not line:
+                break
+            classtype[parts[0]]=parts[2].strip("\n")
 
 
+initfilepath = "D:/dnswork/sharevm/top.chinaz.txt"
+# initfilepath = "/home/jiangy2/dnswork/top.chinaz.txt"
+initclass(initfilepath)
 
-webdata = mytool.read_webdata("E:/webdata/中小学校/haiquan.com.cn.txt")
-for htmldata in webdata:
-    htmltext = filtertext(webdata[htmldata])
-    # print(htmltext)
-    if htmltext == False:
-            continue
-    cut_text = Word_cut_list(htmltext)
+
+content_train_src = []      # 训练集文本列表
+opinion_train_stc = []      # 训练集类别列表
+
+
+# 获取全部数据集
+path = "/home/jiangy2/webdata/"
+path = "D:/dnswork/sharevm/topchinaz/"
+datapath = "E:/webdata/"
+
+
+fs = os.listdir(datapath)
+i=0
+j=0
+for subpath in fs:
+    filepath = os.path.join(datapath, subpath)
+    # print(filepath)
+    if (os.path.isdir(filepath)):
+        print(subpath)
+        webdata_classtype = classtype[subpath]  # 查询父类别
+        webdata_class_index = class_index[webdata_classtype] #父类别下标
+        webdata_path = os.listdir(filepath)
+        for filename in webdata_path:
+            i=i+1
+            webdatapath = os.path.join(filepath, filename)
+            # print(webdatapath)
+            webdata = read_all_data(webdatapath)
+            if webdata == "":
+                continue
+            content_train_src.append(webdata)               # 加入数据集 字符串
+            opinion_train_stc.append(webdata_class_index)   # 加入标签集
+
+print("opinion_train_stc ", opinion_train_stc)
+model_max_len = MAX_SEQUENCE_LENGTH
+
+print("MAX_SEQUENCE_LENGTH ",MAX_SEQUENCE_LENGTH)
+
+# 测试
+"""
+if test:
+    webdata = mytool.read_webdata("E:/webdata/中小学校/haiquan.com.cn.txt")
+    for htmldata in webdata:
+        htmltext = filtertext(webdata[htmldata])
+        # print(htmltext)
+        if htmltext == False:
+                continue
+        cut_text = Word_cut_list(htmltext)
+        print(cut_text)
+    print(len(cut_text))
+    cut_text = ' '.join(cut_text) #拼接成一个字符串
     print(cut_text)
+    textlist=[cut_text]
 
-print(len(cut_text))
-cut_text = ' '.join(cut_text)
+    vectorizer=CountVectorizer(token_pattern=r"(?u)\b\w+\b")
 
-print(cut_text)
+    X = vectorizer.fit_transform(textlist)
+    print(vectorizer.get_feature_names())
+    print(X.toarray())
 
+    transform = TfidfTransformer()
+    Y = transform.fit_transform(X)    # 这里的输入是上面文档的计数矩阵
+    print(Y.toarray())                # 输出转换为tf-idf后的 Y 矩阵
+"""
 
+# print(content_train_src)
 
+from keras.utils.np_utils import *
+from sklearn.model_selection import train_test_split
 
-textlist=[cut_text]
 vectorizer=CountVectorizer(token_pattern=r"(?u)\b\w+\b")
-
-X = vectorizer.fit_transform(textlist)
-print(vectorizer.get_feature_names())
-print(X.toarray())
+X = vectorizer.fit_transform(content_train_src)
 
 transform = TfidfTransformer()
-Y = transform.fit_transform(X)    # 这里的输入是上面文档的计数矩阵
-print(Y.toarray())                # 输出转换为tf-idf后的 Y 矩阵
-
-
-
+x_tfidf = transform.fit_transform(X)
 
 #训练 用fit_transform
-count_train=vectorizer.fit_transform(content_train)
-tfidf = transform.fit_transform(count_train)
+# count_train=vectorizer.fit_transform(content_train)
+# tfidf = transform.fit_transform(count_train)
+
+Y_label=to_categorical(opinion_train_stc, len(class_index))
+x_train, x_test, y_train, y_test = train_test_split(x_tfidf, opinion_train_stc, test_size=0.2)
+
+print(shape(x_train))
+print(shape(y_train))
+clf = SVC()
+clf.fit(x_train,y_train)
+
+pred_y  = clf.predict(x_test)
+print(classification_report(y_test,pred_y))
 
 #测试
-count_test=vectorizer.transform(content_test)
-test_tfidf = transform.transform(count_test)
-
-clf = SVC()
-clf.fit(X,y)
-
-Z = clf.predict(XY)
-
+# count_test=vectorizer.transform(content_test)
+# test_tfidf = transform.transform(count_test)
 
 
 # tfidftransformer=TfidfTransformer()

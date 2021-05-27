@@ -50,8 +50,6 @@ os.environ['OPENBLAS_NUM_THREADS'] = '1'
 
 
 
-
-
 # 步骤1 加载词向量  
 # embeddings_index 为字典  单词 ：下标
 # embedding_matrix 词向量数组 
