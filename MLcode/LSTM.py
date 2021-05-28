@@ -54,9 +54,10 @@ os.environ['OPENBLAS_NUM_THREADS'] = '1'
 # embeddings_index 为字典  单词 ：下标
 # embedding_matrix 词向量数组 
 
+# MAX_SEQUENCE_LENGTH = 10
 EMBEDDING_DIM = 200  #词向量长度
 EMBEDDING_length = 8824330
-MAX_SEQUENCE_LENGTH = 10
+
 
 
 

@@ -121,6 +121,7 @@ def filtertext(htmldata):
     for element in soup(text = lambda text: isinstance(text, Comment)):
         element.extract()
     body = soup.get_text()
+    # body = ''.join(body)
     return head_text + body
 
 
@@ -180,12 +181,17 @@ def readtrain(filepath):
             continue
         cut_text = Word_cut_list(htmltext) # 生成词列表
         result_list += cut_text
+    if len(result_list) < 10:
+        return []
     if len(result_list)> MAX_SEQUENCE_LENGTH:
        MAX_SEQUENCE_LENGTH = len(result_list)
     return result_list
 
 
 def read_all_data(datapath):
+    """
+    返回空格分隔的词语串
+    """
     data = readtrain(datapath)
     if data == []:
         return ""
@@ -249,7 +255,7 @@ for subpath in fs:
             content_train_src.append(webdata)               # 加入数据集 字符串
             opinion_train_stc.append(webdata_class_index)   # 加入标签集
 
-print("opinion_train_stc ", opinion_train_stc)
+# print("opinion_train_stc ", opinion_train_stc)
 model_max_len = MAX_SEQUENCE_LENGTH
 
 print("MAX_SEQUENCE_LENGTH ",MAX_SEQUENCE_LENGTH)
@@ -286,7 +292,7 @@ if test:
 from keras.utils.np_utils import *
 from sklearn.model_selection import train_test_split
 
-vectorizer=CountVectorizer(token_pattern=r"(?u)\b\w+\b")
+vectorizer=CountVectorizer(token_pattern=r"(?u)\b\w+\b",min_df = 15)
 X = vectorizer.fit_transform(content_train_src)
 
 transform = TfidfTransformer()
@@ -297,28 +303,120 @@ x_tfidf = transform.fit_transform(X)
 # tfidf = transform.fit_transform(count_train)
 
 Y_label=to_categorical(opinion_train_stc, len(class_index))
-x_train, x_test, y_train, y_test = train_test_split(x_tfidf, opinion_train_stc, test_size=0.2)
+x_train, x_test, y_train, y_test = train_test_split(x_tfidf, opinion_train_stc, test_size=0.1)
 
-print(shape(x_train))
+
+print(shape(x_train)) #(457, 62919)
 print(shape(y_train))
 clf = SVC()
 clf.fit(x_train,y_train)
 
+print(x_test[0])
+print(shape(x_test))
 pred_y  = clf.predict(x_test)
 print(classification_report(y_test,pred_y))
 
-#测试
-# count_test=vectorizer.transform(content_test)
-# test_tfidf = transform.transform(count_test)
 
 
-# tfidftransformer=TfidfTransformer()
-# tfidf = tfidftransformer.fit_transform(vectorizer.fit_transform(cut_text))  # 先转换成词频矩阵，再计算TFIDF值
-# print (tfidf.shape)
-# print(tfidf)
-# docs = ["原任第一集团军副军长", "在9·3抗战胜利日阅兵中担任“雁门关伏击战英雄连”英模方队领队记者林韵诗继黄铭少将后"]
-# new_tfidf = tfidftransformer.transform(vectorizer.transform(docs))
-# train=readtrain(train_src_all)
-# content=segmentWord(train[0])
-# filenamel=train[2]
-# opinion=train[1]
+from gensim.models import KeyedVectors
+
+EMBEDDING_DIM = 200  #词向量长度
+EMBEDDING_length = 8824330
+
+word2vec_path = '/home/jiangy2/dnswork/glove/Tencent_AILab_ChineseEmbedding.txt'
+tc_wv_model = KeyedVectors.load_word2vec_format(word2vec_path, binary=False)
+# EMBEDDING_length = 8824330
+EMBEDDING_length = len(tc_wv_model.vocab.keys())
+print('Found %s word vectors.' % EMBEDDING_length)
+
+embeddings_index = {}
+embedding_matrix = np.zeros((EMBEDDING_length + 1, EMBEDDING_DIM))
+
+for counter, key in enumerate(tc_wv_model.vocab.keys()):
+    embeddings_index[key] = counter+1
+    coefs = np.asarray(tc_wv_model[key], dtype='float32')
+    embedding_matrix[counter+1] = coefs
+
+del tc_wv_model
+
+
+
+# 2.4 将文本转为张量
+# X_train 训练数据
+X_train = []
+
+# 将单词转为词向量的下标,下标从1开始 返回下标的list
+def words2index(words):
+    index_list = []
+    for word in words:
+        if word in embeddings_index.keys():  # 单词是否在词向量中
+            index_list.append(embeddings_index[word])
+        else:
+            print(word + "不存在于词向量中")
+
+    return index_list
+
+
+for sentence in content_train_src:
+    tmp_words = sentence.split(" ")
+    X_train.append(words2index(tmp_words))
+
+
+import os
+import time
+import datetime
+import random
+
+import warnings
+from collections import Counter
+from math import sqrt
+
+import gensim
+import numpy as np
+import tensorflow as tf
+from sklearn.metrics import roc_auc_score, accuracy_score, precision_score, recall_score
+warnings.filterwarnings("ignore")
+
+
+
+# 配置参数
+
+class TrainingConfig(object):
+    epoches = 10
+    evaluateEvery = 100
+    checkpointEvery = 100
+    learningRate = 0.001
+    
+    
+class ModelConfig(object):
+    embeddingSize = 200
+    
+    filters = 128  # 内层一维卷积核的数量，外层卷积核的数量应该等于embeddingSize，因为要确保每个layer后的输出维度和输入维度是一致的。
+    numHeads = 8  # Attention 的头数
+    numBlocks = 2  # 设置transformer block的数量
+    epsilon = 1e-8  # LayerNorm 层中的最小除数
+    keepProp = 0.8  # multi head attention 中的dropout
+    
+    dropoutKeepProb = 0.5 # 全连接层的dropout
+    l2RegLambda = 0.0
+    
+    
+class Config(object):
+    sequenceLength = 200  # 取了所有序列长度的均值
+    batchSize = 128
+    
+    dataSource = "../data/preProcess/labeledTrain.csv"
+    
+    stopWordSource = "../data/english"
+    
+    numClasses = 16  # 二分类设置为1，多分类设置为类别的数目
+    
+    rate = 0.8  # 训练集的比例
+    
+    training = TrainingConfig()
+    
+    model = ModelConfig()
+
+    
+# 实例化配置参数对象
+config = Config()

@@ -62,7 +62,7 @@ sessions=requests.session()
 # [s.extract() for s in soup('script')]
 # [s.extract() for s in soup('style')]
 
-url ="http://" + "iqshw.com"
+url ="http://" + "byby.xywy.com"
 sessions=requests.session()
 sessions.mount(url, HTTP20Adapter())
 headers={   
@@ -86,4 +86,4 @@ soup = BeautifulSoup(response.text,'html.parser')
 for element in soup(text = lambda text: isinstance(text, Comment)):
             element.extract()
 print(type(soup.get_text()))
-print(soup.get_text())
+# print(soup.get_text())
