@@ -322,7 +322,8 @@ def requesturl(url):
 saveurl = []
 
 fs = os.listdir(readpath)   #读取url目录
-for filename in fs[5:]:
+fs = fs[::-1]
+for filename in fs:
     filepath = readpath + filename
     print(filepath)
     f = open(filepath,"r",encoding="utf-8")
