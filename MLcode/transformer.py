@@ -378,7 +378,7 @@ class Transformer(object):
         outputs = gamma * normalized + beta
 
         return outputs
-            
+
     def _multiheadAttention(self, rawKeys, queries, keys, numUnits=None, causality=False, scope="multiheadAttention"):
         # rawKeys 的作用是为了计算mask时用的，因为keys是加上了position embedding的，其中不存在padding为0的值
         
