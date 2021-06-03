@@ -103,8 +103,8 @@ def get_head(soup):
 # 2.1 读取停用词
 # stopwordslist 保存所有停用词
 stopwordslist = []  # 停用词列表
-stopwords_path = "C:/Users/shinelon/Desktop/linuxfirefox/stopwords-master/stopwords-master/cn_stopwords.txt"
-# stopwords_path = "/home/jiangy2/dnswork/stopwords/cn_stopwords.txt"
+# stopwords_path = "C:/Users/shinelon/Desktop/linuxfirefox/stopwords-master/stopwords-master/cn_stopwords.txt"
+stopwords_path = "/home/jiangy2/dnswork/stopwords/cn_stopwords.txt"
 stopwordslist = mytool.read_stopwords(stopwords_path)
 
 
@@ -224,8 +224,8 @@ def initclass(filepath):
             classtype[parts[0]]=parts[2].strip("\n")
 
 
-initfilepath = "D:/dnswork/sharevm/top.chinaz.txt"
-# initfilepath = "/home/jiangy2/dnswork/top.chinaz.txt"
+# initfilepath = "D:/dnswork/sharevm/top.chinaz.txt"
+initfilepath = "/home/jiangy2/dnswork/top.chinaz.txt"
 initclass(initfilepath)
 
 
