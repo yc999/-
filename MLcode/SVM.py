@@ -8,7 +8,6 @@ import codecs
 import re
 import jieba.posseg as pseg
 from numpy.core.fromnumeric import shape
-from paddle.fluid.layers.control_flow import max_sequence_len
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.feature_extraction.text import TfidfTransformer
 from sklearn.naive_bayes import MultinomialNB
