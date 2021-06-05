@@ -53,6 +53,7 @@ if not os.path.isdir(savepath):
     os.mkdir(savepath)
 
 
+
 # 写入文件
 def writeurlfile(url, data):
     path  = savepath + savedir +"/" 
@@ -137,13 +138,13 @@ def return_all_url(url):
 
 
 #请求url并且加入字典
-def get_and_add(url,webdata):
+def get_and_add(url,webdata, webcount):
     requests.packages.urllib3.disable_warnings()
     sessions=requests.session()
     sessions.keep_alive = False
     sessions.mount(url, HTTP20Adapter())
     try:
-        response = requests.get(url,verify=False,allow_redirects=True,headers = headers, timeout=10)
+        response = requests.get(url,verify=False,allow_redirects=True,headers = headers, timeout=30)
     except Exception as e:
         print(e)
         # sessions.close()
@@ -151,16 +152,19 @@ def get_and_add(url,webdata):
     response.encoding = requests.utils.get_encodings_from_content(response.text)
     if response.encoding == ['gb2312']:
         response.encoding = 'GBK'
+    if response.encoding == ['gbk']:
+        response.encoding = 'GBK'
     if response.status_code != 200:
         # sessions.close()
         return False
     # sessions.close()
     webdata[url] = response.text
     # writeurlfile(url, response.text)
+    print(webcount)
     return response
 
 
-havegetcount = 0
+
 
 def requesturl(url):
     print(url)
@@ -169,30 +173,35 @@ def requesturl(url):
     webdata = {} # 保存网页数据
     havegetcount = 0
     #找到当前的相关介绍页面
-    def findaboutwebpage(abouturl, soup):
-        if havegetcount < maxwebpage:
-            about = soup.find_all(havekey)
-            # 寻找关于页面的链接
-            aboutlist = []
-            for tag in about:
-                if tag.has_attr('href'):
+    def findaboutwebpage(abouturl, soup, count):
+        about = soup.find_all(havekey)
+        # 寻找关于页面的链接
+        aboutlist = []
+        for tag in about:
+            if tag.has_attr('href'):
+                try:
                     tmpurl = urljoin(abouturl, tag['href'])
-                elif tag.has_attr('data-href'):
+                except:
+                    continue
+            elif tag.has_attr('data-href'):
+                try:
                     tmpurl = urljoin(abouturl, tag['data-href'])
-                if tmpurl not in havegetlist and samewebsite(abouturl, tmpurl):
-                    next_response = get_and_add(tmpurl, webdata)
-                    if next_response != False:
-                        url_now_tmp = next_response.url          # 当前的url
-                        # 加入已爬队列
-                        havegetlist.append(abouturl)
-                        if url_now_tmp != abouturl:
-                            havegetlist.append(url_now_tmp)
-                        aboutlist.append(url_now_tmp)
-                        havegetcount += 1
-                        if len(aboutlist)>2:
-                            break
-    
-    response = get_and_add(url, webdata)
+                except:
+                    continue
+            if tmpurl not in havegetlist and samewebsite(abouturl, tmpurl) and count < maxwebpage:
+                next_response = get_and_add(tmpurl, webdata, count)
+                if next_response != False:
+                    url_now_tmp = next_response.url          # 当前的url
+                    # 加入已爬队列
+                    havegetlist.append(abouturl)
+                    if url_now_tmp != abouturl:
+                        havegetlist.append(url_now_tmp)
+                    aboutlist.append(url_now_tmp)
+                    count += 1
+                    if len(aboutlist)>2:
+                        break
+        return count
+    response = get_and_add(url, webdata, havegetcount)
     if response == False:
         return False
     
@@ -207,7 +216,7 @@ def requesturl(url):
     soup = BeautifulSoup(response.text, 'html.parser')
     havegetlist.append(url_now)
     havegetcount += 1
-    findaboutwebpage(url_now,soup)
+    havegetcount = findaboutwebpage(url_now,soup, havegetcount)
     # 获取网页head中元素 title keywords description 存入webinfo中
     def get_headtext():
         # soup = BeautifulSoup(r.text, 'html.parser')  soup = BeautifulSoup(browser.page_source, 'lxml')
@@ -271,9 +280,12 @@ def requesturl(url):
             if tag.has_attr('href') and tag.get_text():
                 for keyword in skip_text:   #访问可能的跳转页面
                     if keyword in tag.get_text():
-                        next_url = urljoin(url_now, tag['href'])
+                        try:
+                            next_url = urljoin(url_now, tag['href'])
+                        except:
+                            continue
                         if samewebsite(url_now, next_url) and next_url not in havegetlist and havegetcount < maxwebpage: # 需要和当前url一致
-                            next_response = get_and_add(next_url, webdata)
+                            next_response = get_and_add(next_url, webdata, havegetcount)
                             if next_response == False:
                                 continue
                             abouturl = next_response.url          # 当前的url
@@ -282,24 +294,28 @@ def requesturl(url):
                             if next_url != abouturl:
                                 havegetlist.append(next_url)
                             tmpsoup = BeautifulSoup(next_response.text, 'html.parser')
-                            findaboutwebpage(abouturl, tmpsoup)
+                            havegetcount = findaboutwebpage(abouturl, tmpsoup, havegetcount)
                             break
                 tmpurl = url_now.replace("http://","",1)
                 tmpurl = tmpurl.replace("https://","",1)
                 tmpurl = tmpurl.replace("www.","",1)
                 for keyword in href_text:
+                    try:
                         next_url = urljoin(url_now, tag['href']) #寻找可能的相关链接
-                        if tmpurl in next_url and keyword in next_url and next_url not in havegetlist and samewebsite(url_now, next_url) and havegetcount < maxwebpage:
-                            next_response = get_and_add(next_url, webdata)
-                            if next_response == False:
-                                continue
-                            abouturl = next_response.url          # 当前的url
-                            havegetlist.append(abouturl)
-                            havegetcount += 1
-                            if next_url != abouturl:
-                                havegetlist.append(next_url)
-                            soup = BeautifulSoup(next_response.text, 'html.parser')
-                            findaboutwebpage(abouturl, soup)
+                    except:
+                        continue
+                    if tmpurl in next_url and keyword in next_url and next_url not in havegetlist and samewebsite(url_now, next_url) and havegetcount < maxwebpage:
+                        next_response = get_and_add(next_url, webdata, havegetcount)
+                        if next_response == False:
+                            continue
+                        abouturl = next_response.url          # 当前的url
+                        havegetlist.append(abouturl)
+                        havegetcount += 1
+                        if next_url != abouturl:
+                            havegetlist.append(next_url)
+                        soup = BeautifulSoup(next_response.text, 'html.parser')
+                        havegetcount = findaboutwebpage(abouturl, soup, havegetcount)
+    print(havegetcount)
     writeurlfile(url, webdata)
     return True
 
@@ -307,7 +323,7 @@ def requesturl(url):
 saveurl = []
 
 fs = os.listdir(readpath)   #读取url目录
-for filename in fs:
+for filename in fs[5:]:
     filepath = readpath + filename
     print(filepath)
     f = open(filepath,"r",encoding="utf-8")
@@ -345,3 +361,4 @@ for filename in fs:
             else:
                 saveurl.append(tmpurl)
                     
+
