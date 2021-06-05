@@ -173,6 +173,7 @@ MAX_SEQUENCE_LENGTH = 0
 # max_sequence_lenth = 0
 
 # 读取html文件,并处理成词语
+# 其他页面中的词语 如果没有在主页中没出现  才放入列表中, 少于10个词的不考虑
 def readtrain(filepath):
     global MAX_SEQUENCE_LENGTH 
     webdatadic = mytool.read_webdata(filepath)
@@ -182,7 +183,10 @@ def readtrain(filepath):
         if htmltext == False:
             continue
         cut_text = Word_cut_list(htmltext) # 生成词列表
-        result_list += cut_text
+        for word in cut_text:
+            if word not in result_list:
+                result_list.append(word)
+        # result_list += cut_text
     if len(result_list) < 10:
         return []
     if len(result_list)> MAX_SEQUENCE_LENGTH:
@@ -234,9 +238,11 @@ opinion_train_stc = []      # 训练集类别列表
 
 
 # 获取全部数据集
-path = "/home/jiangy2/webdata/"
-path = "D:/dnswork/sharevm/topchinaz/"
+# path = "/home/jiangy2/webdata/"
+# path = "D:/dnswork/sharevm/topchinaz/"
 datapath = "E:/webdata/"
+
+datapath = "/home/jiangy2/webdata/"
 
 
 fs = os.listdir(datapath)
@@ -409,7 +415,7 @@ class TrainingConfig(object):
     checkpointEvery = 100
     learningRate = 0.001
     
-    
+
 class ModelConfig(object):
     embeddingSize = 200
     
@@ -432,7 +438,7 @@ class Config(object):
     
     stopWordSource = "../data/english"
     
-    numClasses = 16  # 二分类设置为1，多分类设置为类别的数目
+    numClasses = len(class_list)  # 二分类设置为1，多分类设置为类别的数目
     
     rate = 0.8  # 训练集的比例
     
