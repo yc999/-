@@ -140,6 +140,7 @@ def Word_pseg(self,word_str):  # 名词提取函数
         return word_list
 
 
+# 返回将字符串切成词语list返回，并去除空格等符号
 def Word_cut_list(word_str):
     #利用正则表达式去掉一些一些标点符号之类的符号。
     word_str = re.sub(r'\s+', ' ', word_str)  # trans 多空格 to空格
@@ -178,15 +179,20 @@ def readtrain(filepath):
     global MAX_SEQUENCE_LENGTH 
     webdatadic = mytool.read_webdata(filepath)
     result_list = []
-    for htmldata in webdatadic:
+    result_dic = {}
+    webkey = list(webdatadic.keys())
+    for htmldata in webkey:
         htmltext = filtertext(webdatadic[htmldata]) # 读取网页中的纯文本
         if htmltext == False:
+            result_dic[htmldata] = []
             continue
         cut_text = Word_cut_list(htmltext) # 生成词列表
-        for word in cut_text:
-            if word not in result_list:
+        result_dic[htmldata] = cut_text
+    result_list += result_dic[webkey[0]]  # 先保存首页
+    for htmldata in webkey[1:]:
+        for word in result_dic[htmldata]:
+            if word not in result_dic[webkey[0]]:  # 只保存不在首页中出现的词语
                 result_list.append(word)
-        # result_list += cut_text
     if len(result_list) < 10:
         return []
     if len(result_list)> MAX_SEQUENCE_LENGTH:
@@ -240,7 +246,7 @@ opinion_train_stc = []      # 训练集类别列表
 # 获取全部数据集
 # path = "/home/jiangy2/webdata/"
 # path = "D:/dnswork/sharevm/topchinaz/"
-datapath = "E:/webdata/"
+# datapath = "E:/webdata/"
 
 datapath = "/home/jiangy2/webdata/"
 
@@ -455,7 +461,8 @@ config = Config()
 
 def nextBatch(x, y, batchSize):
         """
-        生成batch数据集，用生成器的方式输出
+        # 生成batch数据集，用生成器的方式输出
+
         """
     
         perm = np.arange(len(x))
@@ -717,14 +724,15 @@ class Transformer(object):
 
 
 """
-定义各类性能指标
+# 定义各类性能指标
 """
 
-def mean(item: list) -> float:
+
+def mean(item: list):
     """
-    计算列表中元素的平均值
-    :param item: 列表对象
-    :return:
+    # 计算列表中元素的平均值
+    # :param item: 列表对象
+    # :return:
     """
     res = sum(item) / len(item) if len(item) > 0 else 0
     return res
@@ -732,10 +740,10 @@ def mean(item: list) -> float:
 
 def accuracy(pred_y, true_y):
     """
-    计算二类和多类的准确率
-    :param pred_y: 预测结果
-    :param true_y: 真实结果
-    :return:
+    # 计算二类和多类的准确率
+    # :param pred_y: 预测结果
+    # :param true_y: 真实结果
+    # :return:
     """
     if isinstance(pred_y[0], list):
         pred_y = [item[0] for item in pred_y]
@@ -749,11 +757,11 @@ def accuracy(pred_y, true_y):
 
 def binary_precision(pred_y, true_y, positive=1):
     """
-    二类的精确率计算
-    :param pred_y: 预测结果
-    :param true_y: 真实结果
-    :param positive: 正例的索引表示
-    :return:
+    # 二类的精确率计算
+    # :param pred_y: 预测结果
+    # :param true_y: 真实结果
+    # :param positive: 正例的索引表示
+    # :return:
     """
     corr = 0
     pred_corr = 0
@@ -769,11 +777,11 @@ def binary_precision(pred_y, true_y, positive=1):
 
 def binary_recall(pred_y, true_y, positive=1):
     """
-    二类的召回率
-    :param pred_y: 预测结果
-    :param true_y: 真实结果
-    :param positive: 正例的索引表示
-    :return:
+    # 二类的召回率
+    # :param pred_y: 预测结果
+    # :param true_y: 真实结果
+    # :param positive: 正例的索引表示
+    # :return:
     """
     corr = 0
     true_corr = 0
@@ -789,12 +797,12 @@ def binary_recall(pred_y, true_y, positive=1):
 
 def binary_f_beta(pred_y, true_y, beta=1.0, positive=1):
     """
-    二类的f beta值
-    :param pred_y: 预测结果
-    :param true_y: 真实结果
-    :param beta: beta值
-    :param positive: 正例的索引表示
-    :return:
+    # 二类的f beta值
+    # :param pred_y: 预测结果
+    # :param true_y: 真实结果
+    # :param beta: beta值
+    # :param positive: 正例的索引表示
+    # :return:
     """
     precision = binary_precision(pred_y, true_y, positive)
     recall = binary_recall(pred_y, true_y, positive)
@@ -807,11 +815,11 @@ def binary_f_beta(pred_y, true_y, beta=1.0, positive=1):
 
 def multi_precision(pred_y, true_y, labels):
     """
-    多类的精确率
-    :param pred_y: 预测结果
-    :param true_y: 真实结果
-    :param labels: 标签列表
-    :return:
+    # 多类的精确率
+    # :param pred_y: 预测结果
+    # :param true_y: 真实结果
+    # :param labels: 标签列表
+    # :return:
     """
     if isinstance(pred_y[0], list):
         pred_y = [item[0] for item in pred_y]
@@ -823,11 +831,11 @@ def multi_precision(pred_y, true_y, labels):
 
 def multi_recall(pred_y, true_y, labels):
     """
-    多类的召回率
-    :param pred_y: 预测结果
-    :param true_y: 真实结果
-    :param labels: 标签列表
-    :return:
+    # 多类的召回率
+    # :param pred_y: 预测结果
+    # :param true_y: 真实结果
+    # :param labels: 标签列表
+    # :return:
     """
     if isinstance(pred_y[0], list):
         pred_y = [item[0] for item in pred_y]
@@ -839,12 +847,12 @@ def multi_recall(pred_y, true_y, labels):
 
 def multi_f_beta(pred_y, true_y, labels, beta=1.0):
     """
-    多类的f beta值
-    :param pred_y: 预测结果
-    :param true_y: 真实结果
-    :param labels: 标签列表
-    :param beta: beta值
-    :return:
+    # 多类的f beta值
+    # :param pred_y: 预测结果
+    # :param true_y: 真实结果
+    # :param labels: 标签列表
+    # :param beta: beta值
+    # :return:
     """
     if isinstance(pred_y[0], list):
         pred_y = [item[0] for item in pred_y]
@@ -856,11 +864,11 @@ def multi_f_beta(pred_y, true_y, labels, beta=1.0):
 
 def get_binary_metrics(pred_y, true_y, f_beta=1.0):
     """
-    得到二分类的性能指标
-    :param pred_y:
-    :param true_y:
-    :param f_beta:
-    :return:
+    # 得到二分类的性能指标
+    # :param pred_y:
+    # :param true_y:
+    # :param f_beta:
+    # :return:
     """
     acc = accuracy(pred_y, true_y)
     recall = binary_recall(pred_y, true_y)
@@ -871,12 +879,12 @@ def get_binary_metrics(pred_y, true_y, f_beta=1.0):
 
 def get_multi_metrics(pred_y, true_y, labels, f_beta=1.0):
     """
-    得到多分类的性能指标
-    :param pred_y:
-    :param true_y:
-    :param labels:
-    :param f_beta:
-    :return:
+    # 得到多分类的性能指标
+    # :param pred_y:
+    # :param true_y:
+    # :param labels:
+    # :param f_beta:
+    # :return:
     """
     acc = accuracy(pred_y, true_y)
     recall = multi_recall(pred_y, true_y, labels)
@@ -959,7 +967,7 @@ with tf.Graph().as_default():
 
         def trainStep(batchX, batchY):
             """
-            训练函数
+            # 训练函数
             """   
             feed_dict = {
               transformer.inputX: batchX,
@@ -1057,3 +1065,5 @@ with tf.Graph().as_default():
                                             signature_def_map={"predict": prediction_signature}, legacy_init_op=legacy_init_op)
 
         # builder.save()
+
+
