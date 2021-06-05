@@ -247,7 +247,7 @@ opinion_train_stc = []      # 训练集类别列表
 # path = "D:/dnswork/sharevm/topchinaz/"
 # datapath = "E:/webdata/"
 
-datapath = "/home/jiangy2/httpwebdata/"
+datapath = "/home/jiangy2/dnswork/httpwebdata/"
 
 
 fs = os.listdir(datapath)
