@@ -50,9 +50,6 @@ browser.set_page_load_timeout(time_limit)
 
 
 
-
-
-
 def prasednsdata(data):
     dnsdata = {}
     parts = data.split("\t")

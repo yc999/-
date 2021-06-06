@@ -1,60 +1,42 @@
 #-- coding: utf-8 --
-#将爬取失败的网站重新爬取 使用httprequest
 import  requests
+import re
+# import eventlet
+import os
+import sys
+import io
+import json
+import numpy as np
+sys.path.append(os.path.realpath('./Clustering'))
+sys.path.append(os.path.realpath('../Clustering'))
+sys.path.append(os.path.realpath('./spider'))
+sys.path.append(os.path.realpath('../spider'))
+import random
+import mytool
+from tensorflow.keras.preprocessing.sequence import pad_sequences
+from keras.utils.np_utils import *
 from bs4 import  BeautifulSoup, Comment
 import re
 import time
-# import eventlet
 import os
 import json
 from urllib.parse import urljoin
 from hyper.contrib import HTTP20Adapter
 
 
-badtitles=['404 Not Found', '找不到',  'null', 'Not Found','阻断页','Bad Request','Time-out','No configuration',
-'TestPage','IIS7','Default','已暂停' ,'Server Error','403 Forbidden','禁止访问','载入出错','没有找到',
-'无法显示','无法访问','Bad Gateway','正在维护','配置未生效','访问报错','Welcome to nginx','Suspended Domain',
-'IIS Windows','Invalid URL','服务器错误','400 Unknown Virtual Host','无法找到','资源不存在',
-'Temporarily Unavailable','Database Error','temporarily unavailable','Bad gateway','不再可用','error Page',
-'Internal Server Error','升级维护中','Service Unavailable','站点不存在','405','Access forbidden','System Error',
-'详细错误','页面载入出错','Error','错误','Connection timed out','域名停靠','网站访问报错','错误提示','临时域名',
-'未被授权查看','Test Page','发生错误','非法阻断','链接超时','403 Frobidden','建设中','访问出错','出错啦','ACCESS DENIED','系统发生错误','Problem loading page']
+savepath = "/home/jiangy2/dnswork/pdnswebdata/"
+savedfileslist = os.listdir(savepath)    #所有成功爬取的url文件名,需要对文件名处理。
 
+# 写入文件
+def writeurlfile(url, data):
+    path  = savepath  +"/" 
+    if not os.path.isdir(path):
+        os.mkdir(path)
+    tmpurl = url.replace('http://','',1)
+    tmpurl = tmpurl.replace('https://','',1)
 
-headers={   
-'User-Agent':'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/34.0.1847.137 Safari/537.36 LBBROWSER'
-        } 
-
-# 判断标题是否正常 
-# mytitle 需要判断的title 
-# 正常返回 False 不正常返回 True
-def ifbadtitle(mytitle):
-    for badtitle in badtitles:
-        if badtitle in mytitle:
-            return True
-    return False
-    
-# 最多爬取的页面数量
-maxwebpage = 4
-# 读取网页url
-# readpath = "../../topchinaz/"
-readpath = "D:/dnswork/sharevm/topchinaz/"
-# readpath = "E:/webdata/"           
-
-# 保存从chinaz所有网站的内容
-# savepath = "../../httpwebdata/"
-savepath = "E:/webdata/"
-savedir = "" # 类别文件夹
-logpath = "E:/webdata/relog.txt"
-
-# logpath = "../../newwebdata/relog.txt"
-# messageless_log_path =  "../../newwebdata/messagelog.txt"
-# if not os.path.isdir(savepath):
-#     os.mkdir(savepath)
-
-
-
-
+    urllfile = open(path + tmpurl +".txt",'w',encoding='utf-8')
+    urllfile.write(json.dumps(data, ensure_ascii=False))
 
 #判断两个url是否是同一个网站
 # sourceurl 原url
@@ -153,8 +135,6 @@ def get_and_add(url,webdata, webcount):
     # writeurlfile(url, response.text)
     print(webcount)
     return response
-
-
 
 
 def requesturl(url):
@@ -306,25 +286,39 @@ def requesturl(url):
                             havegetlist.append(next_url)
                         soup = BeautifulSoup(next_response.text, 'html.parser')
                         havegetcount = findaboutwebpage(abouturl, soup, havegetcount)
-    print(havegetcount)
-    # writeurlfile(url, webdata)
-    print(webdata)
+    # print(havegetcount)
+    writeurlfile(url, webdata)
     return True
 
 
+dnstpye_value = {'1' : "A", '5':"CNAME", '28':"AAAA"}
 
-url = "www.cczsb.com"
-tmpurl = url.replace('www.','',1)
+# 读取dns数据
+# dnsdata_path = "E:/wechatfile/WeChat Files/wxid_luhve56t0o4a11/FileStorage/File/2020-11/pdns_data"
+dnsdata_path = "/home/jiangy2/dnswork/cdnlist/pdns_data"
+dnsdata_file = open(dnsdata_path, 'r', encoding='utf-8')
 
-if url + ".txt" not in savedfileslist and "www." + url + ".txt" not in savedfileslist:
-    httpurl =  'http://' + url
-    resultdata = requesturl(httpurl)
-    if resultdata == False:
-        if url.split(".")[0]!="www":
-            httpurl = 'http://www.' + url
-        else:
-            httpurl = 'http://' + url.replace('www.','',1)
-        resultdata = requesturl(httpurl)
 
-                    
-
+while True:
+    line = dnsdata_file.readline()
+    if  line:
+        try:
+            dnsdata = mytool.prasednsdata(line)
+        except:
+            continue
+        if dnsdata['Dnstype'] not in dnstpye_value: # 只取 A AAAA CNAME记录
+            continue
+        # print(dnsdata)
+        url = mytool.getrkey_domainname(dnsdata['rkey'])
+        tmpurl = url.replace('www.','',1)
+        if url + ".txt" not in savedfileslist and "www." + url + ".txt" not in savedfileslist:
+            httpurl =  'http://' + url
+            resultdata = requesturl(httpurl)
+            if resultdata == False:
+                if url.split(".")[0]!="www":
+                    httpurl = 'http://www.' + url
+                else:
+                    httpurl = 'http://' + url.replace('www.','',1)
+                resultdata = requesturl(httpurl)
+    else:
+        break

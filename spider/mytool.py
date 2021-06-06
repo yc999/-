@@ -87,9 +87,30 @@ def meanshift_webdata(webdata):
     return mean_shift_result
 
 
+#从pdns的反向域名返回正向域名
+def getrkey_domainname(rkey):
+    names = rkey.split(".")
+    len_names = len(names)
+    result_name = names[len_names-1]
+    for i in range(len_names-2, -1, -1):
+        result_name = result_name + "." + names[i]
+    return result_name
+    # result_name = result_name + name  
 
-
-
+#解析 pdns 数据
+def prasednsdata(data):
+    dnsdata = {}
+    parts = data.split("\t")
+    dnsdata['tnow'] = parts[0].split(":")[1]
+    dnsdata['tbeg'] = parts[1].split(":")[1]
+    dnsdata['tend'] = parts[2].split(":")[1]
+    dnsdata['count'] = parts[3].split(":")[1]
+    tmp = parts[4].split(":")[1]
+    tmp1 = tmp.split("+")
+    dnsdata['rkey'] = tmp1[0]
+    dnsdata['Dnstype'] = tmp1[1]
+    dnsdata['data'] = parts[5].split(":")[1]
+    return dnsdata
 
 
 
