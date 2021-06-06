@@ -24,6 +24,10 @@ from urllib.parse import urljoin
 from hyper.contrib import HTTP20Adapter
 
 
+headers={   
+'User-Agent':'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/34.0.1847.137 Safari/537.36 LBBROWSER'
+        } 
+        
 savepath = "/home/jiangy2/dnswork/pdnswebdata/"
 savedfileslist = os.listdir(savepath)    #所有成功爬取的url文件名,需要对文件名处理。
 
