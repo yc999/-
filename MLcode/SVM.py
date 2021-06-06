@@ -395,6 +395,7 @@ for sentence in X_test:
     tmp_words = sentence.split(" ")
     X_test_index.append(words2index(tmp_words))
 
+print(" X_test_index  done ")
 import os
 import time
 import datetime
