@@ -382,8 +382,8 @@ def words2index(words):
     for word in words:
         if word in embeddings_index.keys():  # 单词是否在词向量中
             index_list.append(embeddings_index[word])
-        else:
-            print(word + "不存在于词向量中")
+        # else:
+        #     print(word + "不存在于词向量中")
     return index_list
 
 
