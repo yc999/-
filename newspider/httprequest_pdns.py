@@ -27,7 +27,7 @@ from hyper.contrib import HTTP20Adapter
 headers={   
 'User-Agent':'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/34.0.1847.137 Safari/537.36 LBBROWSER'
         } 
-        
+
 savepath = "/home/jiangy2/dnswork/pdnswebdata/"
 savedfileslist = os.listdir(savepath)    #所有成功爬取的url文件名,需要对文件名处理。
 
@@ -300,6 +300,7 @@ dnstpye_value = {'1' : "A", '5':"CNAME", '28':"AAAA"}
 dnsdata_path = "/home/jiangy2/dnswork/cdnlist/pdns_data"
 dnsdata_file = open(dnsdata_path, 'r', encoding='utf-8')
 
+saveurl = []
 
 while True:
     line = dnsdata_file.readline()
@@ -313,14 +314,21 @@ while True:
         # print(dnsdata)
         url = mytool.getrkey_domainname(dnsdata['rkey'])
         tmpurl = url.replace('www.','',1)
-        if url + ".txt" not in savedfileslist and "www." + url + ".txt" not in savedfileslist:
-            httpurl =  'http://' + url
-            resultdata = requesturl(httpurl)
-            if resultdata == False:
-                if url.split(".")[0]!="www":
-                    httpurl = 'http://www.' + url
-                else:
-                    httpurl = 'http://' + url.replace('www.','',1)
+        if tmpurl not in saveurl:
+            if url + ".txt" not in savedfileslist and "www." + url + ".txt" not in savedfileslist:
+                httpurl =  'http://' + url
                 resultdata = requesturl(httpurl)
+                if resultdata == False:
+                    if url.split(".")[0]!="www":
+                        httpurl = 'http://www.' + url
+                    else:
+                        httpurl = 'http://' + url.replace('www.','',1)
+                    resultdata = requesturl(httpurl)
+                    if resultdata == True:
+                        saveurl.append(tmpurl)
+                else:
+                    saveurl.append(tmpurl)
+            else:
+                saveurl.append(tmpurl)
     else:
         break
