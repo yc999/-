@@ -29,9 +29,7 @@ savedfileslist = os.listdir(savepath)    #所有成功爬取的url文件名,需�
 
 # 写入文件
 def writeurlfile(url, data):
-    path  = savepath  +"/" 
-    if not os.path.isdir(path):
-        os.mkdir(path)
+    path  = savepath
     tmpurl = url.replace('http://','',1)
     tmpurl = tmpurl.replace('https://','',1)
 
