@@ -11,14 +11,24 @@ from urllib.parse import urljoin
 from hyper.contrib import HTTP20Adapter
 
 
-badtitles=['404 Not Found', '找不到',  'null', 'Not Found','阻断页','Bad Request','Time-out','No configuration',
-'TestPage','IIS7','Default','已暂停' ,'Server Error','403 Forbidden','禁止访问','载入出错','没有找到',
-'无法显示','无法访问','Bad Gateway','正在维护','配置未生效','访问报错','Welcome to nginx','Suspended Domain',
-'IIS Windows','Invalid URL','服务器错误','400 Unknown Virtual Host','无法找到','资源不存在',
-'Temporarily Unavailable','Database Error','temporarily unavailable','Bad gateway','不再可用','error Page',
-'Internal Server Error','升级维护中','Service Unavailable','站点不存在','405','Access forbidden','System Error',
-'详细错误','页面载入出错','Error','错误','Connection timed out','域名停靠','网站访问报错','错误提示','临时域名',
-'未被授权查看','Test Page','发生错误','非法阻断','链接超时','403 Frobidden','建设中','访问出错','出错啦','ACCESS DENIED','系统发生错误','Problem loading page']
+badtitles=[
+    '资源不存在',    '找不到',      '页面载入出错',           '临时域名',           '阻断页',
+    '建设中',       '访问出错',     '出错啦',                'IIS7',            '温馨提示',    
+     '无法找到',    '未被授权查看',  '已暂停' ,             '详细错误',              '禁止访问',         
+    '载入出错',         '没有找到',     '无法显示',           '无法访问',       '升级维护中',          
+    '正在维护',         '配置未生效',   '访问报错',          '域名停靠',        '网站访问报错',
+     '服务器错误',      '不再可用',     '错误',                   '错误提示',   '发生错误', 
+        '非法阻断',     '链接超时',     '站点不存在',         '系统发生错误',   '网站欠费提醒'
+     'Not Found',               'Welcome to nginx',              'Suspended Domain',
+    'IIS Windows',              'Invalid URL',                  '400 Unknown Virtual Host',
+     'Server Error',            '403 Forbidden',                'Temporarily Unavailable', 
+      'Database Error',           'temporarily unavailable',     'Bad gateway',        
+         'error Page',             'Internal Server Error',      '405',   
+    'Service Unavailable',          'Access forbidden',         'System Error',
+      '404 Not Found',               'null',                        'Error',   
+       'Connection timed out',      'TestPage',                     'Test Page',
+        'Bad Gateway',  'Bad Request',      'Time-out',                 'No configuration',     
+        '403 Frobidden','ACCESS DENIED','Problem loading page']
 
 
 headers={   
