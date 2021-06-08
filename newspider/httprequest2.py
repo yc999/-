@@ -339,7 +339,7 @@ for filename in fs:
     if filename.replace('.txt','') not in target_filelist:
             tmpfs.append(filename)
 
-fs = tmpfs 
+fs = tmpfs
 
 
 for filename in fs:
