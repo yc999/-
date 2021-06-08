@@ -298,7 +298,7 @@ for subpath in fs:
         webdata_class_index = class_index[webdata_classtype] #父类别下标
         webdata_path = os.listdir(filepath)
         for filename in webdata_path:
-            if filename not in have_read_data_list:
+            if filename not in have_read_data_list: #排除重复读取
                 i=i+1
                 webdatapath = os.path.join(filepath, filename)
                 # print(webdatapath)
