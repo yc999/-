@@ -2772,3 +2772,90 @@ JavaScript error: http://www.201yyfk.com/static/SpryAssets/SpryTabbedPanels.js, 
 
 ###!!! [Child][MessageChannel::SendAndWait] Error: Channel error: cannot send/recv
 
+1623143377229	geckodriver	INFO	Listening on 127.0.0.1:63606
+1623143380249	mozrunner::runner	INFO	Running command: "C:\\Program Files\\Mozilla Firefox\\firefox.exe" "--marionette" "--no-sandbox" "log-level=3" "-foreground" "-no-remote" "-profile" "C:\\Users\\shinelon\\AppData\\Local\\Temp\\rust_mozprofileyQjimY"
+Can't find symbol 'eglSwapBuffersWithDamageEXT'.
+Can't find symbol 'eglSetDamageRegionKHR'.
+JavaScript error: resource://gre/modules/XULStore.jsm, line 66: Error: Can't find profile directory.
+console.warn: SearchSettings: "get: No settings file exists, new profile?" (new Error("", "(unknown module)"))
+1623143383238	Marionette	INFO	Listening on port 56178
+1623143383430	Marionette	WARN	TLS certificate errors will be ignored for this session
+Can't find symbol 'eglSwapBuffersWithDamageEXT'.
+Can't find symbol 'eglSetDamageRegionKHR'.
+JavaScript warning: https://pos.baidu.com/s?wid=300&hei=250&di=u6561059&ltu=https%3A%2F%2Fwww.9ku.com%2F&psi=023501ec98e1644e52b24c96c3a20594&dc=3&ti=%E4%B9%9D%E9%85%B7%E9%9F%B3%E4%B9%90%E7%BD%91%7C%E5%A5%BD%E5%90%AC%E7%9A%84%E6%AD%8C%7C%E7%BD%91%E7%BB%9C%E6%AD%8C%E6%9B%B2%7Cdj%E8%88%9E%E6%9B%B2%7C%E6%B5%81%E8%A1%8C%E6%AD%8C%E6%9B%B2%E5%A4%A7%E5%85%A8&ps=617x967&drs=1&pcs=1267x867&pss=1267x3525&cfv=0&cpl=0&chi=2&cce=true&cec=UTF-8&tlm=1623143413&psr=1920x1080&par=1920x1040&pis=-1x-1&ccd=24&cja=false&cmi=0&col=zh-CN&cdo=-1&tcn=1623143414&dtm=HTML_POST&tpr=1623143412489&ari=2&ant=0&exps=110257,110009,111000,110011&prot=2&dis=0&dai=9&dri=0, line 137: unreachable code after return statement
+JavaScript warning: https://pos.baidu.com/s?wid=300&hei=250&di=u6561059&ltu=https%3A%2F%2Fwww.9ku.com%2F&psi=023501ec98e1644e52b24c96c3a20594&dc=3&ti=%E4%B9%9D%E9%85%B7%E9%9F%B3%E4%B9%90%E7%BD%91%7C%E5%A5%BD%E5%90%AC%E7%9A%84%E6%AD%8C%7C%E7%BD%91%E7%BB%9C%E6%AD%8C%E6%9B%B2%7Cdj%E8%88%9E%E6%9B%B2%7C%E6%B5%81%E8%A1%8C%E6%AD%8C%E6%9B%B2%E5%A4%A7%E5%85%A8&ps=617x967&drs=1&pcs=1267x867&pss=1267x3525&cfv=0&cpl=0&chi=2&cce=true&cec=UTF-8&tlm=1623143413&psr=1920x1080&par=1920x1040&pis=-1x-1&ccd=24&cja=false&cmi=0&col=zh-CN&cdo=-1&tcn=1623143414&dtm=HTML_POST&tpr=1623143412489&ari=2&ant=0&exps=110257,110009,111000,110011&prot=2&dis=0&dai=9&dri=0, line 137: unreachable code after return statement
+JavaScript warning: https://g.alicdn.com/secdev/sufei_data/3.9.9/index.js, line 1: WebGL context was lost.
+JavaScript warning: https://g.alicdn.com/AWSC/et/1.62.1/et_n.js, line 4: WebGL context was lost.
+JavaScript warning: https://g.alicdn.com/??xlly/spl/rp.js,secdev/nsv/1.0.78/ns_e_88_3_n.js?v=1, line 5: WebGL context was lost.
+1623143472186	Marionette	INFO	Stopped listening on port 56178
+
+###!!! [Child][MessageChannel::SendAndWait] Error: Channel error: cannot send/recv
+
+1623143486787	geckodriver	INFO	Listening on 127.0.0.1:51379
+1623143489810	mozrunner::runner	INFO	Running command: "C:\\Program Files\\Mozilla Firefox\\firefox.exe" "--marionette" "--no-sandbox" "log-level=3" "-foreground" "-no-remote" "-profile" "C:\\Users\\shinelon\\AppData\\Local\\Temp\\rust_mozprofileZmE73m"
+Can't find symbol 'eglSwapBuffersWithDamageEXT'.
+Can't find symbol 'eglSetDamageRegionKHR'.
+JavaScript error: resource://gre/modules/XULStore.jsm, line 66: Error: Can't find profile directory.
+console.warn: SearchSettings: "get: No settings file exists, new profile?" (new Error("", "(unknown module)"))
+1623143491789	Marionette	INFO	Listening on port 59008
+1623143491861	Marionette	WARN	TLS certificate errors will be ignored for this session
+Can't find symbol 'eglSwapBuffersWithDamageEXT'.
+Can't find symbol 'eglSetDamageRegionKHR'.
+JavaScript warning: https://g.alicdn.com/secdev/sufei_data/3.9.9/index.js, line 1: WebGL context was lost.
+JavaScript warning: https://g.alicdn.com/??xlly/spl/rp.js,secdev/nsv/1.0.78/ns_e_88_3_n.js?v=1, line 5: WebGL context was lost.
+JavaScript warning: https://g.alicdn.com/AWSC/et/1.62.1/et_n.js, line 4: WebGL context was lost.
+console.error: "Error while calling actor 'pagestyle's method 'getUsedFontFaces'" "node is null"
+console.error: "getUsedFontFaces@resource://devtools/server/actors/styles.js:363:24\nhandler@resource://devtools/shared/protocol/Actor.js:172:37\nonPacket@resource://devtools/server/devtools-server-connection.js:379:58\nreceiveMessage@resource://devtools/shared/transport/child-transport.js:66:16\n"
+console.error: "Could not get the list of font families" (new Error("Protocol error (TypeError): node is null from: server0.conn0.child3/pagestyle26 (resource://devtools/server/actors/styles.js:363:24)", "resource://devtools/shared/protocol/Front.js", 353))
+JavaScript warning: https://s3.music.126.net/web/s/core_bc124b043d7a29ad66a274c7ac1dc98e.js?bc124b043d7a29ad66a274c7ac1dc98e, line 96: unreachable code after return statement
+JavaScript warning: https://s3.music.126.net/web/s/core_bc124b043d7a29ad66a274c7ac1dc98e.js?bc124b043d7a29ad66a274c7ac1dc98e, line 142: unreachable code after return statement
+JavaScript warning: https://s3.music.126.net/web/s/core_bc124b043d7a29ad66a274c7ac1dc98e.js?bc124b043d7a29ad66a274c7ac1dc98e, line 96: unreachable code after return statement
+JavaScript warning: https://s3.music.126.net/web/s/core_bc124b043d7a29ad66a274c7ac1dc98e.js?bc124b043d7a29ad66a274c7ac1dc98e, line 142: unreachable code after return statement
+JavaScript warning: https://pos.baidu.com/ccom?conwid=460&conhei=60&rdid=284825&dc=3&exps=110261,110254,110011&psi=e97085de5909e8c09783531e74a2fd61&di=u284825&dri=0&dis=0&dai=5&ps=10x324&enu=encoding&ant=0&aa=1&dcb=___adblockplus_&dtm=HTML_POST&dvi=0.0&dci=-1&dpt=none&tsr=0&tpr=1623143687337&ti=%E6%AD%8C%E6%9B%B2%E5%A4%A7%E5%85%A8_%E9%9F%B3%E4%B9%90%E4%B8%8B%E8%BD%BD_MP3%E6%AD%8C%E6%9B%B2%E5%85%8D%E8%B4%B9%E4%B8%8B%E8%BD%BD%E8%AF%95%E5%90%AC%E9%9F%B3%E4%B9%90%E7%BD%91%E7%AB%99_%E9%9F%B3%E4%B9%90%E5%B7%B4%E5%A3%AB&ari=2&ver=0603&dbv=0&drs=1&pcs=1284x476&pss=1284x476&cfv=0&cpl=0&chi=8&cce=true&cec=GBK&tlm=1623143689&prot=2&rw=476&ltu=http%3A%2F%2Fwww.yy8844.cn%2F&ecd=1&uc=1920x1040&pis=-1x-1&sr=1920x1080&tcn=1623143690&qn=018312734a4f4894&tt=1623143689578.4.127.127, line 137: unreachable code after return statement
+JavaScript warning: https://pos.baidu.com/ccom?conwid=460&conhei=60&rdid=284825&dc=3&exps=110261,110254,110011&psi=e97085de5909e8c09783531e74a2fd61&di=u284825&dri=0&dis=0&dai=5&ps=10x324&enu=encoding&ant=0&aa=1&dcb=___adblockplus_&dtm=HTML_POST&dvi=0.0&dci=-1&dpt=none&tsr=0&tpr=1623143687337&ti=%E6%AD%8C%E6%9B%B2%E5%A4%A7%E5%85%A8_%E9%9F%B3%E4%B9%90%E4%B8%8B%E8%BD%BD_MP3%E6%AD%8C%E6%9B%B2%E5%85%8D%E8%B4%B9%E4%B8%8B%E8%BD%BD%E8%AF%95%E5%90%AC%E9%9F%B3%E4%B9%90%E7%BD%91%E7%AB%99_%E9%9F%B3%E4%B9%90%E5%B7%B4%E5%A3%AB&ari=2&ver=0603&dbv=0&drs=1&pcs=1284x476&pss=1284x476&cfv=0&cpl=0&chi=8&cce=true&cec=GBK&tlm=1623143689&prot=2&rw=476&ltu=http%3A%2F%2Fwww.yy8844.cn%2F&ecd=1&uc=1920x1040&pis=-1x-1&sr=1920x1080&tcn=1623143690&qn=018312734a4f4894&tt=1623143689578.4.127.127, line 137: unreachable code after return statement
+JavaScript warning: https://pos.baidu.com/ccom?conwid=234&conhei=60&rdid=1457194&dc=3&exps=110261,110254,110011&psi=e97085de5909e8c09783531e74a2fd61&di=u1457194&dri=0&dis=0&dai=7&ps=10x797&enu=encoding&ant=0&aa=1&dcb=___adblockplus_&dtm=HTML_POST&dvi=0.0&dci=-1&dpt=none&tsr=0&tpr=1623143687337&ti=%E6%AD%8C%E6%9B%B2%E5%A4%A7%E5%85%A8_%E9%9F%B3%E4%B9%90%E4%B8%8B%E8%BD%BD_MP3%E6%AD%8C%E6%9B%B2%E5%85%8D%E8%B4%B9%E4%B8%8B%E8%BD%BD%E8%AF%95%E5%90%AC%E9%9F%B3%E4%B9%90%E7%BD%91%E7%AB%99_%E9%9F%B3%E4%B9%90%E5%B7%B4%E5%A3%AB&ari=2&ver=0603&dbv=0&drs=1&pcs=1284x476&pss=1284x476&cfv=0&cpl=0&chi=8&cce=true&cec=GBK&tlm=1623143689&prot=2&rw=476&ltu=http%3A%2F%2Fwww.yy8844.cn%2F&ecd=1&uc=1920x1040&pis=-1x-1&sr=1920x1080&tcn=1623143690&qn=84a510c0c2b29dce&tt=1623143689923.4.273.273, line 137: unreachable code after return statement
+JavaScript warning: https://pos.baidu.com/ccom?conwid=234&conhei=60&rdid=1457194&dc=3&exps=110261,110254,110011&psi=e97085de5909e8c09783531e74a2fd61&di=u1457194&dri=0&dis=0&dai=7&ps=10x797&enu=encoding&ant=0&aa=1&dcb=___adblockplus_&dtm=HTML_POST&dvi=0.0&dci=-1&dpt=none&tsr=0&tpr=1623143687337&ti=%E6%AD%8C%E6%9B%B2%E5%A4%A7%E5%85%A8_%E9%9F%B3%E4%B9%90%E4%B8%8B%E8%BD%BD_MP3%E6%AD%8C%E6%9B%B2%E5%85%8D%E8%B4%B9%E4%B8%8B%E8%BD%BD%E8%AF%95%E5%90%AC%E9%9F%B3%E4%B9%90%E7%BD%91%E7%AB%99_%E9%9F%B3%E4%B9%90%E5%B7%B4%E5%A3%AB&ari=2&ver=0603&dbv=0&drs=1&pcs=1284x476&pss=1284x476&cfv=0&cpl=0&chi=8&cce=true&cec=GBK&tlm=1623143689&prot=2&rw=476&ltu=http%3A%2F%2Fwww.yy8844.cn%2F&ecd=1&uc=1920x1040&pis=-1x-1&sr=1920x1080&tcn=1623143690&qn=84a510c0c2b29dce&tt=1623143689923.4.273.273, line 137: unreachable code after return statement
+JavaScript warning: https://pos.baidu.com/ccom?conwid=728&conhei=40&rdid=1266242&dc=3&exps=110261,110254,110011&psi=e97085de5909e8c09783531e74a2fd61&di=u1266242&dri=0&dis=0&dai=13&ps=878x153&enu=encoding&ant=0&aa=1&dcb=___adblockplus_&dtm=HTML_POST&dvi=0.0&dci=-1&dpt=none&tsr=0&tpr=1623143687337&ti=%E6%AD%8C%E6%9B%B2%E5%A4%A7%E5%85%A8_%E9%9F%B3%E4%B9%90%E4%B8%8B%E8%BD%BD_MP3%E6%AD%8C%E6%9B%B2%E5%85%8D%E8%B4%B9%E4%B8%8B%E8%BD%BD%E8%AF%95%E5%90%AC%E9%9F%B3%E4%B9%90%E7%BD%91%E7%AB%99_%E9%9F%B3%E4%B9%90%E5%B7%B4%E5%A3%AB&ari=2&ver=0603&dbv=0&drs=1&pcs=1267x476&pss=1267x887&cfv=0&cpl=0&chi=8&cce=true&cec=GBK&tlm=1623143690&prot=2&rw=476&ltu=http%3A%2F%2Fwww.yy8844.cn%2F&ecd=1&uc=1920x1040&pis=-1x-1&sr=1920x1080&tcn=1623143691&qn=44357f24fb16df2a&tt=1623143690548.5.191.191, line 137: unreachable code after return statement
+JavaScript warning: https://pos.baidu.com/ccom?conwid=728&conhei=40&rdid=1266242&dc=3&exps=110261,110254,110011&psi=e97085de5909e8c09783531e74a2fd61&di=u1266242&dri=0&dis=0&dai=13&ps=878x153&enu=encoding&ant=0&aa=1&dcb=___adblockplus_&dtm=HTML_POST&dvi=0.0&dci=-1&dpt=none&tsr=0&tpr=1623143687337&ti=%E6%AD%8C%E6%9B%B2%E5%A4%A7%E5%85%A8_%E9%9F%B3%E4%B9%90%E4%B8%8B%E8%BD%BD_MP3%E6%AD%8C%E6%9B%B2%E5%85%8D%E8%B4%B9%E4%B8%8B%E8%BD%BD%E8%AF%95%E5%90%AC%E9%9F%B3%E4%B9%90%E7%BD%91%E7%AB%99_%E9%9F%B3%E4%B9%90%E5%B7%B4%E5%A3%AB&ari=2&ver=0603&dbv=0&drs=1&pcs=1267x476&pss=1267x887&cfv=0&cpl=0&chi=8&cce=true&cec=GBK&tlm=1623143690&prot=2&rw=476&ltu=http%3A%2F%2Fwww.yy8844.cn%2F&ecd=1&uc=1920x1040&pis=-1x-1&sr=1920x1080&tcn=1623143691&qn=44357f24fb16df2a&tt=1623143690548.5.191.191, line 137: unreachable code after return statement
+JavaScript warning: https://www.1ting.com/v5/r4/js/jquery.min.js, line 8: unreachable code after return statement
+JavaScript error: https://ssl.captcha.qq.com/TCaptcha.js?_=1623143808569, line 1: Error: 请勿多次引用腾讯验证码的接入js
+SourceActor threw an exception: [Exception... "Failed to open input source 'javascript:void(0);'"  nsresult: "0x80040111 (NS_ERROR_NOT_AVAILABLE)"  location: "JS frame :: resource://devtools/shared/DevToolsUtils.js :: mainThreadFetch/< :: line 668"  data: yes]
+Stack: mainThreadFetch/<@resource://devtools/shared/DevToolsUtils.js:668:15
+mainThreadFetch@resource://devtools/shared/DevToolsUtils.js:516:10
+_fetchURLContents@resource://devtools/server/actors/utils/TabSources.js:440:22
+urlContents@resource://devtools/server/actors/utils/TabSources.js:407:17
+_resurrectSource@resource://devtools/server/actors/thread.js:2105:69
+addAllSources@resource://devtools/server/actors/thread.js:1500:14
+onSources@resource://devtools/server/actors/thread.js:1506:10
+onPacket@resource://devtools/server/devtools-server-connection.js:379:58
+receiveMessage@resource://devtools/shared/transport/child-transport.js:66:16
+Line: 668, column: 0
+console.error: ({})
+JavaScript error: resource://devtools/shared/DevToolsUtils.js, line 668: NS_ERROR_NOT_AVAILABLE: Failed to open input source 'javascript:void(0);'
+console.log: WebExtensions: reset-default-search: No addons in our list are installed.
+JavaScript warning: https://pos.baidu.com/wcvm?conwid=180&conhei=60&rdid=3450500&dc=3&exps=110261,110254,110011&psi=af4c02390e7198baba487f831ac107a0&di=u3450500&dri=0&dis=0&dai=4&ps=10x940&enu=encoding&ant=0&aa=1&dcb=___adblockplus_&dtm=HTML_POST&dvi=0.0&dci=-1&dpt=none&tsr=0&tpr=1623144601467&ti=365%E9%9F%B3%E4%B9%90%E7%BD%91_%E9%9F%B3%E4%B9%90MP3%E6%AD%8C%E6%9B%B2%E5%85%8D%E8%B4%B9%E4%B8%8B%E8%BD%BD%E8%AF%95%E5%90%AC%E7%9A%84%E9%9F%B3%E4%B9%90%E7%BD%91%E7%AB%99&ari=2&ver=0603&dbv=0&drs=1&pcs=1284x504&pss=1284x504&cfv=0&cpl=0&chi=13&cce=true&cec=GBK&tlm=1623144602&prot=2&rw=504&ltu=http%3A%2F%2Fwww.yue365.com%2F&ecd=1&uc=1920x1040&pis=-1x-1&sr=1920x1080&tcn=1623144603&qn=2cbbfa2f43bf2f61&tt=1623144602586.1.198.199, line 137: unreachable code after return statement
+JavaScript warning: https://pos.baidu.com/wcvm?conwid=180&conhei=60&rdid=3450500&dc=3&exps=110261,110254,110011&psi=af4c02390e7198baba487f831ac107a0&di=u3450500&dri=0&dis=0&dai=4&ps=10x940&enu=encoding&ant=0&aa=1&dcb=___adblockplus_&dtm=HTML_POST&dvi=0.0&dci=-1&dpt=none&tsr=0&tpr=1623144601467&ti=365%E9%9F%B3%E4%B9%90%E7%BD%91_%E9%9F%B3%E4%B9%90MP3%E6%AD%8C%E6%9B%B2%E5%85%8D%E8%B4%B9%E4%B8%8B%E8%BD%BD%E8%AF%95%E5%90%AC%E7%9A%84%E9%9F%B3%E4%B9%90%E7%BD%91%E7%AB%99&ari=2&ver=0603&dbv=0&drs=1&pcs=1284x504&pss=1284x504&cfv=0&cpl=0&chi=13&cce=true&cec=GBK&tlm=1623144602&prot=2&rw=504&ltu=http%3A%2F%2Fwww.yue365.com%2F&ecd=1&uc=1920x1040&pis=-1x-1&sr=1920x1080&tcn=1623144603&qn=2cbbfa2f43bf2f61&tt=1623144602586.1.198.199, line 137: unreachable code after return statement
+JavaScript warning: https://pos.baidu.com/wcvm?conwid=960&conhei=90&rdid=3855547&dc=3&exps=110261,110254,110011&psi=af4c02390e7198baba487f831ac107a0&di=u3855547&dri=0&dis=0&dai=6&ps=126x164&enu=encoding&ant=0&aa=1&dcb=___adblockplus_&dtm=HTML_POST&dvi=0.0&dci=-1&dpt=none&tsr=0&tpr=1623144601467&ti=365%E9%9F%B3%E4%B9%90%E7%BD%91_%E9%9F%B3%E4%B9%90MP3%E6%AD%8C%E6%9B%B2%E5%85%8D%E8%B4%B9%E4%B8%8B%E8%BD%BD%E8%AF%95%E5%90%AC%E7%9A%84%E9%9F%B3%E4%B9%90%E7%BD%91%E7%AB%99&ari=2&ver=0603&dbv=0&drs=1&pcs=1284x504&pss=1284x504&cfv=0&cpl=0&chi=13&cce=true&cec=GBK&tlm=1623144602&prot=2&rw=504&ltu=http%3A%2F%2Fwww.yue365.com%2F&ecd=1&uc=1920x1040&pis=-1x-1&sr=1920x1080&tcn=1623144603&qn=a933a5555b4e2cdb&tt=1623144602997.2.198.199, line 137: unreachable code after return statement
+JavaScript warning: https://pos.baidu.com/wcvm?conwid=960&conhei=90&rdid=3855547&dc=3&exps=110261,110254,110011&psi=af4c02390e7198baba487f831ac107a0&di=u3855547&dri=0&dis=0&dai=6&ps=126x164&enu=encoding&ant=0&aa=1&dcb=___adblockplus_&dtm=HTML_POST&dvi=0.0&dci=-1&dpt=none&tsr=0&tpr=1623144601467&ti=365%E9%9F%B3%E4%B9%90%E7%BD%91_%E9%9F%B3%E4%B9%90MP3%E6%AD%8C%E6%9B%B2%E5%85%8D%E8%B4%B9%E4%B8%8B%E8%BD%BD%E8%AF%95%E5%90%AC%E7%9A%84%E9%9F%B3%E4%B9%90%E7%BD%91%E7%AB%99&ari=2&ver=0603&dbv=0&drs=1&pcs=1284x504&pss=1284x504&cfv=0&cpl=0&chi=13&cce=true&cec=GBK&tlm=1623144602&prot=2&rw=504&ltu=http%3A%2F%2Fwww.yue365.com%2F&ecd=1&uc=1920x1040&pis=-1x-1&sr=1920x1080&tcn=1623144603&qn=a933a5555b4e2cdb&tt=1623144602997.2.198.199, line 137: unreachable code after return statement
+JavaScript warning: https://jsin.vvvdj.com/staticpc/js/jquery.min.js?2021060407, line 2: Using //@ to indicate sourceMappingURL pragmas is deprecated. Use //# instead
+JavaScript warning: https://jsin.vvvdj.com/staticpc/js/common.js?2021060407, line 91: unreachable code after return statement
+JavaScript warning: https://jsin.vvvdj.com/staticpc/js/common.js?2021060407, line 95: unreachable code after return statement
+JavaScript warning: https://jsin.vvvdj.com/staticpc/js/common.js?2021060407, line 91: unreachable code after return statement
+JavaScript warning: https://jsin.vvvdj.com/staticpc/js/common.js?2021060407, line 95: unreachable code after return statement
+JavaScript error: http://bdimg.share.baidu.com/static/api/js/trans/logger.js?v=60603cb3.js, line 1: TypeError: n.ajax.request is not a function
+JavaScript error: http://bdimg.share.baidu.com/static/api/js/trans/logger.js?v=60603cb3.js, line 1: TypeError: n.ajax.request is not a function
+1623144885280	Marionette	INFO	Stopped listening on port 59001623144886235	mozrunner::runner	INFO	Running command: "C:\\Program Files\\Mozilla Firefox\\firefox.exe" "--marionette" "--no-sandbox" "log-level=3" "-foreground" "-no-remote" "-profile" "C:\\Users\\shinelon\\AppData\\Local\\Temp\\rust_mozprofile5uTdXN"
+Can't find symbol 'eglSwapBuffersWithDamageEXT'.
+Can't find symbol 'eglSetDamageRegionKHR'.
+JavaScript error: resource://gre/modules/XULStore.jsm, line 66: Error: Can't find profile directory.
+console.warn: SearchSettings: "get: No settings file exists, new profile?" (new Error("", "(unknown module)"))
+1623144889502	Marionette	INFO	Listening on port 59970
+1623144889898	Marionette	WARN	TLS certificate errors will be ignored for this session
+console.log: WebExtensions: reset-default-search: No addons in our list are installed.
+1623149417371	Marionette	INFO	Stopped listening on port 59970
+
+###!!! [Child][RunMessage] Error: Channel closing: too late to send/recv, messages will be lost
+
+
+###!!! [Child][MessageChannel::SendAndWait] Error: Channel error: cannot send/recv
+

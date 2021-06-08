@@ -1,5 +1,5 @@
 #-- coding: utf-8 --
-# 找到 dns 解析路径
+# 找到 dns 解析路径 比如 首先访问 baidu 返回的是 CNAME 记录， 那么会解析CNAME对应的域名
 #  cname -> A,AAAA
 #  A,AAAA
 import json

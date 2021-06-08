@@ -328,10 +328,20 @@ def requesturl(url):
     writeurlfile(url, webdata)
     return True
 
-
+target_path1 = "/home/jiangy2/dnswork/httpwebdata/"
+target_filelist =  os.listdir(target_path1)
 saveurl = []
-
+readpath = "/home/jiangy2/dnswork/topchinaz1/"
 fs = os.listdir(readpath)   #读取url目录
+
+tmpfs = []
+for filename in fs:
+    if filename.replace('.txt','') not in target_filelist:
+            tmpfs.append(filename)
+
+fs = tmpfs 
+
+
 for filename in fs:
     filepath = readpath + filename
     print(filepath)
