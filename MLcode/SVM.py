@@ -288,6 +288,7 @@ datapath = "/home/jiangy2/dnswork/httpwebdata/"
 fs = os.listdir(datapath)
 i=0
 j=0
+have_read_data_list = []
 for subpath in fs:
     filepath = os.path.join(datapath, subpath)
     # print(filepath)
@@ -297,14 +298,16 @@ for subpath in fs:
         webdata_class_index = class_index[webdata_classtype] #父类别下标
         webdata_path = os.listdir(filepath)
         for filename in webdata_path:
-            i=i+1
-            webdatapath = os.path.join(filepath, filename)
-            # print(webdatapath)
-            webdata = read_all_data(webdatapath)
-            if webdata == "":
-                continue
-            content_train_src.append(webdata)               # 加入数据集 字符串
-            opinion_train_stc.append(webdata_class_index)   # 加入标签集
+            if filename not in have_read_data_list:
+                i=i+1
+                webdatapath = os.path.join(filepath, filename)
+                # print(webdatapath)
+                webdata = read_all_data(webdatapath)
+                if webdata == "":
+                    continue
+                content_train_src.append(webdata)               # 加入数据集 字符串
+                opinion_train_stc.append(webdata_class_index)   # 加入标签集
+                have_read_data_list.append(filename)
 
 # print("opinion_train_stc ", opinion_train_stc)
 model_max_len = MAX_SEQUENCE_LENGTH
