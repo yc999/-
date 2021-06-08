@@ -26,6 +26,12 @@ sys.path.append(os.path.realpath('../spider'))
 import mytool
 
 
+
+from gensim.models import KeyedVectors
+
+
+
+
 badtitles = ['404 Not Found', '找不到',  'null', 'Not Found','阻断页','Bad Request','Time-out','No configuration',
 'TestPage','IIS7','Default','已暂停' ,'Server Error','403 Forbidden','禁止访问','载入出错','没有找到',
 '无法显示','无法访问','Bad Gateway','正在维护','配置未生效','访问报错','Welcome to nginx','Suspended Domain',
@@ -34,6 +40,28 @@ badtitles = ['404 Not Found', '找不到',  'null', 'Not Found','阻断页','Bad
 'Internal Server Error','升级维护中','Service Unavailable','站点不存在','405','Access forbidden','System Error',
 '详细错误','页面载入出错','Error','错误','Connection timed out','域名停靠','网站访问报错','错误提示','临时域名',
 '未被授权查看','Test Page','发生错误','非法阻断','链接超时','403 Frobidden','建设中','访问出错','出错啦','ACCESS DENIED','系统发生错误','Problem loading page']
+
+
+
+EMBEDDING_DIM = 200  #词向量长度
+EMBEDDING_length = 8824330
+
+word2vec_path = '/home/jiangy2/dnswork/glove/Tencent_AILab_ChineseEmbedding.txt'
+tc_wv_model = KeyedVectors.load_word2vec_format(word2vec_path, binary=False)
+# EMBEDDING_length = 8824330
+EMBEDDING_length = len(tc_wv_model.vocab.keys())
+print('Found %s word vectors.' % EMBEDDING_length)
+
+embeddings_index = {}
+embedding_matrix = np.zeros((EMBEDDING_length + 1, EMBEDDING_DIM))
+
+for counter, key in enumerate(tc_wv_model.vocab.keys()):
+    embeddings_index[key] = counter+1
+    coefs = np.asarray(tc_wv_model[key], dtype='float32')
+    embedding_matrix[counter+1] = coefs
+
+del tc_wv_model
+
 
 def ifbadtitle(mytitle):
     for badtitle in badtitles:
@@ -154,7 +182,8 @@ def Word_cut_list(word_str):
         if word not in stopwordslist: #词语的清洗：去停用词
             if word != '\r\n'  and word!=' ' and word != '\u3000'.encode('utf-8').decode('unicode_escape') \
                     and word!='\xa0'.encode('utf-8').decode('unicode_escape'):#词语的清洗：去全角空格
-                wordlist_N.append(word)
+                if word in embeddings_index: # 词向量中有该词
+                    wordlist_N.append(word)
     return wordlist_N
 
 
@@ -194,8 +223,13 @@ def readtrain(filepath):
                 result_list.append(word)
     if len(result_list) < 10:
         return []
-    if len(result_list)> MAX_SEQUENCE_LENGTH:
-       MAX_SEQUENCE_LENGTH = len(result_list)
+    tmpcount = 0
+    len_result_list = list(dict.fromkeys(result_list))
+    for word in len_result_list:
+        # if word in embeddings_index:
+            tmpcount += 1
+    if tmpcount> MAX_SEQUENCE_LENGTH:
+       MAX_SEQUENCE_LENGTH = tmpcount
     return result_list
 
 
@@ -349,26 +383,6 @@ print(classification_report(y_test,pred_y))
 
 
 
-from gensim.models import KeyedVectors
-
-EMBEDDING_DIM = 200  #词向量长度
-EMBEDDING_length = 8824330
-
-word2vec_path = '/home/jiangy2/dnswork/glove/Tencent_AILab_ChineseEmbedding.txt'
-tc_wv_model = KeyedVectors.load_word2vec_format(word2vec_path, binary=False)
-# EMBEDDING_length = 8824330
-EMBEDDING_length = len(tc_wv_model.vocab.keys())
-print('Found %s word vectors.' % EMBEDDING_length)
-
-embeddings_index = {}
-embedding_matrix = np.zeros((EMBEDDING_length + 1, EMBEDDING_DIM))
-
-for counter, key in enumerate(tc_wv_model.vocab.keys()):
-    embeddings_index[key] = counter+1
-    coefs = np.asarray(tc_wv_model[key], dtype='float32')
-    embedding_matrix[counter+1] = coefs
-
-del tc_wv_model
 
 
 
