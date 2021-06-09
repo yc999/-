@@ -1,5 +1,5 @@
 #-- coding: utf-8 --
-#将爬取失败的网站重新爬取 使用httprequest
+#反向爬取网站，将爬取失败的网站重新爬取 使用httprequest
 import  requests
 from bs4 import  BeautifulSoup, Comment
 import re

@@ -31,7 +31,7 @@ browser.implicitly_wait(time_limit)
 browser.set_page_load_timeout(time_limit)
 
 
-filepath = "D:\dnswork\sharevm\dnsdata\myclass/音乐网站.txt"
+filepath = "D:\dnswork\sharevm\dnsdata\myclass/游戏网站.txt"
 f = open(filepath,"r",encoding="utf-8")
 urlList = f.readlines()
 

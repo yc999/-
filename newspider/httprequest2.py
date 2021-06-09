@@ -1,5 +1,5 @@
 #-- coding: utf-8 --
-#将爬取失败的网站重新爬取 使用httprequest
+#爬取之前没出现的类别网站，  将爬取失败的网站重新爬取 使用httprequest
 import  requests
 from bs4 import  BeautifulSoup, Comment
 import re
