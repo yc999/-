@@ -49,35 +49,8 @@ headers = {
     "viewport-width": "1920"
 }
 
-# sessions=requests.session()
-# sessions.mount('http://allegro.pl', HTTP20Adapter())
-# response=requests.get('http://www.bigpian.cn')
-# response=requests.get('https://nuxechina.com',verify=False)
-# response=sessions.get('http://tech.ifeng.com',headers = headers)
-# response=sessions.get('http://tech.ifeng.com')
 
-
-#https://stapharma.com.cn/cn/about-us/facilities/
-#https://stapharma.com/about-us/facilities/
-# http://www.vslai.com/
-# re_text=response.text
-# print(re_text)
-# print(type(re_text))
-
-# response.encoding='utf-8'
-# re_text=response.text
-# print(re_text)
-
-# print(re_content)
-# print(type(re_content))
-
-
-# headers={
-#     "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
-# "Upgrade-Insecure-Requests": "1",
-# "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.114 Safari/537.36"
-# }
-# response=requests.get('http://89ws.com',headers = headers,allow_redirects=False)
+badurl = ['.css']
 
 def ifbadtitle(mytitle):
     for badtitle in badtitles:
@@ -362,11 +335,10 @@ def requesturl(url):
     return True
 
 
-url = "meilishuo.com"
+url = "tuanjuwang.com"
 requests.packages.urllib3.disable_warnings()
 # sessions=requests.session()
 # sessions.keep_alive = False
-# sessions.mount(url, HTTP20Adapter())
 # sessions.mount(url, HTTP20Adapter())
 
 # response = requests.get(url,verify=False,allow_redirects=True,headers = headers)
