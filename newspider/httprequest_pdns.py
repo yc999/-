@@ -243,6 +243,8 @@ def requesturl(url):
         webinfo['webtext'] = []
 
     initwebinfo()
+    if ifbadtitle(webinfo['title']):
+        return False
     url_now = response.url          # 当前的url
     try:
         soup = BeautifulSoup(response.text, 'html.parser')

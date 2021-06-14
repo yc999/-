@@ -130,20 +130,13 @@ def samewebsite(sourceurl, targeturl):
 def solvehref(href):
     tmps = href.split('"')
     tmp = tmps[1]
-    # tmp = tmp.replace('http://','')
-    # tmp = tmp.replace('https://','')
-    # tmps = tmp.split('/')
-    # tmp = tmps[0]
+
     return tmp
 
 
 def return_all_url(soup):
     allatags = []
     try:
-        # r = requests.get(url)
-        # r.encoding = r.apparent_encoding
-        # # r.encoding = "utf-8"
-        # soup = BeautifulSoup(r.text, 'html.parser')
         pattern = re.compile("href\s{0,3}=\s{0,3}\"[^\"]+\"")
         hrefs=re.findall(pattern,soup.prettify())
         for href in hrefs:
@@ -169,8 +162,6 @@ def get_and_add(url,webdata, webcount):
         return False
     response.encoding = requests.utils.get_encodings_from_content(response.text)
     print('当前编码 ',response.encoding)
-
-
     if response.encoding == ['gbk2312']:
         response.encoding = 'GBK'
     elif response.encoding == ['gb2312']:
