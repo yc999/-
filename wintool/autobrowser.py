@@ -1,6 +1,6 @@
 #-- coding: utf-8 --
 
-# 自动访问网站
+# 自动访问网站 回车访问下一个网站 0访问网站 带www的域名
 
 import  requests
 from bs4 import  BeautifulSoup, Comment
@@ -24,14 +24,14 @@ option.add_argument('log-level=3')
 # option.add_argument('--disable-dev-shm-usage')
 # option.add_argument('--headless') #静默运行
 # option.add_argument('--disable-gpu')  # 禁用GPU加速,GPU加速可能会导致Chrome出现黑屏，且CPU占用率高达80%以上
-time_limit = 60
+time_limit = 40
 browser = webdriver.Firefox(options=option)
 # browser = webdriver.Chrome(options=option)
 browser.implicitly_wait(time_limit)
 browser.set_page_load_timeout(time_limit)
 
 
-filepath = "D:\dnswork\sharevm\dnsdata\myclass/游戏网站.txt"
+filepath = "D:\dnswork\sharevm\dnsdata\myclass/购物分享.txt"
 f = open(filepath,"r",encoding="utf-8")
 urlList = f.readlines()
 

@@ -91,6 +91,25 @@ def samewebsite(sourceurl, targeturl):
         return True
     return False
 
+def solvehref(href):
+    tmps = href.split('"')
+    tmp = tmps[1]
+    return tmp
+
+
+def return_all_url(soup):
+    allatags = []
+    try:
+        pattern = re.compile("href\s{0,3}=\s{0,3}\"[^\"]+\"")
+        hrefs=re.findall(pattern,soup.prettify())
+        for href in hrefs:
+            tmpurl = solvehref(href)
+            if tmpurl not in allatags:
+                allatags.append(tmpurl)
+    except Exception as e:
+        print(e)
+        pass
+    return allatags
 
 
 #寻找是否存在介绍该网站的链接 如 关于我们 公司简介 等
@@ -159,10 +178,21 @@ def get_and_add(url,webdata, webcount):
         # sessions.close()
         return False
     response.encoding = requests.utils.get_encodings_from_content(response.text)
-    if response.encoding == ['gb2312']:
+    if response.encoding == ['gbk2312']:
         response.encoding = 'GBK'
-    if response.encoding == ['gbk']:
+    elif response.encoding == ['gb2312']:
         response.encoding = 'GBK'
+    elif response.encoding == ['gbk']:
+        response.encoding = 'GBK'
+    elif response.encoding == ['GBK']:
+        response.encoding = 'GBK'
+    elif type(response.encoding) == list:
+        if 'gb2312' in response.encoding:
+            response.encoding = 'GBK'
+        elif 'gbk' in response.encoding:
+            response.encoding = 'GBK'
+        elif 'gbk2312' in response.encoding:
+            response.encoding = 'GBK'
     if response.status_code != 200:
         # sessions.close()
         return False
@@ -214,6 +244,8 @@ def requesturl(url):
     if response == False:
         return False
     
+ # 如果title有问题也要返回false
+
     def initwebinfo():
         webinfo['title'] = ""
         webinfo['description'] = ""
@@ -277,8 +309,10 @@ def requesturl(url):
     # 第一阶段
     #开始获取信息
     get_info()
+    if ifbadtitle(webinfo['title']):
+        return False
     # 可能是欢迎页
-    skip_text = ['点击','跳转','进入']
+    skip_text = ['点击','跳转','进入','访问']
     href_text = ['index', 'main','default','info','home']
     #数据太少  找到所有的a标签 选择合适的访问
     if True:
@@ -298,32 +332,40 @@ def requesturl(url):
                             if next_response == False:
                                 continue
                             abouturl = next_response.url          # 当前的url
-                            havegetlist.append(abouturl)
-                            havegetcount += 1
                             if next_url != abouturl:
-                                havegetlist.append(next_url)
-                            tmpsoup = BeautifulSoup(next_response.text, 'html.parser')
+                                    havegetlist.append(next_url)
+                            havegetlist.append(abouturl)
+                            try:
+                                tmpsoup = BeautifulSoup(next_response.text, 'html.parser')
+                            except:
+                                continue
+                            havegetcount += 1
                             havegetcount = findaboutwebpage(abouturl, tmpsoup, havegetcount)
                             break
-                tmpurl = url_now.replace("http://","",1)
-                tmpurl = tmpurl.replace("https://","",1)
-                tmpurl = tmpurl.replace("www.","",1)
-                for keyword in href_text:
+        atag = return_all_url(soup)
+        for tag in atag:
+            tmpurl = url_now.replace("http://","",1)
+            tmpurl = tmpurl.replace("https://","",1)
+            tmpurl = tmpurl.replace("www.","",1)  # 
+            for keyword in href_text:
+                try:
+                    next_url = urljoin(url_now, tag['href']) #寻找可能的相关链接
+                except:
+                    continue
+                if tmpurl in next_url and keyword in next_url and next_url not in havegetlist and samewebsite(url_now, next_url) and havegetcount < maxwebpage:
+                    next_response = get_and_add(next_url, webdata, havegetcount)
+                    if next_response == False:
+                        continue
+                    abouturl = next_response.url          # 当前的url
+                    if next_url != abouturl:
+                            havegetlist.append(next_url)
+                    havegetlist.append(abouturl)
                     try:
-                        next_url = urljoin(url_now, tag['href']) #寻找可能的相关链接
+                        tmpsoup = BeautifulSoup(next_response.text, 'html.parser')
                     except:
                         continue
-                    if tmpurl in next_url and keyword in next_url and next_url not in havegetlist and samewebsite(url_now, next_url) and havegetcount < maxwebpage:
-                        next_response = get_and_add(next_url, webdata, havegetcount)
-                        if next_response == False:
-                            continue
-                        abouturl = next_response.url          # 当前的url
-                        havegetlist.append(abouturl)
-                        havegetcount += 1
-                        if next_url != abouturl:
-                            havegetlist.append(next_url)
-                        soup = BeautifulSoup(next_response.text, 'html.parser')
-                        havegetcount = findaboutwebpage(abouturl, soup, havegetcount)
+                    havegetcount += 1
+                    havegetcount = findaboutwebpage(abouturl, tmpsoup, havegetcount)
     print(havegetcount)
     writeurlfile(url, webdata)
     return True

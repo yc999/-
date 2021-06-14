@@ -10,8 +10,8 @@ def solvehref(href):
     tmp = tmps[1]
     tmp = tmp.replace('http://','')
     tmp = tmp.replace('https://','')
-    tmps = tmp.split('/')
-    tmp = tmps[0]
+    # tmps = tmp.split('/')
+    # tmp = tmps[0]
     return tmp
 
 
@@ -34,7 +34,7 @@ def return_all_url(url):
     return allatags
 
 
-urls = return_all_url("http://sina.com")
+urls = return_all_url("http://hivi.com")
 print(urls)
 
 
