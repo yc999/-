@@ -23,6 +23,24 @@ import json
 from urllib.parse import urljoin
 from hyper.contrib import HTTP20Adapter
 
+badtitles=[
+    '资源不存在',    '找不到',      '页面载入出错',           '临时域名',           '阻断页',
+    '建设中',       '访问出错',     '出错啦',                'IIS7',            '温馨提示',    
+     '无法找到',    '未被授权查看',  '已暂停' ,             '详细错误',              '禁止访问',         
+    '载入出错',         '没有找到',     '无法显示',           '无法访问',       '升级维护中',          
+    '正在维护',         '配置未生效',   '访问报错',          '域名停靠',        '网站访问报错',
+     '服务器错误',      '不再可用',     '错误',                   '错误提示',   '发生错误', 
+        '非法阻断',     '链接超时',     '站点不存在',         '系统发生错误',   '网站欠费提醒'
+     'Not Found',               'Welcome to nginx',              'Suspended Domain',
+    'IIS Windows',              'Invalid URL',                  '400 Unknown Virtual Host',
+     'Server Error',            '403 Forbidden',                'Temporarily Unavailable', 
+      'Database Error',           'temporarily unavailable',     'Bad gateway',        
+         'error Page',             'Internal Server Error',      '405',   
+    'Service Unavailable',          'Access forbidden',         'System Error',
+      '404 Not Found',               'null',                        'Error',   
+       'Connection timed out',      'TestPage',                     'Test Page',
+        'Bad Gateway',  'Bad Request',      'Time-out',                 'No configuration',     
+        '403 Frobidden','ACCESS DENIED','Problem loading page']
 
 headers={   
 'User-Agent':'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/34.0.1847.137 Safari/537.36 LBBROWSER'
@@ -30,6 +48,35 @@ headers={
 maxwebpage = 4
 savepath = "/home/jiangy2/dnswork/pdnswebdata/"
 savedfileslist = os.listdir(savepath)    #所有成功爬取的url文件名,需要对文件名处理。
+
+# 判断标题是否正常 
+# mytitle 需要判断的title 
+# 正常返回 False 不正常返回 True
+def ifbadtitle(mytitle):
+    for badtitle in badtitles:
+        if badtitle in mytitle:
+            return True
+    return False
+
+
+def solvehref(href):
+    tmps = href.split('"')
+    tmp = tmps[1]
+    return tmp
+
+def return_all_url(soup):
+    allatags = []
+    try:
+        pattern = re.compile("href\s{0,3}=\s{0,3}\"[^\"]+\"")
+        hrefs=re.findall(pattern,soup.prettify())
+        for href in hrefs:
+            tmpurl = solvehref(href)
+            if tmpurl not in allatags:
+                allatags.append(tmpurl)
+    except Exception as e:
+        print(e)
+        pass
+    return allatags
 
 # 写入文件
 def writeurlfile(url, data):
