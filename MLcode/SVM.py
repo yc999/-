@@ -46,7 +46,7 @@ badtitles = ['404 Not Found', '找不到',  'null', 'Not Found','阻断页','Bad
 EMBEDDING_DIM = 200  #词向量长度
 EMBEDDING_length = 8824330
 
-word2vec_path = '/home/jiangy2/dnswork/glove/Tencent_AILab_ChineseEmbedding.txt'
+word2vec_path = '/home/yc/dnswork/glove/Tencent_AILab_ChineseEmbedding.txt'
 tc_wv_model = KeyedVectors.load_word2vec_format(word2vec_path, binary=False)
 # EMBEDDING_length = 8824330
 EMBEDDING_length = len(tc_wv_model.vocab.keys())

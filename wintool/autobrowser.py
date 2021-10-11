@@ -24,16 +24,17 @@ option.add_argument('log-level=3')
 # option.add_argument('--disable-dev-shm-usage')
 # option.add_argument('--headless') #静默运行
 # option.add_argument('--disable-gpu')  # 禁用GPU加速,GPU加速可能会导致Chrome出现黑屏，且CPU占用率高达80%以上
-time_limit = 40
+time_limit = 10
 browser = webdriver.Firefox(options=option)
 # browser = webdriver.Chrome(options=option)
 browser.implicitly_wait(time_limit)
 browser.set_page_load_timeout(time_limit)
 
 
-filepath = "D:\dnswork\sharevm\dnsdata\myclass/购物分享.txt"
+filepath = "D:\dnswork\sharevm\dnsdata\myclass/临时.txt"
 f = open(filepath,"r",encoding="utf-8")
 urlList = f.readlines()
+
 
 for url in urlList:
         print(url)
@@ -43,7 +44,7 @@ for url in urlList:
         except:
             continue
 
-        tmpurl = url.replace('www.','',1)
+        # tmpurl = url.replace('www.','',1)
         httpurl =  'http://' + url
         try:
             browser.get(httpurl)
@@ -60,7 +61,7 @@ for url in urlList:
                 browser.get(httpurl)
                 WebDriverWait(browser, time_limit, 1).until_not(EC.title_is(""))
             except:
-                print(url,"  wrong")
+                print(httpurl,"  wrong")
                 pass
             get_inputstr = input()
 

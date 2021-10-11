@@ -1,3 +1,13 @@
 {
-    "jupyter.textOutputLimit": 0
+    "jupyter.textOutputLimit": 0,
+    "python.pythonPath": "C:\\Users\\shinelon\\Anaconda3\\python.exe",
+    "files.associations": {
+        "iostream": "cpp",
+        "vector": "cpp",
+        "map": "cpp",
+        "xutility": "cpp",
+        "cstdio": "cpp",
+        "xstring": "cpp",
+        "ostream": "cpp"
+    }
 }
