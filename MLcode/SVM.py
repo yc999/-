@@ -217,10 +217,11 @@ def readtrain(filepath):
         cut_text = Word_cut_list(htmltext) # 生成词列表
         result_dic[htmldata] = cut_text
     result_list += result_dic[webkey[0]]  # 先保存首页
-    for htmldata in webkey[1:]:
-        for word in result_dic[htmldata]:
-            if word not in result_dic[webkey[0]]:  # 只保存不在首页中出现的词语
-                result_list.append(word)
+    # 只保存不在首页中出现的词语
+    # for htmldata in webkey[1:]:
+    #     for word in result_dic[htmldata]:
+    #         if word not in result_dic[webkey[0]]:  
+    #             result_list.append(word)
     if len(result_list) < 10:
         return []
     tmpcount = 0

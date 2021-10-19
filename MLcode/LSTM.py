@@ -23,13 +23,12 @@ import os
 from gensim.models import KeyedVectors
 from tensorflow.keras.preprocessing.sequence import pad_sequences
 from keras.utils.np_utils import *
-
-from MLcode.SVM import X_train_vec
-# print(os.path.realpath('./MLcode/'))
 sys.path.append(os.path.realpath('./Clustering'))
 sys.path.append(os.path.realpath('../Clustering'))
 sys.path.append(os.path.realpath('./spider'))
 sys.path.append(os.path.realpath('../spider'))
+# print(os.path.realpath('./MLcode/'))
+
 import random
 import meanShift as ms
 import mytool
