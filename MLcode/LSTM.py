@@ -106,7 +106,7 @@ del tc_wv_model
 # download.10jqka.com.cn 1Gb
 
 #步骤2 数据预处理
-
+print("step2")
 # 2.1 读取停用词
 # stopwordslist 保存所有停用词
 def read_stopwords(filepath):
@@ -475,6 +475,7 @@ del embeddings_index
 # 3 机器学习训练
 model_max_len = 5000
 import tensorflow as tf
+print("step3")
 
 # 3.1 定义模型
 def get_lstm_model():
