@@ -21,6 +21,20 @@ func B1() {
 	// fmt.Println(p)
 }
 func main() {
-	A()
+	// A()
+	a := []int{1, 2, 3, 4}
+	b := append(a[:3], 5)
 
+	b = append(b, 6)
+	b[0] += 1
+
+	for i := range a {
+		print(a[i])
+
+	}
+	print("\n")
+	for i := range b {
+		print(b[i])
+
+	}
 }

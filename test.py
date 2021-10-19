@@ -520,7 +520,7 @@ url = 'jzb.com'
 
 
 
-url = 'italyvac.cn'
+url = 'yanbojt.com'
 requests.packages.urllib3.disable_warnings()
 # sessions=requests.session()
 # sessions.keep_alive = False
