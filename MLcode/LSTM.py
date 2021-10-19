@@ -86,7 +86,7 @@ EMBEDDING_length = 8824330
 word2vec_path = '/home/yc/dnswork/glove/Tencent_AILab_ChineseEmbedding.txt'
 tc_wv_model = KeyedVectors.load_word2vec_format(word2vec_path, binary=False)
 # EMBEDDING_length = 8824330
-EMBEDDING_length = len(tc_wv_model.vocab.keys())
+EMBEDDING_length = len(tc_wv_model.key_to_index)
 print('Found %s word vectors.' % EMBEDDING_length)
 
 embeddings_index = {}
