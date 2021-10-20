@@ -541,7 +541,7 @@ model = get_lstm_model()
 # model.fit(x, y, batch_size=10, epochs=5, validation_split=0.1)
 # model_train = model_fit(model, x_train_raw, y_train)
 batch_size = 10
-model.fit(generate_arrays(batch_size), batch_size=batch_size, epochs=2, steps_per_epoch = len(x_train_raw)//batch_size)
+model.fit(generate_arrays(batch_size), batch_size=batch_size, epochs=5, steps_per_epoch = len(x_train_raw)//batch_size)
 
 
 
