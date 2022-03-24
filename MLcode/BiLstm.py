@@ -14,7 +14,6 @@ from gensim.corpora.dictionary import Dictionary
 import re
 from gensim import corpora,models,similarities
 import io
-from keras.layers import Layer
 import tensorflow as tf
 from keras import backend as K #转换为张量
 import codecs
@@ -24,9 +23,13 @@ from gensim import corpora
 import json
 import logging
 import os
+# from keras.engine.topology import Layer
+from keras.layers import Layer
 from gensim.models import KeyedVectors
 from tensorflow.keras.preprocessing.sequence import pad_sequences
 from keras.utils.np_utils import *
+
+from MLcode.classcount import X_train_text
 sys.path.append(os.path.realpath('./Clustering'))
 sys.path.append(os.path.realpath('../Clustering'))
 sys.path.append(os.path.realpath('./spider'))
@@ -54,9 +57,7 @@ import sys
 from keras.utils.np_utils import *
 from sklearn.model_selection import train_test_split
 import chardet
-import os
 import io
-import sys
 import codecs
 
 
@@ -112,7 +113,7 @@ webfilepath = "/public/ycdswork/dnswork/httpwebdata/"
 file_dir = "/home/yangc/myclass/"
 modelsave_path = "/public/ycdswork/modeldir/LSTMmodel"
 
-
+    
 
 tc_wv_model = KeyedVectors.load_word2vec_format(word2vec_path, binary=False)
 # EMBEDDING_length = 8824330
@@ -128,7 +129,7 @@ for counter, key in enumerate(tc_wv_model.key_to_index):
     embeddings_index[key] = counter+1
     coefs = np.asarray(tc_wv_model[key], dtype='float32')
     embedding_matrix[counter+1] = coefs
-    
+
 
 del tc_wv_model
 
@@ -138,9 +139,6 @@ del tc_wv_model
 #步骤2 数据预处理
 print("step2")
 
-
-# import os
-# os.environ['NLS_LANG'] = 'SIMPLIFIED CHINESE_CHINA.UTF8'
 
 # stopwords_path = "/public/ycdswork/dnswork/stopwords/cn_stopwords.txt"
 # 2.1 读取停用词
@@ -233,9 +231,6 @@ def Word_pseg(self,word_str):  # 名词提取函数
 # class_index 保存了父类名对应的下标
 
 
-
-
-
 def ifbadtitle(mytitle):
     for badtitle in badtitles:
         if badtitle in mytitle:
@@ -252,7 +247,6 @@ def ifbadtitle(mytitle):
 def Word_cut_list(word_str):
     #利用正则表达式去掉一些一些标点符号之类的符号。
     word_str = re.sub("[\s+\.\!\[\]\/_,\>\<\-$%^*(+\"\']+|[+——；:！·，”。【】《》～д£ȫ²αμв»©½йÿλ，。：“？、~@#￥%……&*（）0123456789①②③④)]+".encode('utf-8').decode("utf8"), " ".encode('utf-8').decode("utf8"), word_str)
-    # word_str = re.sub("[\s+\.\!\[\]\/_,\>\<\-$%^*(+\"\']+|[+——；:！·，”。【】《》，。：“？、~@#￥%……&*（）0123456789①②③④)]+".encode('utf-8').decode("utf8"), " ".encode('utf-8').decode("utf8"), word_str)
     wordlist = list(jieba.cut(word_str))  #jieba.cut  把字符串切割成词并添加至一个列表
     # print(wordlist)
     wordlist_N = []
@@ -276,6 +270,8 @@ def segmentWord(cont):
     return listseg
 
 
+
+
 MAX_SEQUENCE_LENGTH = 0
 # max_sequence_lenth = 0
 
@@ -289,7 +285,6 @@ def read_webdata(filepath):
     else:
         with open(filepath, 'r', encoding='utf-8') as file_to_read:
             return json.loads(file_to_read.read())
-
 
 # 读取html文件,并处理成词语
 # 其他页面中的词语 如果没有在主页中没出现  才放入列表中, 少于10个词的不考虑
@@ -360,8 +355,6 @@ def read_all_data(datapath):
 # print(webdatapath)
 # webdata = read_all_data(webdatapath)
 # print(webdata)
-
-
 
 
 # 保存爬到的数据
@@ -472,15 +465,14 @@ for file in os.listdir(file_dir):
 
 
 
+# for word in webfilecontent['www.dwjq.com.cn']:
+#     print(word)
+#     if word in embeddings_index.keys():  # test if word in embeddings_index
+#         print("true")
+
 
 print("已爬取网页数：")
 print(i)
-print("有效网页数：")
-print(len(content_train_src))
-
-
-
-
 
 
 # 把字符串按空格切分
@@ -528,9 +520,9 @@ for i in range(len(content_train_src)):
 
 
 # 输出short_list中的内容
-# for i in range(len(short_list)):
-#     print(short_list[i])
-#     print(Y_filename[i])
+for i in range(len(short_list)):
+    print(short_list[i])
+    print(Y_filename[i])
 
 
 len(X_train)
@@ -542,6 +534,8 @@ Y_train_index[0]
 # opinion_train_stc = Y_train
 
 
+print("有效网页数：")
+print(len(X_train))
 
 
 
@@ -550,7 +544,7 @@ for word in X_train:
     lstm_lenth_list.append(len(word))
 
 
-# len(lstm_lenth_list)
+len(lstm_lenth_list)
 
 lenth_count = 0
 for i in lstm_lenth_list:
@@ -566,7 +560,9 @@ model_max_len = 1500
 
 
 
-
+# 数据和对应类别的下标一起打乱
+# Y=to_categorical(opinion_train_stc, len(class_index))
+# x_train, x_test, y_train, y_test = train_test_split(X_train, Y, test_size=0.1)
 x_train, x_test, y_train_index, y_test_index = train_test_split(X_train, Y_train_index, test_size=0.1)
 
 tmp_y_train = []
@@ -589,158 +585,78 @@ x_test_raw = pad_sequences(x_test, maxlen=model_max_len)
 
 
 
-print("step3")
 tf.compat.v1.disable_eager_execution()  # 避免未知错误
+class AttentionLayer(Layer):
+    def __init__(self, attention_size=None, **kwargs):
+        self.attention_size = attention_size
+        super(AttentionLayer, self).__init__(**kwargs)
+        
+    def get_config(self):
+        config = super().get_config()
+        config['attention_size'] = self.attention_size
+        return config
+        
+    def build(self, input_shape):
+        assert len(input_shape) == 3
+        
+        self.time_steps = input_shape[1]
+        hidden_size = input_shape[2]
+        if self.attention_size is None:
+            self.attention_size = hidden_size
+        
+        self.W = self.add_weight(name='att_weight', shape=(hidden_size, self.attention_size),
+                                initializer='uniform', trainable=True)
+        self.b = self.add_weight(name='att_bias', shape=(self.attention_size,),
+                                initializer='uniform', trainable=True)
+        self.V = self.add_weight(name='att_var', shape=(self.attention_size,),
+                                initializer='uniform', trainable=True)
+        super(AttentionLayer, self).build(input_shape)
+    
+    def call(self, inputs):
+        self.V = K.reshape(self.V, (-1, 1))
+        H = K.tanh(K.dot(inputs, self.W) + self.b)
+        score = K.softmax(K.dot(H, self.V), axis=1)
+        outputs = K.sum(score * inputs, axis=1)
+        return outputs
+    
+    def compute_output_shape(self, input_shape):
+        return input_shape[0], input_shape[2]
 
-# 3.1 定义模型
-def get_lstm_model():
-    model = Sequential()
-    # model.add(Embedding(input_dim = EMBEDDING_length + 1,
-    #                         output_dim =EMBEDDING_DIM,
-    #                         weights=[embedding_matrix],
-    #                         # input_length=700,
-    #                         mask_zero = True,
-    #                         trainable=False))
-    model.add(LSTM(200, dropout=0.5, recurrent_dropout=0.5))
-    model.add(Dense(128, activation='relu'))
-    model.add(Dropout(0.5))
-    model.add(Dense(len(class_index), activation='softmax'))
-    model.build((None,model_max_len, EMBEDDING_DIM))
-    model.summary()
-    # tf.config.experimental_run_functions_eagerly(True)
-    model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['acc'])
-    return model
 
-# if len(sys.argv)>1:
-def get_lstm_model():
-    model = Sequential()
-    model.add(Embedding(input_dim = EMBEDDING_length + 1,
+
+def create_classify_model(hidden_size, attention_size):
+	# 输入层
+    inputs = Input(shape=(model_max_len,), dtype='int32')
+    # Embedding层
+    x = Embedding(input_dim = EMBEDDING_length + 1,
                             output_dim =EMBEDDING_DIM,
                             weights=[embedding_matrix],
                             # input_length=700,
                             mask_zero = True,
-                            trainable=False))
-    model.add(LSTM(200, dropout=0.5, recurrent_dropout=0.5))
-    model.add(Dense(128, activation='relu'))
-    model.add(Dropout(0.5))
-    model.add(Dense(len(class_index), activation='softmax'))
-    model.build((None,model_max_len, EMBEDDING_DIM))
-    model.summary()
-    # tf.config.experimental_run_functions_eagerly(True)
-    model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['acc'])
+                            trainable=False)(inputs)
+    # BiLSTM层
+    x = Bidirectional(LSTM(hidden_size, dropout=0.2, return_sequences=True))(x)
+    # x = Bidirectional()(x)
+    # Attention层
+    x = AttentionLayer(attention_size=attention_size)(x)
+    # 输出层
+    outputs = Dense(len(class_index), activation='softmax')(x)
+    model = keras.Model(inputs=inputs, outputs=outputs)
+    model.summary() # 输出模型结构和参数数量
+    model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
     return model
-
-
-
-
-# 3.2 划分数据集
-# 3.2.1 划分测试训练集
-# X_padded=pad_sequences(X_train, maxlen=300)
-# Y=to_categorical(Y_train, len(class_index))
-# x_train, x_test, y_train, y_test = train_test_split(X_padded, Y, test_size=0.2)
-# opinion_train_stc
-# Y=to_categorical(opinion_train_stc, len(class_index))
-
-# x_train, x_test, y_train, y_test = train_test_split(X_train, Y, test_size=0.1)
-
-# x_train_raw = pad_sequences(x_train, maxlen=model_max_len)
-# x_test_raw = pad_sequences(x_test, maxlen=model_max_len)
-
-
-
-
-def generate_arrays(batch_size):
-    for i in range(0, len(x_train_raw), batch_size):
-        input_matrix = []
-        t = y_train[i : i+batch_size]
-        for tmp_index in x_train_raw[i : i+batch_size]:
-            tmpinput = []
-            for index in tmp_index:
-                tmpinput.append(embedding_matrix[index])
-            input_matrix.append(tmpinput)
-        input_matrix = K.cast_to_floatx(input_matrix)
-        t = K.cast_to_floatx(t)
-        print(shape(input_matrix))
-        yield (input_matrix, t)
 
 
 # 3.3 训练
 def model_fit(model, x, y):
-    return model.fit(x, y, batch_size=128, epochs=10, validation_split=0.04)
+    return model.fit(x, y, batch_size=16, epochs=10, validation_split=0.04)
 
-lstm_model = get_lstm_model()
-# model.fit(x, y, batch_size=10, epochs=5, validation_split=0.1)
-lstm_model_train = model_fit(lstm_model, x_train_raw, y_train)
-
-# batch_size = 10
-# model.fit(generate_arrays(batch_size), batch_size=batch_size, epochs=5, steps_per_epoch = len(x_train_raw)//batch_size)
+bilstmmodel = create_classify_model(150,150)
+bilstmmodel_train = model_fit(bilstmmodel, x_train_raw, y_train)
 
 
 
-
-testinput = []
-
-for tmp_index in x_test_raw:
-        tmpinput = []
-        for index in tmp_index:
-            tmpinput.append(embedding_matrix[index])
-        testinput.append(tmpinput)
-# 3.4 测试
-# print(model.evaluate(testinput, y_test))
-print(lstm_model.evaluate(x_test_raw, y_test))
-
-lstm_model.save(modelsave_path)
-
-
-
-
-# textCNN
-
-#模型结构：嵌入-卷积池化*2-dropout-BN-全连接-dropout-全连接
-
-def TextCNN_model_2():
-    # 模型结构：词嵌入-卷积池化*3-拼接-全连接-dropout-全连接
-    main_input = keras.layers.Input(shape=(model_max_len,), dtype='int32')
-    # 词嵌入（使用预训练的词向量）
-    # embedder = Embedding(len(vocab) + 1, 300, input_length=50, weights=[embedding_matrix], trainable=False)
-    embedder = Embedding(input_dim = EMBEDDING_length + 1,
-                            output_dim =EMBEDDING_DIM,
-                            weights=[embedding_matrix],
-                            # input_length=700,
-                            mask_zero = True,
-                            trainable=False)
-    #embedder = Embedding(len(vocab) + 1, 300, input_length=50, trainable=False)
-    embed = embedder(main_input)
-    # 词窗大小分别为3,4,5
-    # cnn1 = Conv1D(EMBEDDING_DIM, 3, padding='same', strides=1, activation='relu')(embed)
-    # cnn1 = MaxPooling1D(pool_size=35)(cnn1)
-    # cnn2 = Conv1D(EMBEDDING_DIM, 4, padding='same', strides=1, activation='relu')(embed)
-    # cnn2 = MaxPooling1D(pool_size=37)(cnn2)
-    cnn3 = Conv1D(35, 80, padding='same', strides=1, activation='relu')(embed)
-    cnn3 = MaxPooling1D(pool_size=10)(cnn3)
-    # 合并三个模型的输出向量
-    # cnn = keras.layers.concatenate([cnn1, cnn2, cnn3], axis=-1)
-    flat = Flatten()(cnn3)
-    drop = Dropout(0.02)(flat)
-    main_output = Dense(len(class_index), activation='softmax')(drop)
-    model = keras.Model(inputs=main_input, outputs=main_output)
-    model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
-    return  model
-
-model2 = TextCNN_model_2()
-model_train2 = model_fit(model2, x_train_raw, y_train)
-
-print(model2.evaluate(x_test_raw, y_test))
-
-    # one_hot_labels = keras.utils.to_categorical(y_train, num_classes=3)  # 将标签转换为one-hot编码
-    # model.fit(x_train_padded_seqs, one_hot_labels,epochs=5, batch_size=800)
-    # y_predict = model.predict_classes(x_test_padded_seqs)  # 预测的是类别，结果就是类别号
-    # y_predict = list(map(str, y_predict))
-    # print('准确率', metrics.accuracy_score(y_test, y_predict))
-    # print('平均f1-score:', metrics.f1_score(y_test, y_predict, average='weighted'))
-
-
-
+print(bilstmmodel.evaluate(x_test_raw, y_test))
 
 
 

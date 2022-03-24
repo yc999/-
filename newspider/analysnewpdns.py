@@ -1,4 +1,11 @@
 #-- coding: utf-8 --
+# 处理新的pdns文件
+#  并爬取
+#  A,AAAA
+
+
+#-- coding: utf-8 --
+from ntpath import join
 import  requests
 import re
 # import eventlet
@@ -13,9 +20,8 @@ sys.path.append(os.path.realpath('./spider'))
 sys.path.append(os.path.realpath('../spider'))
 import random
 import mytool
-# import ./spider/mytool
-from tensorflow.keras.preprocessing.sequence import pad_sequences
-from keras.utils.np_utils import *
+# from tensorflow.keras.preprocessing.sequence import pad_sequences
+# from keras.utils.np_utils import *
 from bs4 import  BeautifulSoup, Comment
 import re
 import time
@@ -23,6 +29,10 @@ import os
 import json
 from urllib.parse import urljoin
 from hyper.contrib import HTTP20Adapter
+
+
+
+
 
 badtitles=[
     '资源不存在',    '找不到',      '页面载入出错',           '临时域名',           '阻断页',
@@ -47,7 +57,12 @@ headers={
 'User-Agent':'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/34.0.1847.137 Safari/537.36 LBBROWSER'
         } 
 maxwebpage = 4
-savepath = "/home/jiangy2/dnswork/pdnswebdata/"
+
+
+
+# savepath = "/home/yangc/pdnsdata2/pdnsdata/"
+savepath = "/home/yc/pdnsdata1/"
+# savepath = "e:/"
 savedfileslist = os.listdir(savepath)    #所有成功爬取的url文件名,需要对文件名处理。
 
 # 判断标题是否正常 
@@ -65,26 +80,14 @@ def solvehref(href):
     tmp = tmps[1]
     return tmp
 
-def return_all_url(soup):
-    allatags = []
-    try:
-        pattern = re.compile("href\s{0,3}=\s{0,3}\"[^\"]+\"")
-        hrefs=re.findall(pattern,soup.prettify())
-        for href in hrefs:
-            tmpurl = solvehref(href)
-            if tmpurl not in allatags:
-                allatags.append(tmpurl)
-    except Exception as e:
-        print(e)
-        pass
-    return allatags
+
+
 
 # 写入文件
 def writeurlfile(url, data):
     path  = savepath
     tmpurl = url.replace('http://','',1)
     tmpurl = tmpurl.replace('https://','',1)
-
     urllfile = open(path + tmpurl +".txt",'w',encoding='utf-8')
     urllfile.write(json.dumps(data, ensure_ascii=False))
 
@@ -96,7 +99,6 @@ def samewebsite(sourceurl, targeturl):
     tmp_sourceurl = tmp_sourceurl.replace('https://','')
     tmp_sourceurl = tmp_sourceurl.replace('www.','')
     tmp_sourceurl = tmp_sourceurl.split('/')[0].strip()
-
     tmp_targeturl = targeturl.replace('http://','')
     tmp_targeturl = tmp_targeturl.replace('https://','')
     tmp_targeturl = tmp_targeturl.split('/')[0].strip()
@@ -141,13 +143,14 @@ def solvehref(href):
     return tmp
 
 
-def return_all_url(url):
+
+def return_all_url(soup):
     allatags = []
     try:
-        r = requests.get(url)
-        r.encoding = r.apparent_encoding
-        # r.encoding = "utf-8"
-        soup = BeautifulSoup(r.text, 'html.parser')
+        # r = requests.get(url)
+        # r.encoding = r.apparent_encoding
+        # # r.encoding = "utf-8"
+        # soup = BeautifulSoup(r.text, 'html.parser')
         pattern = re.compile("href\s{0,3}=\s{0,3}\"[^\"]+\"")
         hrefs=re.findall(pattern,soup.prettify())
         for href in hrefs:
@@ -169,6 +172,7 @@ def get_and_add(url,webdata, webcount):
     try:
         response = requests.get(url,verify=False,allow_redirects=True,headers = headers, timeout=30)
     except Exception as e:
+        # print("get_and_add error")
         print(e)
         # sessions.close()
         return False
@@ -236,13 +240,11 @@ def requesturl(url):
     response = get_and_add(url, webdata, havegetcount)
     if response == False:
         return False
-    
     def initwebinfo():
         webinfo['title'] = ""
         webinfo['description'] = ""
         webinfo['keywords'] = ""
         webinfo['webtext'] = []
-
     initwebinfo()
     if ifbadtitle(webinfo['title']):
         return False
@@ -299,8 +301,6 @@ def requesturl(url):
         get_headtext()
         [s.extract() for s in soup('head')]
         get_bodytext()
-
-    
     # 第一阶段
     #开始获取信息
     get_info()
@@ -310,9 +310,9 @@ def requesturl(url):
     #数据太少  找到所有的a标签 选择合适的访问
     if True:
         try:
-            soup = BeautifulSoup(response.text, 'html.parser')
+            soup=BeautifulSoup(response.text, 'html.parser')
         except:
-            pass
+            pass# 跳过
         else:
             atag = soup.find_all('a')
             # 点击href符合的链接
@@ -368,28 +368,32 @@ def requesturl(url):
     return True
 
 
-
-def prasednsdata(data):
-    dnsdata = {}
-    parts = data.split("\t")
-    dnsdata['tnow'] = parts[0].split(":")[1]
-    dnsdata['tbeg'] = parts[1].split(":")[1]
-    dnsdata['tend'] = parts[2].split(":")[1]
-    dnsdata['count'] = parts[3].split(":")[1]
-    tmp = parts[4].split(":")[1]
-    tmp1 = tmp.split("+")
-    dnsdata['rkey'] = tmp1[0]
-    dnsdata['Dnstype'] = tmp1[1]
-    dnsdata['data'] = parts[5].split(":")[1]
-    return dnsdata
-
-
 dnstpye_value = {'1' : "A", '5':"CNAME", '28':"AAAA"}
 
 # 读取dns数据
-# dnsdata_path = "E:/wechatfile/WeChat Files/wxid_luhve56t0o4a11/FileStorage/File/2020-11/pdns_data"
-dnsdata_path = "/home/jiangy2/dnswork/cdnlist/pdns_data"
+# dnsdata_path = "E:/wechatfile/WeChat Files/wxid_luhve56t0o4a11/FileStorage/File/2021-12/pdns_flint_final.8964c40373224b4eb513e1ff965c90ce.1638680400357.log"
+# dnsdata_path = "/home/yangc/pdnsdata2/pdns_flint_final.8964c40373224b4eb513e1ff965c90ce.1638680400357.log"
+dnsdata_path = "/home/yc/pdns_flint_final.64072b725c544c649c0654a54483cf96.1638770400345.log"
+# dnsdata_path = "/home/jiangy2/dnswork/cdnlist/pdns_data"
 dnsdata_file = open(dnsdata_path, 'r', encoding='utf-8')
+
+saveurl = []
+
+
+def prasenewdnsdata(data):
+    dnsdata = {}
+    parts = data.split(">")
+    dnsdata['btime'] = parts[1].split(":")[1]
+    dnsdata['etime'] = parts[2].split(":")[1]
+    dnsdata['ntime'] = parts[3].split(":")[1]
+    dnsdata['count'] = parts[4].split(":")[1]
+    # tmp = parts[4].split(":")[1]
+    # tmp1 = tmp.split("+")
+    # dnsdata['rkey'] = tmp1[0]
+    dnsdata['Dnstype'] = parts[7].split(":")[1]
+    dnsdata['name'] = parts[8].split(":")[1]
+    dnsdata['data'] = parts[9].split(":")[1]
+    return dnsdata
 
 saveurl = []
 
@@ -397,13 +401,20 @@ while True:
     line = dnsdata_file.readline()
     if  line:
         try:
-            dnsdata = mytool.prasednsdata(line)
+            dnsdata = prasenewdnsdata(line)
         except:
             continue
         if dnsdata['Dnstype'] not in dnstpye_value: # 只取 A AAAA CNAME记录
             continue
-        # print(dnsdata)
-        url = mytool.getrkey_domainname(dnsdata['rkey'])
+        url = dnsdata['name']
+        #取3级域名
+        tmpurl = url.split(".")
+        if len(tmpurl)>3:
+            tmpurl = tmpurl[-3:]
+            tmpurl = '.'.join(tmpurl)
+            url = tmpurl
+        else:
+            tmpurl = url
         tmpurl = url.replace('www.','',1)
         if tmpurl not in saveurl:
             if url + ".txt" not in savedfileslist and "www." + url + ".txt" not in savedfileslist:
@@ -423,3 +434,8 @@ while True:
                 saveurl.append(tmpurl)
     else:
         break
+
+
+# httpurl = "http://m.dditxt.com"
+# httpurl = "https://www.cnblogs.com/"
+# requesturl(httpurl)
